@@ -9,3 +9,7 @@ Essentially, the frequency of an allele in a population depends on the following
 (c) the population size. In principle, if one has information on two of these three factors, it is possible to infer the missing one. 
 Here we present a tool called FITS (Flexible Inference from Time-Series) that uses Approximate Bayesian Computation (ABC) to infer the 
 value of a missing factor from time-series data of allele frequencies. 
+
+# Binaries - Graphical (GUI)
+For Windows - fits_gui0.6_windows.zip
+For macOS - fits_gui0.6_macos.dmg
