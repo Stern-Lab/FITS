@@ -1,6 +1,12 @@
 # FITS
 Flexible inference of population genetics parameters from time-series data
 
+## Usage
+Download the software (binaries). For Windows - extract the zip file and run the application. For Mac - you can run the app from within the dmg archive or extract it and then run it.
+
+## Sample files
+A set of sample files are available to demonstrate the abilities of FITS (**Sample_files.zip**).
+Try loading the file 
 ## Motivation
 With the advent of next generation sequencing techniques, it is now possible to observe evolution in action by tracking 
 changes in allele frequencies in a population across time. 
