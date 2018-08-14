@@ -11,7 +11,29 @@ Essentially, the frequency of an allele in a population depends on the following
 Here we present a tool called FITS (Flexible Inference from Time-Series) that uses Approximate Bayesian Computation (ABC) to infer the 
 value of a missing factor from time-series data of allele frequencies. 
 
+## Compiling from source
+### Command line
+In order to compile, FITS requires the [Boost library 1.61](https://sourceforge.net/projects/boost/files/boost/1.61.0/) and a C++11 supporting compiler (we used GCC5.3 and Clang supplied with Xcode9).
+1. Download and install Boost (extractig from archive is all it takes)
+2. Compile all the *\*.cpp* files, referring the compiler to the Boost libraries, e.g.:
+```
+g++ -std=c++11 -O3 -o fits100 -I/boost_1_61/include -L/boost_1_61/lib *.cpp
+```
+(here we tell gcc to use c++11 standard, use optimization (-O3) and name the output file (-o) **fits100**.)
+
+3. Run FITS with no command line arguments to get the help text
+4. run FITS with the proper syntax in order to generate data or infer the required parameter
+
+### GUI
+In order to compile the GUI, you'll need the Qt framework, along with Qt Creator. It's available in open source license from: https://www.qt.io/download.
+1. After installing Qt creator, open the project file (**fits_gui.pro**)
+2. Within the project file, replace placeholder text next to __INCLUDEPATH__ with the path to the boost library
+3. Run qmake (Build\Run qmake)
+4. Build (Build\Build All)
+5. Run FITS
+
 ## Download Binaries - Graphical (GUI)
+### Note: Currently binaries are only available for version 0.6. Improvements in 1.0 are mostly cosmetic rather than functional.
 For __Windows__ - fits_gui0.6_windows.zip
 
 For __macOS__ - fits_gui0.6_macos.dmg
