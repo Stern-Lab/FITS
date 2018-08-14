@@ -4,18 +4,11 @@ Flexible inference of population genetics parameters from time-series data
 ## Usage
 Download the software (binaries). For Windows - extract the zip file and run the application. For Mac - you can run the app from within the dmg archive or extract it and then run it.
 
-## Sample files
+### Sample files
 A set of sample files are available to demonstrate the abilities of FITS (**Sample_files.zip**).
-Try loading the file 
-## Motivation
-With the advent of next generation sequencing techniques, it is now possible to observe evolution in action by tracking 
-changes in allele frequencies in a population across time. 
-Essentially, the frequency of an allele in a population depends on the following factors: 
-(a) the replicative fitness of the allele as compared to the wild-type allele, 
-(b) the population-wide mutation rate, and 
-(c) the population size. In principle, if one has information on two of these three factors, it is possible to infer the missing one. 
-Here we present a tool called FITS (Flexible Inference from Time-Series) that uses Approximate Bayesian Computation (ABC) to infer the 
-value of a missing factor from time-series data of allele frequencies. 
+Different parameter files are given to infer fitness, mutation rate and population size.
+The given datasets are for biallelic population of size (N) 10^5, mutation rate (u) of 10^-5 and fitness (w) of 0, 0.5, 1.0 and 1.3.
+
 
 ## Compiling from source
 ### Command line
@@ -38,8 +31,3 @@ In order to compile the GUI, you'll need the Qt framework, along with Qt Creator
 4. Build (Build\Build All)
 5. Run FITS
 
-## Download Binaries - Graphical (GUI)
-### Note: version GUI v0.6 is based on fits0.94 (source available)
-For __Windows__ - fits_gui0.6_windows.zip
-
-For __macOS__ - fits_gui0.6_macos.dmg
