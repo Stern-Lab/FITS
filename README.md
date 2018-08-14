@@ -33,7 +33,7 @@ In order to compile the GUI, you'll need the Qt framework, along with Qt Creator
 5. Run FITS
 
 ## Download Binaries - Graphical (GUI)
-### Note: Currently binaries are only available for version 0.6. Improvements in 1.0 are mostly cosmetic rather than functional.
+### Note: version GUI v0.6 is based on fits0.94 (source available)
 For __Windows__ - fits_gui0.6_windows.zip
 
 For __macOS__ - fits_gui0.6_macos.dmg
