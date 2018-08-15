@@ -2,14 +2,22 @@
 Flexible inference of population genetics parameters from time-series data
 
 ## Usage
-Download the software (binaries). For Windows - extract the zip file and run the application. For Mac - you can run the app from within the dmg archive or extract it and then run it.
-
-### Sample files
+### Graphical interface (GUI)
+Download the software (GUI binaries). For Windows - extract the zip file and run the application. For Mac - you can run the app from within the dmg archive or extract it and then run it.
 A set of sample files are available to demonstrate the abilities of FITS (**Sample_files.zip**).
-Different parameter files are given to infer fitness, mutation rate and population size.
-The given datasets are for biallelic population of size (N) 10^5, mutation rate (u) of 10^-5 and fitness (w) of 0, 0.5, 1.0 and 1.3.
+After running FITS, you may load the parameters file (e.g. the sample file _Params_infer_fitness_N5_u05_reps05.txt_) and data file (e.g. the file _sim_data_N5_u05_w0.5.txt_). The available parameters dictate which parameters FITS would be able to infer (only fitness in this example). Select the desired parameter and press Go!. FITS shows a progress bar and estimated time to finish running (typical running time is 30 seconds).
+A report is given in the bottom right side. Inferred values are the medians, given in the table. Version 1.0 also explicitly shows the value in the Quick Report.
+
 #### Note: FITS expects the data file to be tab-delimited. If using Excel, you may need to save the file as _Windows Formatted Tab Delimited_ file. Verify the content of the file (e.g. with cat) if FITS fails to run.
 
+#### Note: Parameter value may be changed by pressing the _Edit file_ button.
+
+### Command line
+Running fits with no parameters would give the help screen, listing the possible usage syntaxes. For fitness inference,as an example, the yntax is:
+```
+fits -fitness <param_file> <actual_data_file> <posterior_file> <summary_file> (optional: <prior_file>)
+```
+You need to give FITS the parameter file, data file, output file for posterior distribution and output file for summary (report) file. You may also store the prior distribution actually used in a file. The summary file would be useful for most users. The posterior file would be helpful for downstream analysis. **All but the prior file are mandatory.**
 
 ## Compiling from source
 ### Command line (fits1.0_src_20180814.\*)
