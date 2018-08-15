@@ -8,6 +8,7 @@ Download the software (binaries). For Windows - extract the zip file and run the
 A set of sample files are available to demonstrate the abilities of FITS (**Sample_files.zip**).
 Different parameter files are given to infer fitness, mutation rate and population size.
 The given datasets are for biallelic population of size (N) 10^5, mutation rate (u) of 10^-5 and fitness (w) of 0, 0.5, 1.0 and 1.3.
+#### Note: FITS expects the data file to be tab-delimited. If using Excel, you may need to save the file as _Windows Formatted Tab Delimited_ file. Verify the content of the file (e.g. with cat) if FITS fails to run.
 
 
 ## Compiling from source
