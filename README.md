@@ -12,7 +12,7 @@ The given datasets are for biallelic population of size (N) 10^5, mutation rate 
 
 ## Compiling from source
 ### Command line (fits1.0_src_20180814.\*)
-In order to compile, FITS requires the [Boost library 1.61](https://sourceforge.net/projects/boost/files/boost/1.61.0/) and a C++11 supporting compiler (we used GCC5.3 and Clang supplied with Xcode9).
+In order to compile, FITS requires the [Boost library 1.61](https://sourceforge.net/projects/boost/files/boost/1.61.0/) or 1.60 and a C++11 supporting compiler (we used GCC5.3 and Clang supplied with Xcode9).
 1. Download and install Boost (extractig from archive is all it takes)
 2. Compile all the *\*.cpp* files, referring the compiler to the Boost libraries, e.g.:
 ```
