@@ -31,3 +31,5 @@ In order to compile the GUI, you'll need the Qt framework, along with Qt Creator
 4. Build (Build\Build All)
 5. Run FITS
 
+# License
+FITS is distibuted under the [GPLv3 license](https://www.gnu.org/licenses/licenses.html#GPL)
