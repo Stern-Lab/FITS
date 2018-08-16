@@ -6,9 +6,9 @@ FITS (Flexible Inference from Time-Series) uses Approximate Bayesian Computation
 Download the software (GUI binaries). For Windows - extract the zip file and run the application. For Mac - you can run the app from within the dmg archive or extract it and then run it. A set of sample files are available to demonstrate the abilities of FITS (Sample_files.zip). After running FITS, you may load the parameters file (e.g. the sample file Params_infer_fitness_N5_u05_reps05.txt) and data file (e.g. the file sim_data_N5_u05_w0.5.txt). The parameters dictate which parameter FITS will infer (fitness in this example). Press Go!
 FITS shows a progress bar and estimated time to finish running (typical running time is 30 seconds). A report is given in the bottom right side. Inferred values are the medians, given in the table. Version 1.0 also explicitly shows the value in the Quick Report.
 
-#### Note: FITS expects the data file to be tab-delimited. If using Excel, you may need to save the file as Windows Formatted Tab Delimited file. Verify the content and format of the file if FITS fails to run.
+#### Note I: FITS expects the data file to be tab-delimited. If using Excel, you may need to save the file as Windows Formatted Tab Delimited file. Verify the content and format of the file if FITS fails to run.
 
-#### Note: Parameter value may be changed by pressing the _Edit file_ button.
+#### Note II: Parameter value may be changed by pressing the _Edit file_ button.
 
 ### Command line
 Running fits with no parameters gives the help screen, listing the possible usage syntaxes. For fitness inference, as an example, the syntax is:
