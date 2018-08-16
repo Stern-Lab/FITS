@@ -20,12 +20,13 @@ FITS needs to receive a parameter file, a data file containing a time-series of 
 ## Compiling from source
 ### Command line (fitsX.X_src\*)
 In order to compile, FITS requires the [Boost library 1.61](https://sourceforge.net/projects/boost/files/boost/1.61.0/) or 1.60 and a C++11 supporting compiler. We used GCC5.3 on Linux (Centos), Clang supplied with Xcode9 on MacOS (High Sierra) and MinGW supplied with Qt 5.9 on Windows 10.
-1. Download and install Boost 
+1. Download and install Boost (**Note:** For Windows - you need to install the [prebuilt binaries](https://sourceforge.net/projects/boost/files/boost-binaries/1.61.0/). For MinGW-32 we used **boost_1_61_0-msvc-14.0-32.exe**).
 2. Compile all the *\*.cpp* files, referring the compiler to the Boost libraries, e.g.:
 ```
-g++ -std=c++11 -O3 -o fits100 -I/boost_1_61/include -L/boost_1_61/lib *.cpp
+g++ -std=c++11 -O3 -o fits101 -I/boost_1_61/include -L/boost_1_61/lib *.cpp
 ```
 (here we tell gcc to use c++11 standard, use optimization (-O3) and name the output file (-o) **fits100**.)
+If you get vague error messages regarding Boost, or FITS crashes after finishing the analysis, it may be due to lack of compatible Boost binaries. If bre-built binaries are not available for your system, try to compile (build) the Boost library [with this guide](https://www.boost.org/doc/libs/1_68_0/more/getting_started/unix-variants.html#prepare-to-use-a-boost-library-binary). 
 
 3. Run FITS with no command line arguments to get the help text
 4. Run FITS with the proper syntax (see _Command line_) in order to generate data or infer the required parameter
