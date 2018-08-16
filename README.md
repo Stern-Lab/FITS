@@ -30,6 +30,8 @@ g++ -std=c++11 -O3 -o fits1.02 -I/boost_1_61/include -L/boost_1_61/libs *.cpp
 3. Run FITS with no command line arguments to get the help text
 4. Run FITS with the proper syntax (see _Command line_) in order to generate data or infer the required parameter
 
+#### Note: In order to run g++, either run it from the installation folder (of MinGW, in Windows), or add it to PATH.
+
 ### GUI (fits_guiX.XX_src\*)
 In order to compile the GUI, you will need (in additional to Boost) the Qt framework, along with Qt Creator. Both are available in open source license from: https://www.qt.io/download.
 1. After installing Qt creator, open the project file (**fits_gui.pro**)
