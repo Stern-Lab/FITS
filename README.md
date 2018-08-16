@@ -18,7 +18,7 @@ fits -fitness <param_file> <actual_data_file> <posterior_file> <summary_file> (o
 FITS needs to receive a parameter file, a data file containing a time-series of mutation frequencies, an output file for the posterior distribution and an output file for the summary (report) file. The prior distribution may also be outputted to a file. The summary file contains a summary of the inference. The posterior file is mostly helpful for downstream analysis. **All files except the prior file are mandatory for running FITS.**
 
 ## Compiling from source
-### Command line (fits1.0_src_\*)
+### Command line (fitsX.X_src\*)
 In order to compile, FITS requires the [Boost library 1.61](https://sourceforge.net/projects/boost/files/boost/1.61.0/) or 1.60 and a C++11 supporting compiler. We used GCC5.3 on Linux (Centos), Clang supplied with Xcode9 on MacOS (High Sierra) and MinGW supplied with Qt 5.9 on Windows 10.
 1. Download and install Boost 
 2. Compile all the *\*.cpp* files, referring the compiler to the Boost libraries, e.g.:
@@ -28,10 +28,10 @@ g++ -std=c++11 -O3 -o fits100 -I/boost_1_61/include -L/boost_1_61/lib *.cpp
 (here we tell gcc to use c++11 standard, use optimization (-O3) and name the output file (-o) **fits100**.)
 
 3. Run FITS with no command line arguments to get the help text
-4. Run FITS with the [proper syntax](### Command line) in order to generate data or infer the required parameter
+4. Run FITS with the proper syntax (see _Command line_) in order to generate data or infer the required parameter
 
-### GUI (fits_gui1.00_src_20180814.\*)
-In order to compile the GUI, you'll need the Qt framework, along with Qt Creator. It's available in open source license from: https://www.qt.io/download.
+### GUI (fits_guiX.XX_src\*)
+In order to compile the GUI, you will need (in additional to Boost) the Qt framework, along with Qt Creator. Both are available in open source license from: https://www.qt.io/download.
 1. After installing Qt creator, open the project file (**fits_gui.pro**)
 2. Within the project file, replace placeholder text next to __INCLUDEPATH__ with the path to the boost library
 3. Run qmake (Build\Run qmake)
