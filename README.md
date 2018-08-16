@@ -23,9 +23,9 @@ In order to compile, FITS requires the [Boost library 1.61](https://sourceforge.
 1. Download and install Boost (**Note:** For Windows - you need to install the [prebuilt binaries](https://sourceforge.net/projects/boost/files/boost-binaries/1.61.0/). For MinGW-32 we used **boost_1_61_0-msvc-14.0-32.exe**).
 2. Compile all the *\*.cpp* files, referring the compiler to the Boost libraries, e.g.:
 ```
-g++ -std=c++11 -O3 -o fits1.02 -I/boost_1_61/include -L/boost_1_61/lib *.cpp
+g++ -std=c++11 -O3 -o fits1.02 -I/boost_1_61/include -L/boost_1_61/libs *.cpp
 ```
-(here we tell gcc to use c++11 standard, use optimization (-O3) and name the output file (-o) **fits100**.)
+(here we tell gcc to use c++11 standard, use optimization (-O3) and name the output file (-o) **fits1.02**.)
 
 3. Run FITS with no command line arguments to get the help text
 4. Run FITS with the proper syntax (see _Command line_) in order to generate data or infer the required parameter
