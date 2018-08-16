@@ -39,4 +39,4 @@ In order to compile the GUI, you will need (in additional to Boost) the Qt frame
 5. Run FITS
 
 # License
-FITS is distibuted under the [GPLv3 license](https://www.gnu.org/licenses/licenses.html#GPL), and uses the [Qt framework](https://www.qt.io/).
+FITS is distributed under the [GPLv3 license](https://www.gnu.org/licenses/licenses.html#GPL), and uses the [Qt framework](https://www.qt.io/).
