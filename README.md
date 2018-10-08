@@ -1,3 +1,8 @@
+*Pre-print of the paper describing this software is now published on bioRxiv:*
+Zinger T., Pennings P.S., Stern A., Inferring Population Genetics Parameters of Evolving Viruses Using Time-series Data
+https://www.biorxiv.org/content/early/2018/10/07/437483
+
+
 # FITS
 FITS (Flexible Inference from Time-Series) uses Approximate Bayesian Computation (ABC) to infer information from time-series data of allele frequencies. The frequency of an allele in a population depends on the following factors: (a) the replicative fitness of the allele as compared to the wild-type allele, (b) the population-wide mutation rate, and (c) the population size. If one has information on two of these three factors, FITS may be used to infer the missing one. A typical example may be an evolve-and-re-sequence experiment, where one obtains the frequency of a mutation over time. If the mutation rate and population size used in the experiment are known, one may use FITS to infer the fitness of the mutation. 
 
