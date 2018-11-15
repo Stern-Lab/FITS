@@ -81,6 +81,7 @@
 		993357C2219D84B40086239E /* ActualDataFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ActualDataFile.cpp; sourceTree = "<group>"; };
 		993357C3219D84B40086239E /* clsCMulatorABC_Popsize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clsCMulatorABC_Popsize.cpp; sourceTree = "<group>"; };
 		993357C4219D84B40086239E /* PriorSampler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PriorSampler.hpp; sourceTree = "<group>"; };
+		993357DE219D94C90086239E /* gpl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gpl.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +114,7 @@
 		9933579B219D83F40086239E /* fits */ = {
 			isa = PBXGroup;
 			children = (
+				993357DE219D94C90086239E /* gpl.txt */,
 				993357BC219D84B30086239E /* ActualDataFile_Entry.cpp */,
 				993357C2219D84B40086239E /* ActualDataFile.cpp */,
 				993357B1219D84B20086239E /* ActualDataFile.hpp */,
