@@ -26,8 +26,8 @@
 #include <boost/numeric/odeint/util/ublas_wrapper.hpp>
 
 // 20170611 because some diatcnes turn 0 trying to go to double
-#define FLOAT_TYPE float
-//#define FLOAT_TYPE double
+//#define FLOAT_TYPE float
+#define FLOAT_TYPE double
 #define MATRIX_TYPE boost::numeric::ublas::matrix<FLOAT_TYPE>
 #define INT_MATRIX boost::numeric::ublas::matrix<int>
 
@@ -37,7 +37,7 @@ namespace fits_constants {
     /* GENERAL */
     const std::string current_version_str = "1.02";
     const std::string used_locale = "en_US.UTF-8";
-    const float LEVENES_SIGNIFICANCE = 0.05;
+    const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05;
     
     /* COMMAND LINE ARGUMANTS */
     const std::string ARG_INFER_FITNESS = "-fitness";
@@ -55,10 +55,10 @@ namespace fits_constants {
     
     // define probability for each fitness category
     // OLD values: lth=0.1; del=0.79; neu=0.1; adv=0.01
-    const float FITNESS_LTH_PROB = 0.1;
-    const float FITNESS_DEL_PROB = 0.7;
-    const float FITNESS_NEU_PROB = 0.1;
-    const float FITNESS_ADV_PROB = 0.1;
+    //const float FITNESS_LTH_PROB = 0.1;
+    //const float FITNESS_DEL_PROB = 0.7;
+    //const float FITNESS_NEU_PROB = 0.1;
+    //const float FITNESS_ADV_PROB = 0.1;
 
     /* PARAMETERS */
     

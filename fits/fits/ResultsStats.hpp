@@ -136,7 +136,7 @@ public:
     double _pop_median;
     
 
-    float _levenes_w;
+    FLOAT_TYPE _levenes_w;
     
     FLOAT_TYPE _distance_min;
     FLOAT_TYPE _distance_max;
@@ -192,7 +192,7 @@ public:
     std::vector<unsigned int> neutral_percent;
     std::vector<unsigned int> advantageous_percent;
     
-    std::vector<float> levenes_pval;
+    std::vector<FLOAT_TYPE> levenes_pval;
     boost::numeric::ublas::matrix<FLOAT_TYPE> levenes_pval_matrix;
     
     boost::numeric::ublas::matrix< std::vector<FLOAT_TYPE> > prior_matrix;
@@ -231,7 +231,7 @@ public:
     std::vector<FLOAT_TYPE> GetMinFitnessVec() { return allele_min_fitness; }
     std::vector<FLOAT_TYPE> GetMaxFitnessVec() { return allele_max_fitness; }
     
-    float LevenesTest2( std::vector<float> group1, std::vector<float> group2 );
+    FLOAT_TYPE LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vector<FLOAT_TYPE> group2 );
     
 private: // here for init-order - require the public vars to be initialize
     

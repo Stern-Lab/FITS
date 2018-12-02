@@ -68,7 +68,7 @@ private:
     
     MATRIX_TYPE _distrib_matrix;
     
-    const float FITNESS_NEU_VAL = 1.0;
+    const FLOAT_TYPE FITNESS_NEU_VAL = 1.0;
     
     void InitializeDistribMatrix() {
         _distrib_matrix(0,0) = 0.1f;     _distrib_matrix(0,1) = 0.00f;

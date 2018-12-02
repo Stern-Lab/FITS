@@ -93,8 +93,8 @@ void ResultsStats::CalculateStatsPopulationSize(const std::vector<SimulationResu
     std::cout << std::endl;
     */
     
-    std::vector<float> posterior_vec;
-    std::vector<float> prior_vec_float; // this provides conversion
+    std::vector<FLOAT_TYPE> posterior_vec;
+    std::vector<FLOAT_TYPE> prior_vec_float; // this provides conversion
     
     prior_vec_float.resize( prior_vec_int.size() );
     posterior_vec.resize( prior_vec_int.size() );

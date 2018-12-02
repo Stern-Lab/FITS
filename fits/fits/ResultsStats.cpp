@@ -145,15 +145,15 @@ void ResultsStats::WritePriorDistribToFile( const std::vector<std::vector<int>>&
 // https://en.wikipedia.org/wiki/Levene's_test
 //
 // returns the pval of the comparison
-float ResultsStats::LevenesTest2( std::vector<float> group1, std::vector<float> group2 )
+FLOAT_TYPE ResultsStats::LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vector<FLOAT_TYPE> group2 )
 {
     //using namespace boost::accumulators;
     
-    float Ytilde1 = GetMedian(group1);
-    float Ytilde2 = GetMedian(group2);
+    FLOAT_TYPE Ytilde1 = GetMedian(group1);
+    FLOAT_TYPE Ytilde2 = GetMedian(group2);
     
-    std::vector<float> Z1j(group1.size());
-    std::vector<float> Z2j(group2.size());
+    std::vector<FLOAT_TYPE> Z1j(group1.size());
+    std::vector<FLOAT_TYPE> Z2j(group2.size());
     
     // std::cout << "median group1=" << Ytilde1 << " group2=" << Ytilde2 << std::endl;
     
@@ -173,7 +173,7 @@ float ResultsStats::LevenesTest2( std::vector<float> group1, std::vector<float> 
     }
     // std::cout << std::endl;
     
-    boost::accumulators::accumulator_set<float,
+    boost::accumulators::accumulator_set<FLOAT_TYPE,
     boost::accumulators::stats<
     boost::accumulators::tag::mean>> accZ0, accZ1, accZ2;
     
@@ -198,8 +198,8 @@ float ResultsStats::LevenesTest2( std::vector<float> group1, std::vector<float> 
     auto Z1 = boost::accumulators::mean(accZ1);
     auto Z2 = boost::accumulators::mean(accZ2);
     
-    auto N1 = static_cast<float>( group1.size() );
-    auto N2 = static_cast<float>( group2.size() );
+    auto N1 = static_cast<FLOAT_TYPE>( group1.size() );
+    auto N2 = static_cast<FLOAT_TYPE>( group2.size() );
     auto N = N1 + N2;
     auto k = 2.0f; // prior & posterior
     
@@ -207,21 +207,21 @@ float ResultsStats::LevenesTest2( std::vector<float> group1, std::vector<float> 
     auto alpha = 0.01f;
     
     //auto numerator = static_cast<float>( (N-k)*( N1*(Z1-Z0)*(Z1-Z0) + N2*(Z2-Z0)*(Z2-Z0) ) );
-    auto numerator = static_cast<float>( (N-k)*( N1*std::pow(Z1-Z0, 2) + N2*std::pow(Z2-Z0, 2) ) );
+    auto numerator = static_cast<FLOAT_TYPE>( (N-k)*( N1*std::pow(Z1-Z0, 2) + N2*std::pow(Z2-Z0, 2) ) );
     
     // sum for each group
-    float sum_diff_group1 = 0.0f;
+    FLOAT_TYPE sum_diff_group1 = 0.0f;
     for (auto z1j_val : Z1j) {
         sum_diff_group1 += std::pow( (z1j_val-Z1), 2.0f );
     }
     
-    float sum_diff_group2 = 0.0f;
+    FLOAT_TYPE sum_diff_group2 = 0.0f;
     for (auto z2j_val : Z2j) {
         sum_diff_group2 += std::pow( (z2j_val-Z2), 2.0f );
     }
     
     // final result
-    auto denominator = static_cast<float>(k-1.0f)*( sum_diff_group1 + sum_diff_group2 );
+    auto denominator = static_cast<FLOAT_TYPE>(k-1.0f)*( sum_diff_group1 + sum_diff_group2 );
     
     auto W = numerator / denominator;
     

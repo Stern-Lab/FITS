@@ -87,7 +87,7 @@ void ResultsStats::CalculateStatsMutation(const std::vector<SimulationResult>& r
     
     for ( auto row=0; row<_num_alleles; ++row ) {
         
-        float tmp_sum = 0.0f;
+        FLOAT_TYPE tmp_sum = 0.0f;
         
         for ( auto col=0; col<_num_alleles; ++col ) {
             

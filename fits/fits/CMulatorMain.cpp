@@ -359,8 +359,8 @@ int RunSingleSimulation(std::string param_filename, std::string output_filename)
 
 void TestMutationRates()
 {
-    boost::numeric::ublas::matrix<float> min(2, 2);
-    boost::numeric::ublas::matrix<float> max(2, 2);
+    boost::numeric::ublas::matrix<FLOAT_TYPE> min(2, 2);
+    boost::numeric::ublas::matrix<FLOAT_TYPE> max(2, 2);
     
     for (auto i = 0; i < min.size1(); ++i) {
         for (auto j = 0; j < min.size2(); ++j) {
@@ -387,14 +387,14 @@ void test_range()
 {
     //PriorSampler<float>::PriorDistributionType dist_type = PriorSampler<float>::PriorDistributionType::UNIFORM;
     //template class PriorSampler<float>;
-    std::vector<float> min {0.0};
-    std::vector<float> max {2.0};
+    std::vector<FLOAT_TYPE> min {0.0};
+    std::vector<FLOAT_TYPE> max {2.0};
     
     std::vector<unsigned int> min_int { 40, 40, 40 };
     std::vector<unsigned int> max_int { 100, 100, 100 };
     
     //PriorSampler<float> sampler( min, max, PriorDistributionType::SMOOTHED_COMPOSITE );
-    PriorSampler<float> sampler( min, max, PriorDistributionType::FITNESS_COMPOSITE );
+    PriorSampler<FLOAT_TYPE> sampler( min, max, PriorDistributionType::FITNESS_COMPOSITE );
     
     auto res_vec = sampler.SamplePrior(100000);
     
@@ -614,8 +614,8 @@ int main(int argc, char* argv[])
         //std::vector<float> vec1 {1.0f, 1.4f, 1.6f, 4.6f, 9.5f, 3.6f};
         //std::vector<float> vec2 {1.0f, 1.4f, 1.6f, 1.6f, 1.5f, 3.6f};
         
-        std::vector<float> vec1 {1,3,5,6,8};
-        std::vector<float> vec2 {1,3,6,7,8};
+        std::vector<FLOAT_TYPE> vec1 {1,3,5,6,8};
+        std::vector<FLOAT_TYPE> vec2 {1,3,6,7,8};
         
         auto res = result_stats.LevenesTest2(vec1, vec2);
         std::cout << "levenes output==" << res << std::endl;
