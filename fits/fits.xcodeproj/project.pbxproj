@@ -21,7 +21,6 @@
 		993357D0219D84B40086239E /* CMulator_Constructors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357AF219D84B20086239E /* CMulator_Constructors.cpp */; };
 		993357D1219D84B40086239E /* clsCMulatorABC_Mutrate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357B0219D84B20086239E /* clsCMulatorABC_Mutrate.cpp */; };
 		993357D2219D84B40086239E /* clsCMulatorABC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357B3219D84B20086239E /* clsCMulatorABC.cpp */; };
-		993357D3219D84B40086239E /* clsCMulatorABC_Generation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357B6219D84B20086239E /* clsCMulatorABC_Generation.cpp */; };
 		993357D4219D84B40086239E /* ResultsStats_MutRate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357B7219D84B30086239E /* ResultsStats_MutRate.cpp */; };
 		993357D5219D84B40086239E /* clsCMulatorABC_Fitness.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357B9219D84B30086239E /* clsCMulatorABC_Fitness.cpp */; };
 		993357D6219D84B40086239E /* ZParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357BA219D84B30086239E /* ZParams.cpp */; };
@@ -66,7 +65,6 @@
 		993357B2219D84B20086239E /* clsCMulatorABC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = clsCMulatorABC.h; sourceTree = "<group>"; };
 		993357B3219D84B20086239E /* clsCMulatorABC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clsCMulatorABC.cpp; sourceTree = "<group>"; };
 		993357B4219D84B20086239E /* ZParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZParams.h; sourceTree = "<group>"; };
-		993357B6219D84B20086239E /* clsCMulatorABC_Generation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clsCMulatorABC_Generation.cpp; sourceTree = "<group>"; };
 		993357B7219D84B30086239E /* ResultsStats_MutRate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResultsStats_MutRate.cpp; sourceTree = "<group>"; };
 		993357B8219D84B30086239E /* SimulationResult.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SimulationResult.hpp; sourceTree = "<group>"; };
 		993357B9219D84B30086239E /* clsCMulatorABC_Fitness.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clsCMulatorABC_Fitness.cpp; sourceTree = "<group>"; };
@@ -119,7 +117,6 @@
 				993357C2219D84B40086239E /* ActualDataFile.cpp */,
 				993357B1219D84B20086239E /* ActualDataFile.hpp */,
 				993357B9219D84B30086239E /* clsCMulatorABC_Fitness.cpp */,
-				993357B6219D84B20086239E /* clsCMulatorABC_Generation.cpp */,
 				993357B0219D84B20086239E /* clsCMulatorABC_Mutrate.cpp */,
 				993357C3219D84B40086239E /* clsCMulatorABC_Popsize.cpp */,
 				993357A9219D84B10086239E /* clsCMulatorABC_PostProcessing.cpp */,
@@ -220,7 +217,6 @@
 				993357D0219D84B40086239E /* CMulator_Constructors.cpp in Sources */,
 				993357C6219D84B40086239E /* CMulator_GetSet.cpp in Sources */,
 				993357CE219D84B40086239E /* ResultsStats.cpp in Sources */,
-				993357D3219D84B40086239E /* clsCMulatorABC_Generation.cpp in Sources */,
 				993357D2219D84B40086239E /* clsCMulatorABC.cpp in Sources */,
 				993357C8219D84B40086239E /* clsCMulatorABC_Utilities.cpp in Sources */,
 				993357CD219D84B40086239E /* ResultsStats_PopulationSize.cpp in Sources */,

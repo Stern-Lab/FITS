@@ -122,7 +122,6 @@ public:
     std::vector<SimulationResult> RunFitnessInferenceBatch( std::size_t num_simulations );
     std::vector<SimulationResult> RunPopulationSizeInferenceBatch( std::size_t num_simulations );
     std::vector<SimulationResult> RunMutationInferenceBatch( std::size_t num_simulations );
-    std::vector<SimulationResult> RunGenerationInferenceBatch( std::size_t num_simulations );
 
     std::vector<FLOAT_TYPE> GetSDPerAllele( std::size_t start_idx, std::size_t end_idx );
     std::vector<FLOAT_TYPE> GetMADPerAllele( std::size_t start_idx, std::size_t end_idx );
@@ -141,15 +140,12 @@ public:
     void DoCoverageCook();
     
     std::pair<bool,FLOAT_TYPE> DoLevenesTest();
-    void DoCoverageTest();
     
     MATRIX_TYPE GetAlleleCoveragePvals() const;
+    
     // using unsigend int and not size_t to allow easier cast to float
     std::vector<unsigned int> CoverageSingleDatasetFitness( std::size_t dataset_idx, std::size_t start_idx, std::size_t end_idx ) const;
     
-    // std::vector<SimulationResult> RunGenerationInferenceBatch( std::size_t num_simulations );
-    
-    // TODO: make default with vector of 1.0 for scaling
     FLOAT_TYPE GetDistanceSimActual( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector );
     
     void WriteStringToFile( std::string filename, std::string str );

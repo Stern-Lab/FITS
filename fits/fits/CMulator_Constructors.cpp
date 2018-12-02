@@ -64,14 +64,11 @@ _num_alleles(original._num_alleles),
 _bottleneck_interval(original._bottleneck_interval),
 _bottleneck_size(original._bottleneck_size),
 _generation_shift(original._generation_shift),
-//_no_init_freqs_as_parameters(original._no_init_freqs_as_parameters),
 _logistic_growth(original._logistic_growth),
 _logistic_growth_K(original._logistic_growth_K),
 _logistic_growth_t(original._logistic_growth_t),
 _logistic_growth_r(original._logistic_growth_r),
 _repeats(original._repeats),
-//_allele_fitness_adjusted(original._allele_fitness_adjusted),
-//_allele_fitness_bar(original._allele_fitness_bar),
 _allele_fitness(original._allele_fitness),
 _allele_min_fitness(original._allele_min_fitness),
 _wt_allele_index(original._wt_allele_index),
@@ -88,33 +85,8 @@ _observed_simulated_data(original._observed_simulated_data),
 _mutation_rates_matrix(original._mutation_rates_matrix),
 _name_of_run(original._name_of_run)
 {
-     // TODO: original._name_of_run; this should be modified to maintain its status is unique id
-	
-    
-	// store a single simulation - column for allele, row for generation
-	//typedef boost::multi_array<float,2> allele_dataArray;
-	//typedef allele_dataArray::index _allele_index;
-	//_sim_data.resize(boost::extents[_num_generations+1][_num_alleles]);
-	//_sim_data = original._sim_data;
-
-	// mutation rates
-	//_mutation_rates.resize(boost::extents[_num_alleles][_num_alleles]);
-	//_mutation_rates = original._mutation_rates;
-    
-    
     // do not copy seed so random numbers won't repeat
     _time_for_seeding = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
     _boost_gen.seed(_time_for_seeding);
-    
-    // update initial frequencies
-    // 2017-05-14 WHY? COMMENTED
-    /*
-    for (auto j=0; j<_num_alleles; ++j ) {
-        
-        //_sim_data[0][j] = _allele_init_freqs[j];
-        _all_simulated_data(0,j) = _allele_init_freqs[j];
-        _observed_simulated_data(0,j) = _allele_init_freqs[j];
-    }
-     */
 }
 

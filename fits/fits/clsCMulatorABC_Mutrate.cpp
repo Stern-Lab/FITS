@@ -57,32 +57,18 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
     auto min_matrix = local_sim_object.GetMinMutationRateMatrix();
     auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
     
-    // 2017-03-20 - change sampling from float to int
-    PriorSampler<int> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM);
+    PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM);
     
-    /*
-     // convert matrices to vectors in order to use same sampling mechanism for all inferred parameters
-     std::vector<FLOAT_TYPE> min_mutrates;
-     std::vector<FLOAT_TYPE> max_mutrates;
-    for ( auto row=0; row<local_sim_object.GetAlleleNumber(); ++row ) {
-        for ( auto col=0; col<local_sim_object.GetAlleleNumber(); ++col ) {
-            
-            min_mutrates.push_back( min_matrix(row,col) );
-            max_mutrates.push_back( max_matrix(row,col) );
-        }
-    }
-    
-    PriorSampler<FLOAT_TYPE> sampler( min_mutrates, max_mutrates, PriorDistributionType::UNIFORM);
-    */
     auto mutrate_vector_list = sampler.SamplePrior( num_simulations );
     
     
     std::vector<SimulationResult> tmp_res_vector;
     
-    // std::cout << "Prior archive size : " << _prior_archive.size() << std::endl;
+    if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+        std::cout << "Prior archive size : " << _float_prior_archive.size() << std::endl;
+    }
+    
     // simulation for each set of parameters
-    // 2017-02-07 changed to regular for loop to be able to record index
-    //for (auto current_mutrate_vector : mutrate_vector_list) {
     for (auto current_mutrate_idx=0; current_mutrate_idx<mutrate_vector_list.size(); ++current_mutrate_idx ) {
         
         auto current_mutrate_vector = mutrate_vector_list[current_mutrate_idx];
@@ -108,8 +94,6 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
             
             auto row = i / local_sim_object.GetAlleleNumber();
             auto col = i % local_sim_object.GetAlleleNumber();
-            
-            // power of the mutation rate
             
             if ( local_sim_object.IsSingleMutrateUsed() ) {
                 if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
@@ -143,13 +127,12 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
         
         local_sim_object.EvolveAllGenerations();
         
-        _int_prior_archive.push_back( current_mutrate_vector);
+        _float_prior_archive.push_back( current_mutrate_vector);
         
         
         // SimulationResult sim_result(local_sim_object);
         
-        // right here keep only the generations we need
-        // to conserve memory 2017-04-02
+        // keep only the generations we need to conserve memory
         auto tmp_actual_generations = _actual_data_file.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
         

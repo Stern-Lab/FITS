@@ -42,8 +42,6 @@ _num_alleles(other._num_alleles)
 {}
 
 
-// based on code taken from the GUI
-// 2016-04-12
 void ActualDataFile::LoadActualData( std::string filename )
 {
     _actual_data.clear();

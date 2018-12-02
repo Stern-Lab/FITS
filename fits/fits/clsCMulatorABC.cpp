@@ -107,10 +107,6 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
                 tmp_result_vector = RunMutationInferenceBatch(repeats_in_batch);
                 break;
                 
-            case Generations:
-                tmp_result_vector = RunGenerationInferenceBatch(repeats_in_batch);
-                break;
-                
             case None:
                 throw "Factor to infer is not defined (none)";
         }

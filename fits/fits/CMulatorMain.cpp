@@ -452,11 +452,6 @@ void print_syntaxes(std::string exec_name)
     std::cout << "\t" << exec_name << fits_constants::ARG_INFER_POPSIZE
     << " <param_file> <actual_data_file> <posterior_file> <summary_file> (optional: <prior_file>)" << std::endl << std::endl;
     
-    /*
-     std::cout << "\t" << exec_name << fits_constants::ARG_INFER_GENERATION
-    << " <param_file> <actual_data_file> <posterior_file> <summary_file> (optional: <prior_file>)" << std::endl << std::endl;
-     */
-    
     std::cout << "\t" << exec_name << "-simulate <param_file> <output_file>" << std::endl << std::endl;
 }
 

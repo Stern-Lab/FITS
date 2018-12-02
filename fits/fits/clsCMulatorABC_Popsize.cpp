@@ -76,8 +76,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( s
         dummy_popsize_vector[0] = static_cast<FLOAT_TYPE>(current_popsize[0]);
         _float_prior_archive.push_back( dummy_popsize_vector );
         
-        // right here keep only the generations we need
-        // to conserve memory 2017-04-02
+        // keep only the generations we need to conserve memory
         auto tmp_actual_generations = _actual_data_file.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
         
