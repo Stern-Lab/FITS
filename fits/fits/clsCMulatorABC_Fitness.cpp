@@ -59,14 +59,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
     else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_COMPOSITE ) == 0 ) {
         _prior_type = FITNESS_COMPOSITE;
     }
-    else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_LETHAL_UNIFORM ) == 0 ) {
-        _prior_type = LETHAL_UNIFORM;
-    }
     else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_SMOOTHED_COMPOSITE ) == 0 ) {
         _prior_type = SMOOTHED_COMPOSITE;
-    }
-    else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_INTERVAL_UNIFORM ) == 0 ) {
-        _prior_type = INTERVAL_UNIFORM;
     }
     else {
         std::cerr << "Unkown prior distribution: " << tmp_prior;

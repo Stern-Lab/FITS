@@ -41,11 +41,8 @@
 
 enum PriorDistributionType {
     UNIFORM,
-    LOG_UNIFORM,
     FITNESS_COMPOSITE,
     SMOOTHED_COMPOSITE,
-    LETHAL_UNIFORM,
-    INTERVAL_UNIFORM,
     CUSTOM_FILE,
     UNDEFINED
 };
@@ -53,52 +50,10 @@ enum PriorDistributionType {
 template<class C>
 class PriorSampler {
 public:
-    
     int GetRndNumber() {
-     
         return _rnd_gen();
     }
     
-    void SetManualCategoryProportions(ZParams zparams)
-    {
-        bool at_least_one_found = false;
-        
-        auto manual_lth = zparams.GetFloat( fits_constants::PARAM_PRIOR_FRACTION_LTH, fits_constants::PARAM_PRIOR_FRACTION_DEFAULT );
-        auto manual_del = zparams.GetFloat( fits_constants::PARAM_PRIOR_FRACTION_DEL, fits_constants::PARAM_PRIOR_FRACTION_DEFAULT );
-        auto manual_neu = zparams.GetFloat( fits_constants::PARAM_PRIOR_FRACTION_NEU, fits_constants::PARAM_PRIOR_FRACTION_DEFAULT );
-        auto manual_adv = zparams.GetFloat( fits_constants::PARAM_PRIOR_FRACTION_ADV, fits_constants::PARAM_PRIOR_FRACTION_DEFAULT );
-        
-        at_least_one_found = at_least_one_found || (manual_lth >= 0.0);
-        at_least_one_found = at_least_one_found || (manual_del >= 0.0);
-        at_least_one_found = at_least_one_found || (manual_neu >= 0.0);
-        at_least_one_found = at_least_one_found || (manual_adv >= 0.0);
-        
-        if (at_least_one_found) {
-            auto all_found = (manual_del >= 0.0) && (manual_neu >= 0.0) && (manual_adv >= 0.0);
-            
-            if ( !all_found) {
-                std::cerr << "Prior fraction LTH : " << ( manual_lth >= 0 ? "FOUND" : "MISSING" ) << std::endl;
-                std::cerr << "Prior fraction DEL : " << ( manual_del >= 0 ? "FOUND" : "MISSING" ) << std::endl;
-                std::cerr << "Prior fraction NEU : " << ( manual_neu >= 0 ? "FOUND" : "MISSING" ) << std::endl;
-                std::cerr << "Prior fraction ADV : " << ( manual_adv >= 0 ? "FOUND" : "MISSING" ) << std::endl;
-                
-                throw "Coomposite prior: At least one but not all manual fractions are given.";
-            }
-            
-            auto tmp_sum = manual_lth + manual_del + manual_neu + manual_adv;
-            
-            if (tmp_sum - 1.0f > std::numeric_limits<float>::epsilon() ) {
-                std::cerr << "Prior fractions LTH/DEL/NEU/ADV do not sum up to 1.0 (" << tmp_sum << ")" << std::endl;
-                throw "Prior fractions LTH/DEL/NEU/ADV do not sum up to 1.0";
-            }
-            
-            _fitness_lth_prob = manual_lth;
-            _fitness_del_prob = manual_del;
-            _fitness_neu_prob = manual_neu;
-            _fitness_adv_prob = manual_adv;
-        }
-    }
-                                 
 private:
     std::vector<C> _min_vector;
     std::vector<C> _max_vector;
@@ -108,21 +63,10 @@ private:
     // loaded as a new prior for this iteration
     MATRIX_TYPE _custom_distribution;
     
-    
-    // once these were generated for each sample. moved it here to make things faster
-    //boost::numeric::ublas::matrix_column<MATRIX_TYPE> _fitness_composite_prob_col;
-    //boost::numeric::ublas::matrix_column<MATRIX_TYPE> _fitness_composite_val_col;
-    //boost::random::discrete_distribution<int> _fitness_composite_dist_disc;
-    
     boost::mt19937 _rnd_gen;
     unsigned int _rnd_seed;
     
     MATRIX_TYPE _distrib_matrix;
-    
-    float _fitness_lth_prob;
-    float _fitness_del_prob;
-    float _fitness_neu_prob;
-    float _fitness_adv_prob;
     
     const float FITNESS_NEU_VAL = 1.0;
     
@@ -174,12 +118,7 @@ public:
     PriorSampler() :
     _min_vector(0),
     _max_vector(0),
-    //_rnd_gen(0),
     _distrib_matrix(40,2),
-    _fitness_lth_prob(fits_constants::FITNESS_LTH_PROB),
-    _fitness_del_prob(fits_constants::FITNESS_DEL_PROB),
-    _fitness_neu_prob(fits_constants::FITNESS_NEU_PROB),
-    _fitness_adv_prob(fits_constants::FITNESS_ADV_PROB),
     _distrib_type(PriorDistributionType::UNIFORM)
     {
         _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
@@ -188,15 +127,8 @@ public:
     }
     
     PriorSampler( std::vector<C> min_values, std::vector<C> max_values, PriorDistributionType distrib_type ) :
-    //_min_vector(min_values),
-    //_max_vector(max_values),
     _distrib_type(distrib_type),
-    //_rnd_gen(0),
-    _distrib_matrix(40,2),
-    _fitness_lth_prob(fits_constants::FITNESS_LTH_PROB),
-    _fitness_del_prob(fits_constants::FITNESS_DEL_PROB),
-    _fitness_neu_prob(fits_constants::FITNESS_NEU_PROB),
-    _fitness_adv_prob(fits_constants::FITNESS_ADV_PROB)
+    _distrib_matrix(40,2)
     {
         _min_vector = min_values;
         _max_vector = max_values;
@@ -206,13 +138,9 @@ public:
             throw "No minimum or no maximum values given for prior sampling";
         }
         
-        //std::cout << "prior init...";
         _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
         _rnd_gen.seed(_rnd_seed);
         InitializeDistribMatrix();
-        
-        //_fitness_composite_dist_disc( _fitness_composite_prob_col );
-        //std::cout << "prior init done" << std::endl;
     }
     
     PriorSampler( boost::numeric::ublas::matrix<C> min_matrix,
@@ -220,15 +148,8 @@ public:
                   PriorDistributionType distrib_type ) :
     _min_vector(0),
     _max_vector(0),
-    _distrib_type(distrib_type),
-    //_rnd_gen(0),
-    _fitness_lth_prob(fits_constants::FITNESS_LTH_PROB),
-    _fitness_del_prob(fits_constants::FITNESS_DEL_PROB),
-    _fitness_neu_prob(fits_constants::FITNESS_NEU_PROB),
-    _fitness_adv_prob(fits_constants::FITNESS_ADV_PROB)
+    _distrib_type(distrib_type)
     {
-        //std::cout << "prior init123...";
-        
         if ( _min_vector.size() != _max_vector.size() ) {
             std::cerr << "Prior sampler: size of matrices do not match: min (" <<
             min_matrix.size1() << "," << min_matrix.size2() << ") vs max (" <<
@@ -248,11 +169,7 @@ public:
     _min_vector(original._min_vector),
     _max_vector(original._max_vector),
     _rnd_gen(0),
-    _distrib_type(PriorDistributionType::UNIFORM),
-    _fitness_lth_prob(original._fitness_lth_prob),
-    _fitness_del_prob(original._fitness_del_prob),
-    _fitness_neu_prob(original._fitness_neu_prob),
-    _fitness_adv_prob(original._fitness_adv_prob)
+    _distrib_type(PriorDistributionType::UNIFORM)
     {
         _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
         _rnd_gen.seed(_rnd_seed);
@@ -305,42 +222,6 @@ private:
                 break;
             }
                 
-            case PriorDistributionType::INTERVAL_UNIFORM: {
-                FLOAT_TYPE fitness_interval = 0.001f;
-                auto diff = max - min;
-                auto num_intervals = static_cast<int>(std::round(diff / fitness_interval));
-                boost::random::uniform_int_distribution<> dist(0, num_intervals);
-                
-                tmp_val = min + (dist(_rnd_gen)-2) * fitness_interval;
-                if ( tmp_val < min ) tmp_val = min;
-                break;
-            }
-            
-            case PriorDistributionType::LOG_UNIFORM: {
-                boost::random::uniform_01<> dist;
-                auto power = min + (max-min) * dist(_rnd_gen);
-                tmp_val = std::pow(10.0, power);
-                break;
-            }
-                
-            case PriorDistributionType::LETHAL_UNIFORM: {
-                FLOAT_TYPE my_lethal_prob = 0.1;
-                boost::random::discrete_distribution<int> dist_disc( { my_lethal_prob, 1.0f-my_lethal_prob } );
-                boost::random::uniform_real_distribution<FLOAT_TYPE> dist_uniform(min, max);
-                
-                auto chosen_category = dist_disc(_rnd_gen);
-                
-                if ( chosen_category == 0 ) {
-                    //std::cout << "lethal chosen" << std::endl;
-                    tmp_val = 0.0f;
-                }
-                else {
-                    //std::cout << "non-lethal chosen" << std::endl;
-                    tmp_val = dist_uniform(_rnd_gen);
-                }
-                break;
-            }
-                
             case PriorDistributionType::SMOOTHED_COMPOSITE:
             case PriorDistributionType::FITNESS_COMPOSITE: {
                 
@@ -371,7 +252,6 @@ private:
                                 tmp_val = tmp_min;
                             }
                             else {
-                                //std::cout << "uniform between: " << tmp_min << " " << tmp_max << std::endl;
                                 boost::random::uniform_real_distribution<FLOAT_TYPE> smoothed_distrib( tmp_min, tmp_max );
                                 tmp_val = smoothed_distrib(_rnd_gen);
                             }
