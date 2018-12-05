@@ -27,7 +27,6 @@
 #include <boost/numeric/ublas/io.hpp>
 
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random/discrete_distribution.hpp>
 #include <boost/random/gamma_distribution.hpp>
@@ -43,6 +42,7 @@ enum PriorDistributionType {
     UNIFORM,
     FITNESS_COMPOSITE,
     SMOOTHED_COMPOSITE,
+    FITNESS_LOGNORMAL,
     CUSTOM_FILE,
     UNDEFINED
 };
@@ -215,6 +215,28 @@ private:
         }
         switch (_distrib_type) {
                 
+            case PriorDistributionType::FITNESS_LOGNORMAL: {
+                
+                // values and algorithm inspired by Bons et al. doi: 10.1093/ve/vey029
+                FLOAT_TYPE sigma = 0.149f;
+                FLOAT_TYPE mu = -0.248f;
+                FLOAT_TYPE lethal_fraction = 0.045f;
+                
+                // not using the uniform01 for consistency with other distributions, e.g. () oprator
+                boost::random::uniform_real_distribution<FLOAT_TYPE> lethal_distrib(0.0f, 1.0f);
+                
+                auto tmp_lethal_prob = lethal_distrib(_rnd_gen);
+                if ( tmp_lethal_prob <= lethal_fraction ) {
+                    tmp_val = 0.0f;
+                }
+                else {
+                    boost::random::lognormal_distribution<FLOAT_TYPE> lognorm_distrib(mu, sigma);
+                    do {
+                        tmp_val = lognorm_distrib(_rnd_gen);
+                    } while ( tmp_val < min || tmp_val > max );
+                }
+                break;
+            }
             case PriorDistributionType::UNIFORM: {
                 boost::random::uniform_real_distribution<FLOAT_TYPE> _uniform_dist(min, max);
                 tmp_val = _uniform_dist(_rnd_gen);

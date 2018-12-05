@@ -46,24 +46,25 @@
 struct ActualDataEntry {
     int pos;
     int gen;
-    int base;
+    //int base;
+    int allele;
     FLOAT_TYPE freq;
     int ref;
     int read_count;
     
     static constexpr int EMPTY_INT = -1;
-    static constexpr FLOAT_TYPE EMPTY_FLOAT = -1.0;
+    static constexpr FLOAT_TYPE EMPTY_FLOAT = -1.0f;
     
     ActualDataEntry()
-    : pos(EMPTY_INT), gen(EMPTY_INT), base(EMPTY_INT), freq(EMPTY_FLOAT), ref(EMPTY_INT), read_count(EMPTY_INT) {}
+    : pos(EMPTY_INT), gen(EMPTY_INT), allele(EMPTY_INT), freq(EMPTY_FLOAT), ref(EMPTY_INT), read_count(EMPTY_INT) {}
     
-    ActualDataEntry( int position, int generation, int base_num, FLOAT_TYPE frequency, int reference=-1, int reads=1000 )
-    : pos(position), gen(generation), base(base_num), freq(frequency), ref(reference), read_count(reads) {}
+    ActualDataEntry( int position, int generation, int allele_num, FLOAT_TYPE frequency, int reference=-1, int reads=1000 )
+    : pos(position), gen(generation), allele(allele_num), freq(frequency), ref(reference), read_count(reads) {}
     
     ActualDataEntry( const ActualDataEntry& original )
-    : pos(original.pos), gen(original.gen), base(original.base), freq(original.freq), ref(original.ref), read_count(original.read_count) {}
+    : pos(original.pos), gen(original.gen), allele(original.allele), freq(original.freq), ref(original.ref), read_count(original.read_count) {}
     
-    const bool SameBase( const ActualDataEntry& other ) { return base==other.base; }
+    const bool SameAllele( const ActualDataEntry& other ) { return allele==other.allele; }
     const bool SameGeneration( const ActualDataEntry &other ) { return gen==other.gen; }
     const bool SameRef( const ActualDataEntry& other ) { return ref==other.ref; }
     const bool SameReadCount( const ActualDataEntry &other ) { return read_count==other.read_count; }
@@ -75,7 +76,7 @@ struct ActualDataEntry {
     void swap(ActualDataEntry& other);
     
     
-    bool AllDataFilled() { return (pos > EMPTY_INT && gen > EMPTY_INT && base > EMPTY_INT && freq > EMPTY_INT && ref > EMPTY_FLOAT && read_count > EMPTY_INT); }
+    bool AllDataFilled() { return (pos > EMPTY_INT && gen > EMPTY_INT && allele > EMPTY_INT && freq > EMPTY_INT && ref > EMPTY_FLOAT && read_count > EMPTY_INT); }
     
 };
 

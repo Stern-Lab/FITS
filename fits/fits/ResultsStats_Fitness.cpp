@@ -246,6 +246,9 @@ void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& re
         if ( _prior_distrib.compare(fits_constants::PARAM_PRIOR_DISTRIB_SMOOTHED_COMPOSITE) == 0 ) {
             prior_type = PriorDistributionType::SMOOTHED_COMPOSITE;
         }
+        if ( _prior_distrib.compare(fits_constants::PARAM_PRIOR_DISTRIB_LOGNORMAL) == 0 ) {
+            prior_type = PriorDistributionType::FITNESS_LOGNORMAL;
+        }
         if ( prior_type == UNDEFINED ) {
             throw "ResultStats: prior not defined correctly";
         }
@@ -280,8 +283,6 @@ std::string ResultsStats::GetSummaryFitness()
 {
     
     std::stringstream ss;
-    
-    //ss.imbue(std::locale(fits_constants::used_locale));
     
     ss << "Quick Report - Fitness" << std::endl;
     ss << "=============================" << std::endl;
@@ -352,6 +353,8 @@ std::string ResultsStats::GetSummaryFitness()
         ss << "Used individual mutation rates." << std::endl;
     }
     
+    ss << "Distance metric: " << _distance_metric << std::endl;
+    
     // warning for Nu
     std::vector<int> bad_alleles_vec;
     for ( auto current_allele=0; current_allele<_num_alleles; ++current_allele ) {
@@ -390,10 +393,10 @@ std::string ResultsStats::GetSummaryFitness()
     ss << boost::format("%-10s") % "NEU(%)";
     ss << boost::format("%-10s") % "ADV(%)";
     ss << boost::format("%-10s") % "category";
-    ss << boost::format("%-10s") % "minldist";
-    ss << boost::format("%-10s") % "maxldist";
-    ss << boost::format("%-10s") % "MAD";
-    ss << boost::format("%-10s") % "Levene's p";
+    //ss << boost::format("%-10s") % "minldist";
+    //ss << boost::format("%-10s") % "maxldist";
+    //ss << boost::format("%-10s") % "MAD";
+    ss << boost::format("%-10s") % "pval";
     ss << std::endl;
     
     //bool Nu_flag = false;
@@ -420,9 +423,9 @@ std::string ResultsStats::GetSummaryFitness()
         ss << boost::format("%-10s") % neutral_percent[current_allele];
         ss << boost::format("%-10s") % advantageous_percent[current_allele];
         ss << boost::format("%-10s") % AlleleCategory2String(allele_category[current_allele]);
-        ss << boost::format("%-10.3d") % _distance_min;
-        ss << boost::format("%-10.3d") % _distance_max;
-        ss << boost::format("%-10.3d") % allele_MAD[current_allele];
+        //ss << boost::format("%-10.3d") % _distance_min;
+        //ss << boost::format("%-10.3d") % _distance_max;
+        //ss << boost::format("%-10.3d") % allele_MAD[current_allele];
         
         if ( allele_category[current_allele] == WT ) {
             ss << boost::format("%-10s") % "N/A";

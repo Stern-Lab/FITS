@@ -114,7 +114,7 @@ void ActualDataFile::LoadActualData( std::string filename )
         
         try {
             tmp_data_entry.gen = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_GENERATION]);
-            tmp_data_entry.base = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_ALLELE]);
+            tmp_data_entry.allele = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_ALLELE]);
             tmp_data_entry.freq = boost::lexical_cast<FLOAT_TYPE>(line_fields[ACTUAL_DATA_COLUMN_FREQ]);
             tmp_data_entry.pos = -1;
             tmp_data_entry.ref = -1;
@@ -281,7 +281,7 @@ int ActualDataFile::GetNumberOfAlleles()
     while ( max_known_allele < _actual_data.size() && allele_ascending ) {
         ++max_known_allele;
         allele_ascending =
-        _actual_data[max_known_allele].base > _actual_data[max_known_allele-1].base;
+        _actual_data[max_known_allele].allele > _actual_data[max_known_allele-1].allele;
     
     }
     
@@ -326,7 +326,7 @@ int ActualDataFile::GetWTIndex()
     for (auto current_entry : _actual_data) {
         if ( current_entry.gen == first_generation ) {
             if (current_entry.freq > current_wt_freq) {
-                current_wt_idx = current_entry.base;
+                current_wt_idx = current_entry.allele;
                 current_wt_freq = current_entry.freq;
             }
         }

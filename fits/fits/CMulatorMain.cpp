@@ -169,6 +169,8 @@ int InferABC( FactorToInfer factor,
         auto single_mutation_rate = my_zparams.GetFloat( fits_constants::PARAM_SINGLE_MUTATION_RATE, 0.0f );
         result_stats.SetSingleMutrateUsed( single_mutation_rate != 0.0f );
         
+        result_stats.SetRunningTimeSec( abc_object_sim.GetTotalRunningTimeSec() );
+        
         /*
         for ( auto sim_counter=0; sim_counter<accepted_results_vector.size(); ++sim_counter ) {
             std::string tmp_filename;
@@ -182,50 +184,203 @@ int InferABC( FactorToInfer factor,
         switch (factor) {
             case Fitness: {
                 
-                result_stats.SetPriorDistrib( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT ) );
+                try {
+                    result_stats.SetPriorDistrib( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT ) );
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error while setting prior distribution.";
+                }
                 
-                result_stats.CalculateStatsFitness(accepted_results_vector);
+                try {
+                    result_stats.CalculateStatsFitness(accepted_results_vector);
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error while calculating stats.";
+                }
                 
                 std::string tmp_summary_str = result_stats.GetSummaryFitness();
-                
-                
                 std::cout << tmp_summary_str << std::endl;
                 
-                
-                result_stats.WriteFitnessDistribToFile(accepted_results_vector, posterior_output_filename);
-                
-                
-                result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
-                
-                if ( prior_output_filename.compare("") != 0 ) {
-                    std::cout << "Prior... " << std::endl;
-                    
-                    auto tmp_prior = abc_object_sim.GetPriorFloat();
-                    
-                    result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
+                try {
+                    std::cout << "Writing posterior... " << std::endl;
+                    result_stats.WriteFitnessDistribToFile(accepted_results_vector, posterior_output_filename);
                 }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing posterior distribution file.";
+                }
+                
+                try {
+                    std::cout << "Writing summary... " << std::endl;
+                    result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing summary file.";
+                }
+                
+                
+                
+                try {
+                    if ( prior_output_filename.compare("") != 0 ) {
+                        std::cout << "Writing prior... " << std::endl;
+                        
+                        auto tmp_prior = abc_object_sim.GetPriorFloat();
+                        
+                        result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
+                    }
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing prior distribution file.";
+                }
+                
                 
                 break;
             }
                 
             case PopulationSize: {
-                result_stats.CalculateStatsPopulationSize(accepted_results_vector);
-                std::string tmp_summary_str = result_stats.GetSummaryPopSize();
                 
+                try {
+                    result_stats.SetPriorDistrib( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error while setting prior distribution.";
+                }
+                
+                
+                try {
+                    result_stats.CalculateStatsFitness(accepted_results_vector);
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error while calculating stats.";
+                }
+                
+                
+                try {
+                    result_stats.CalculateStatsPopulationSize(accepted_results_vector);
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error while calculating stats.";
+                }
+                
+                std::string tmp_summary_str = result_stats.GetSummaryPopSize();
                 std::cout << tmp_summary_str << std::endl;
                 
-                auto tmp_prior = abc_object_sim.GetPriorInt();
-                result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
+                try {
+                    std::cout << "Writing posterior... " << std::endl;
+                    result_stats.WritePopSizeDistribToFile(accepted_results_vector, posterior_output_filename);
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing posterior distribution file.";
+                }
                 
-                result_stats.WritePopSizeDistribToFile(accepted_results_vector, posterior_output_filename);
-                result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
                 
-                if ( prior_output_filename.compare("") != 0 ) {
-                    std::cout << "Prior... " << std::endl;
-                    
-                    auto tmp_prior = abc_object_sim.GetPriorInt();
-                    
-                    result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
+                try {
+                    std::cout << "Writing summary... " << std::endl;
+                    result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing summary file.";
+                }
+                
+                
+                try {
+                    if ( prior_output_filename.compare("") != 0 ) {
+                        std::cout << "Writing prior... " << std::endl;
+                        
+                        auto tmp_prior = abc_object_sim.GetPriorFloat();
+                        
+                        result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
+                    }
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing prior distribution file.";
                 }
                 break;
             }
@@ -233,39 +388,80 @@ int InferABC( FactorToInfer factor,
             case MutationRate: {
                 auto infer_single_mutrate = my_zparams.GetInt(fits_constants::PARAM_MIN_LOG_SINGLE_MUTATION_RATE, 0);
                 
+                try {
+                    result_stats.SetPriorDistrib( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
+                }
+                catch (...) {
+                    throw "Error while setting prior distribution.";
+                }
+                
                 result_stats.SetSingleMutrateInferred( infer_single_mutrate != 0 );
                 result_stats.CalculateStatsMutation(accepted_results_vector);
                 std::string tmp_summary_str = result_stats.GetSummaryMutRate();
                 
                 std::cout << tmp_summary_str << std::endl;
                 
-                result_stats.WriteMutRateDistribToFile(accepted_results_vector, posterior_output_filename);
-                result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
-                
-                if ( prior_output_filename.compare("") != 0 ) {
-                    std::cout << "Prior... " << std::endl;
-                    
-                    auto tmp_prior = abc_object_sim.GetPriorFloat();
-                    
-                    result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
+                try {
+                    std::cout << "Writing posterior... " << std::endl;
+                    result_stats.WriteMutRateDistribToFile(accepted_results_vector, posterior_output_filename);
                 }
-                break;
-            }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing posterior distribution file.";
+                }
                 
-            case Generations: {
-                result_stats.CalculateStatsGenerations(accepted_results_vector);
-                std::string tmp_summary_str = result_stats.GetSummaryGenerations();
+                try {
+                    std::cout << "Writing summary... " << std::endl;
+                    result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing summary file.";
+                }
                 
-                std::cout << tmp_summary_str << std::endl;
                 
-                result_stats.WriteGenerationsDistribToFile(accepted_results_vector, posterior_output_filename);
-                result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
+                try {
+                    if ( prior_output_filename.compare("") != 0 ) {
+                        std::cout << "Writing prior... " << std::endl;
+                        
+                        auto tmp_prior = abc_object_sim.GetPriorFloat();
+                        
+                        result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
+                    }
+                }
+                catch (const char* str) {
+                    std::cerr << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    throw "Error writing prior distribution file.";
+                }
                 
-                auto tmp_prior = abc_object_sim.GetPriorInt();
-                result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
                 break;
             }
         }
+    }
+    catch (const char* str) {
+        std::cerr << "Exception caught while attempting to report stats: " << str << std::endl;
+        return 1;
     }
     catch (std::exception& e) {
         std::cerr << "Exception caught while attempting to report stats: " << e.what() << std::endl;
@@ -455,6 +651,7 @@ void print_syntaxes(std::string exec_name)
     std::cout << "\t" << exec_name << "-simulate <param_file> <output_file>" << std::endl << std::endl;
 }
 
+
 void print_welcome()
 {
     std::cout << std::endl << "================================================";
@@ -473,8 +670,7 @@ bool IsInferenceRun( std::string first_argument )
 {
     return ( first_argument.compare( fits_constants::ARG_INFER_FITNESS ) == 0
             || first_argument.compare( fits_constants::ARG_INFER_MUTATION ) == 0
-            || first_argument.compare( fits_constants::ARG_INFER_POPSIZE ) == 0
-            || first_argument.compare( fits_constants::ARG_INFER_GENERATION ) == 0 );
+            || first_argument.compare( fits_constants::ARG_INFER_POPSIZE ) == 0 );
 }
 
 int main(int argc, char* argv[])
@@ -487,9 +683,6 @@ int main(int argc, char* argv[])
     }
     
     std::string tmp_first_param = argv[1];
-    
-    // This would make numbers nicer
-    //std::cout.imbue(std::locale(fits_constants::used_locale));
     
     std::string param_filename = "";
     std::string actual_data_filename = "";
@@ -547,18 +740,6 @@ int main(int argc, char* argv[])
         std::cout << "Inferring population size" << std::endl;
         
         return InferABC( FactorToInfer::PopulationSize,
-                        param_filename, actual_data_filename,
-                        posterior_output_filename, summary_output_filename,
-                        prior_output_filename );
-    }
-    
-    if ( tmp_first_param.compare( fits_constants::ARG_INFER_GENERATION ) == 0 ) {
-        
-        print_welcome();
-        
-        std::cout << "Inferring generation interval" << std::endl;
-        
-        return InferABC( FactorToInfer::Generations,
                         param_filename, actual_data_filename,
                         posterior_output_filename, summary_output_filename,
                         prior_output_filename );

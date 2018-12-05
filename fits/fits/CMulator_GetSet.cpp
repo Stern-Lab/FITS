@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_VERBOSE
 
 #include "CMulator.h"
 using namespace fits_constants;
@@ -45,7 +44,7 @@ void CMulator::SetNumOfGeneration(int generations)
     }
     
     _num_generations = generations;
-    // UpdateParameters();
+    
     Reset_Soft();
 }
 
@@ -59,7 +58,6 @@ std::string CMulator::GetSimUID() const
 void CMulator::SetSimUID( std::string new_sim_uid )
 {
     _name_of_run = new_sim_uid;
-    // UpdateParameters();
 }
 
 
@@ -101,9 +99,6 @@ void CMulator::SetAlleleInitFreqs( std::vector<FLOAT_TYPE> freqs )
     _allele_init_freqs.resize( freqs.size() );
     _allele_init_freqs = freqs;
     
-    
-    // UpdateParameters();
-    
     // for consistency reasons, we must reset the simulated data
     // this will also update the init freqs
     Reset_Soft();
@@ -137,10 +132,10 @@ FLOAT_TYPE CMulator::GetAlleleFreq( int generation, int allele ) const
         throw "GetAlleleFreq: illegal allele " + std::to_string(allele);
     }
     
-    // return _sim_data[generation][allele];
     if (_use_observed_data) {
         return _observed_simulated_data(generation, allele);
     }
+    
     return _all_simulated_data(generation, allele);
 }
 
@@ -153,7 +148,6 @@ std::vector<FLOAT_TYPE> CMulator::GetRawFrequencyData()
         
         for (int cur_allele=0; cur_allele<_num_alleles; ++cur_allele) {
             
-            // tmp_freqs.push_back( _sim_data[cur_generation][cur_allele] );
             if (_use_observed_data) {
                 tmp_freqs.push_back( _observed_simulated_data(cur_generation, cur_allele) );
             }
@@ -185,7 +179,6 @@ std::vector<FLOAT_TYPE> CMulator::GetRawFrequencyData( std::vector<int> selected
                 throw " GetRawFrequencyData: generation out of range (" + std::to_string(tmp_cur_generation) + ").";
             }
             
-            // tmp_freqs.push_back( _sim_data[tmp_cur_generation][cur_allele] );
             if (_use_observed_data) {
                 tmp_freqs.push_back( _observed_simulated_data(cur_generation, cur_allele) );
             }
@@ -210,7 +203,6 @@ FLOAT_TYPE CMulator::GetMutationRate( int from, int to ) const
     }
     
     return _mutation_rates_matrix(from,to);
-    //return _mutation_rates[from][to];
 }
 
 
@@ -224,17 +216,11 @@ void CMulator::SetMutationRate( int from, int to, FLOAT_TYPE rate )
         throw " SetMutationRate: from allele out of range (" + std::to_string(from) + ").";
     }
     
-    if ( rate < 0 || rate > 1.0 ) {
+    if ( rate < 0 || rate > 1.0f ) {
         throw " SetMutationRate: rate of mutation not valid (" + std::to_string(rate) + ").";
     }
     
-    // update both parameter and internal variable
-    //string param_name = PARAM_MUTATION_RATE + to_string(from) + "_" + to_string(to);
-    //Parameters::updateParameter( param_name, to_string(rate).c_str() );
-    
-    //_mutation_rates[from][to] = rate;
     _mutation_rates_matrix(from,to) = rate;
-    // UpdateParameters();
 }
 
 
@@ -248,10 +234,8 @@ void CMulator::SetAlleleInitFreq( int allele, FLOAT_TYPE freq )
         throw " SetAlleleInitFreq: frequency out of range (" + std::to_string(freq) + ").";
     }
     
-    //_sim_data[0][allele] = freq;
     _allele_init_freqs[allele] = freq;
     
-    // UpdateParameters();
     Reset_Soft();
 }
 
@@ -267,7 +251,6 @@ void CMulator::SetAlleleMinFitness( int allele, FLOAT_TYPE fitness )
     }
     
     _allele_min_fitness[allele] = fitness;
-    // UpdateParameters();
 }
 
 
@@ -282,7 +265,6 @@ void CMulator::SetAlleleMaxFitness( int allele, FLOAT_TYPE fitness )
     }
     
     _allele_max_fitness[allele] = fitness;
-    // UpdateParameters();
 }
 
 
@@ -293,7 +275,6 @@ void CMulator::SetBottleneckInterval( int interval )
     }
     
     _bottleneck_interval = interval;
-    // UpdateParameters();
 }
 
 
@@ -302,18 +283,6 @@ int CMulator::GetBottleneckInterval() const
     return _bottleneck_interval;
 }
 
-
-/*
- void CMulator::SetPopulationSize( int N )
- {
-	if ( !IsValid_PopulationSize(N) ) {
- throw " SetPopulationSize: invalid value (" + to_string(N) + ").";
-	}
-	
-	_N = N;
-	// UpdateParameters();
- }
- */
 
 int CMulator::GetPopulationSize() const
 {
@@ -349,17 +318,6 @@ int CMulator::GetAlleleNumber() const
     
     return _num_alleles;
 }
-
-
-//void CMulator::SetAlleleNumber(int alleles)
-//{
-// This requires a massive reset in the data, so update params and reload
-//_num_alleles = alleles;
-
-//string tmp_str = to_string( alleles );
-//Parameters::updateParameter( PARAM_NUM_ALLELES, tmp_str.c_str() );
-// Reset_Hard();
-//}
 
 
 FLOAT_TYPE CMulator::GetInitAlleleFreq(int allele) const
@@ -422,7 +380,6 @@ void CMulator::SetRandomSeed(unsigned int new_seed)
 {
     _time_for_seeding = new_seed;
 }
-
 
 
 void CMulator::SetMutationRateMatrix( MATRIX_TYPE new_mutation_matrix )

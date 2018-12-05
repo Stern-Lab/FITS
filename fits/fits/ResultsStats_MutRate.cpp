@@ -138,7 +138,7 @@ void ResultsStats::CalculateStatsMutation(const std::vector<SimulationResult>& r
             if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
                 std::cout << "calculating levenes test" << std::endl;
                 std::cout << "Prior size=" << prior_matrix(row,col).size() << std::endl;
-                std::cout << "Posteior size=" << median_matrix(row,col).size() << std::endl;
+                std::cout << "Posterior size=" << median_matrix(row,col).size() << std::endl;
             }
             
             if ( row==col) {
@@ -160,7 +160,6 @@ std::string ResultsStats::GetSummaryMutRate()
 {
     std::stringstream ss;
     
-    //ss.imbue(std::locale(fits_constants::used_locale));
     
     ss << "Mutation Rate Report" << std::endl;
     ss << GetSummaryHeader();
@@ -179,7 +178,9 @@ std::string ResultsStats::GetSummaryMutRate()
     //}
     
     
-    ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1);
+    ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1) << std::endl;
+    ss << "Distance metric: " << _distance_metric << std::endl << std::endl;
+    
     if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
         ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")";
     }
@@ -191,46 +192,66 @@ std::string ResultsStats::GetSummaryMutRate()
     
     ss << "====================" << std::endl;
     
-    // first column - no header
-    ss << boost::format("%-10s") % "";
-    //levenes_pval_matrix
+    // first header row - "to"
+    ss << boost::format("%-12s") % "";
     for (auto col=0; col<_num_alleles; ++col ) {
-        ss << boost::format("%-10s") % ("allele" + std::to_string(col));
+        ss << boost::format("%-48s") % ("to " + std::to_string(col));
     }
-    ss << boost::format("%-10s") % "minldist";
-    ss << boost::format("%-10s") % "maxldist";
+    ss << std::endl;
+    
+    // second header row
+    ss << boost::format("%-12s") % "";
     for (auto col=0; col<_num_alleles; ++col ) {
-        std::string tmpstr = "Levene's p" + std::to_string(col);
-        ss << boost::format("%-12s") % tmpstr;
+        ss << boost::format("%-12s") % "median";
+        ss << boost::format("%-12s") % "min";
+        ss << boost::format("%-12s") % "max";
+        ss << boost::format("%-12s") % "pval";
     }
+    //ss << boost::format("%-10s") % "minldist";
+    //ss << boost::format("%-10s") % "maxldist";
+    //for (auto col=0; col<_num_alleles; ++col ) {
+     //   std::string tmpstr = "pval (to" + std::to_string(col) + ")";
+     //   ss << boost::format("%-12s") % tmpstr;
+    //}
     ss << std::endl;
     
     for ( auto row=0; row<_num_alleles; ++row ) {
         
-        ss << boost::format("%-10s") % ("allele" + std::to_string(row));
-        
+        ss << boost::format("%-12s") % ("from " + std::to_string(row));
         
         for (auto col=0; col<_num_alleles; ++col ) {
             
-            auto tmp_power = median_mutation_rates(row,col);
+            auto tmp_median = median_mutation_rates(row,col);
+            auto tmp_min = min_mutation_rates(row,col);
+            auto tmp_max = max_mutation_rates(row,col);
+            auto tmp_pval = levenes_pval_matrix(row,col);
             
+            // median
             if ( row == col ) {
-                ss << boost::format("%-10s") % "---";
+                ss << boost::format("%-12s") % "---";
+                ss << boost::format("%-12s") % "---";
+                ss << boost::format("%-12s") % "---";
+                ss << boost::format("%-12s") % "---";
             }
             else {
                 if ( levenes_pval_matrix(row,col) < fits_constants::LEVENES_SIGNIFICANCE ) {
-                    ss << boost::format("%-10.3d") % tmp_power;
+                    ss << boost::format("%-12.2e") % tmp_median;
                 }
                 else {
-                    ss << boost::format("*%-10.3d") % tmp_power;
+                    ss << boost::format("*%-12.2e") % tmp_median;
                 }
                 
+                // min, max
+                ss << boost::format("%-12.2e") % tmp_min;
+                ss << boost::format("%-12.2e") % tmp_max;
+                ss << boost::format("%-12.2e") % tmp_pval;
             }
         }
         
-        ss << boost::format("%-10.3d") % _distance_min;
-        ss << boost::format("%-10.3d") % _distance_max;
+        //ss << boost::format("%-10.3d") % _distance_min;
+        //ss << boost::format("%-10.3d") % _distance_max;
         
+        /*
         for (auto col=0; col<_num_alleles; ++col ) {
             if ( row == col ) {
                 ss << boost::format("%-12s") % "---";
@@ -239,6 +260,7 @@ std::string ResultsStats::GetSummaryMutRate()
                 ss << boost::format("%-12.3d") % levenes_pval_matrix(row,col);
             }
         }
+         */
         ss << std::endl;
     }
     ss << std::endl;

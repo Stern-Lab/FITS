@@ -38,7 +38,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
 
-#include <cmath> //for pow
+
+
+
+#include <cmath> // for pow
 #include <iomanip> // for put_time
 #include <string>
 #include <locale>
@@ -52,23 +55,22 @@
 #include "ActualDataFile.hpp"
 
 enum FactorToInfer {
-    Fitness, MutationRate, PopulationSize, Generations,
-    None // just to catch extreme cases
+    Fitness,
+    MutationRate,
+    PopulationSize
 };
 
 
 class clsCMulatorABC 
 {
 private:
-    
-    double _total_running_time;
+    double _total_running_time_sec;
     
     boost::mt19937 _boost_gen;
     
-    const FLOAT_TYPE THRESHOLD_RESET_VALUE = -1.0;
+    const FLOAT_TYPE THRESHOLD_RESET_VALUE = -1.0f;
     
     std::size_t _repeats;
-    // std::size_t _percent_to_keep;
     std::size_t _sims_to_keep;
     
     FactorToInfer _factor_to_infer;
@@ -90,21 +92,18 @@ private:
     std::vector<FLOAT_TYPE> _actual_data_raw_freqs;
     std::vector<int> _selected_actual_generations;
     
-
-    
     // stores samples from the prior
     std::vector< std::vector<FLOAT_TYPE> > _float_prior_archive;
     std::vector< std::vector<int> > _int_prior_archive;
     
 public:
-    
     clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
 
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );
     
     std::vector<int> GetUniqueIndexSet( int num_items );
 
-    double GetTotalRunningTime() { return _total_running_time; }
+    std::size_t GetTotalRunningTimeSec() { return _total_running_time_sec; }
     
     FLOAT_TYPE ResetRejectionThreshold();
 	FLOAT_TYPE SetRejectionThreshold(FLOAT_TYPE new_threshold);
@@ -115,6 +114,8 @@ public:
     void SetImmediateRejection(bool new_val);
 
     std::size_t GetRepeats();
+    
+    std::size_t GetSunningTimeSec() { return _total_running_time_sec; }
     
     std::vector<SimulationResult> GetResultsVector(bool only_accepted_results=false);
     
@@ -127,8 +128,6 @@ public:
     std::vector<FLOAT_TYPE> GetMADPerAllele( std::size_t start_idx, std::size_t end_idx );
     void DivideEachAllele( std::size_t start_idx, std::size_t end_idx, std::vector<FLOAT_TYPE> value_vector );
     
-    
-    //void ScaleSimulationResults();
     void CalculateResultsDistances( FLOAT_TYPE scaling_factor = 1.0f );
     
     std::vector< std::vector<FLOAT_TYPE>> GetPriorFloat();
@@ -137,7 +136,6 @@ public:
     std::string GetPriorFloatAsString();
     std::string GetPriorIntAsString();
     
-    void DoCoverageCook();
     
     std::pair<bool,FLOAT_TYPE> DoLevenesTest();
     
@@ -147,6 +145,9 @@ public:
     std::vector<unsigned int> CoverageSingleDatasetFitness( std::size_t dataset_idx, std::size_t start_idx, std::size_t end_idx ) const;
     
     FLOAT_TYPE GetDistanceSimActual( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector );
+    
+    FLOAT_TYPE DistanceL1( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector );
+    FLOAT_TYPE DistanceL2( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector );
     
     void WriteStringToFile( std::string filename, std::string str );
     

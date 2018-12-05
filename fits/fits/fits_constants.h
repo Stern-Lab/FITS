@@ -35,15 +35,13 @@ namespace fits_constants {
     
     
     /* GENERAL */
-    const std::string current_version_str = "1.02";
-    const std::string used_locale = "en_US.UTF-8";
+    const std::string current_version_str = "1.1";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05;
     
     /* COMMAND LINE ARGUMANTS */
     const std::string ARG_INFER_FITNESS = "-fitness";
     const std::string ARG_INFER_MUTATION = "-mutation";
     const std::string ARG_INFER_POPSIZE = "-popsize";
-    const std::string ARG_INFER_GENERATION = "-generation";
     
     
     /* PRIOR DISTRIBUTION
@@ -53,16 +51,16 @@ namespace fits_constants {
     const int FITNESSS_NEU_IDX = 2;
     const int FITNESS_ADV_IDX = 3;
     
-    // define probability for each fitness category
-    // OLD values: lth=0.1; del=0.79; neu=0.1; adv=0.01
-    //const float FITNESS_LTH_PROB = 0.1;
-    //const float FITNESS_DEL_PROB = 0.7;
-    //const float FITNESS_NEU_PROB = 0.1;
-    //const float FITNESS_ADV_PROB = 0.1;
 
     /* PARAMETERS */
     
     /* General */
+    const std::string PARAM_INFERENCE_ARG = "infer"; // will be used instead of command line args
+    const std::string PARAM_INFERENCE_ARG_FITNESS = "fitness";
+    const std::string PARAM_INFERENCE_ARG_MUTATION = "mutation";
+    const std::string PARAM_INFERENCE_ARG_POPSIZE = "popsize";
+    const std::string PARAM_INFERENCE_ARG_EMPTY = "";
+    
     const std::string PARAM_DUMP_PARAMETERS = "_dump_all_parameteres";
     
     /* Population Size */
@@ -125,8 +123,8 @@ namespace fits_constants {
     const FLOAT_TYPE PARAM_EPSILON_SIM_DEFAULT = 0.001f; // default range within actual data to accept simulations
     
     const int PARAM_DEFAULT_VAL_INT = -1;
-    const FLOAT_TYPE PARAM_DEFAULT_VAL_FLOAT = -1.0;
-    const FLOAT_TYPE PARAM_DEFAULT_NEGATIVE_FLOAT = -1.0;
+    const FLOAT_TYPE PARAM_DEFAULT_VAL_FLOAT = -1.0f;
+    const FLOAT_TYPE PARAM_DEFAULT_NEGATIVE_FLOAT = -1.0f;
     const std::string PARAM_DEFAULT_VAL_STRING = "NA";
     
     const std::string PARAM_ACCEPTANCE_RATE = "_acceptance_rate";
@@ -141,11 +139,10 @@ namespace fits_constants {
     // prior distributions
     const std::string PARAM_PRIOR_DISTRIB = "_prior_distribution";
     const std::string PARAM_PRIOR_DISTRIB_UNIFORM = "uniform";
+    const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL = "log_normal";
     const std::string PARAM_PRIOR_DISTRIB_COMPOSITE = "fitness_composite";
     const std::string PARAM_PRIOR_DISTRIB_SMOOTHED_COMPOSITE = "smoothed_composite";
-    const std::string PARAM_PRIOR_DISTRIB_LETHAL_UNIFORM = "lethal_uniform";
-    const std::string PARAM_PRIOR_DISTRIB_INTERVAL_UNIFORM = "interval_uniform";
-    const std::string PARAM_PRIOR_DISTRIB_DEFAULT = "fitness_composite";
+    const std::string PARAM_PRIOR_DISTRIB_DEFAULT = "uniform";
     
     // composite prior for fitness inference
     // if one is manually chosen - all rest must be also
@@ -155,8 +152,11 @@ namespace fits_constants {
     const std::string PARAM_PRIOR_FRACTION_ADV = "_prior_fraction_adv";
     const FLOAT_TYPE PARAM_PRIOR_FRACTION_DEFAULT = -1.0f;
     
+    const std::string PARAM_DISTANCE = "distance_metric";
+    const std::string PARAM_DISTANCE_L1 = "L1";
+    const std::string PARAM_DISTANCE_L2 = "L2";
     
-    const std::string PARAM_SCALING = "_scaling";
+    const std::string PARAM_SCALING = "scaling";
     const std::string PARAM_SCALING_MAD = "mad";
     const std::string PARAM_SCALING_SD = "sd";
     const std::string PARAM_SCALING_DEFAULT = "off";

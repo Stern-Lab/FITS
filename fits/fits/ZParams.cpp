@@ -170,6 +170,12 @@ int ZParams::GetInt(const std::string paramName) const
 {
     std::string retreived_str = GetString(paramName);
     
+    std::size_t decimal_pos = retreived_str.find(".");
+    if ( decimal_pos != std::string::npos ) {
+        std::cerr << "Warning: parameter is treated as integer, but found to be float ("
+        << paramName << "=" << retreived_str << std::endl;
+    }
+    
     auto tmp_value = boost::lexical_cast<int>(retreived_str);
     
     return tmp_value;
@@ -194,6 +200,12 @@ int ZParams::GetInt(const std::string paramName, const int defaultValue) const
 unsigned long ZParams::GetUnsignedLong(const std::string paramName) const
 {
     std::string retreived_str = GetString(paramName);
+    
+    std::size_t decimal_pos = retreived_str.find(".");
+    if ( decimal_pos != std::string::npos ) {
+        std::cerr << "Warning: parameter is treated as integer, but found to be float ("
+        << paramName << "=" << retreived_str << std::endl;
+    }
     
     auto tmp_value = boost::lexical_cast<unsigned long>(retreived_str);;
     
@@ -309,7 +321,7 @@ double ZParams::GetDouble(const std::string paramName) const
 
 double ZParams::GetDouble(const std::string paramName, const double defaultValue) const
 {
-    double retreived_value = 0.0;
+    double retreived_value = 0.0f;
     
     try {
         retreived_value = GetDouble(paramName);

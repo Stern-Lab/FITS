@@ -62,8 +62,11 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
     else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_SMOOTHED_COMPOSITE ) == 0 ) {
         _prior_type = SMOOTHED_COMPOSITE;
     }
+    else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_LOGNORMAL ) == 0 ) {
+        _prior_type = FITNESS_LOGNORMAL;
+    }
     else {
-        std::cerr << "Unkown prior distribution: " << tmp_prior;
+        std::cerr << "Unkown prior distribution: " << tmp_prior << ". Setting to uniform as default." << std::endl;
     }
 
     //sampler.SetManualCategoryProportions(_zparams);

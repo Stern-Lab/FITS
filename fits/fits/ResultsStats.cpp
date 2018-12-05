@@ -51,6 +51,7 @@ _zparams(zparams),
 levenes_pval(_num_alleles, -1.0f)
 {
     _prior_distrib = "";
+    _distance_metric = _zparams.GetString( fits_constants::PARAM_DISTANCE, fits_constants::PARAM_DISTANCE_L1 );
 }
 
 void ResultsStats::SetRejectionThreshold(FLOAT_TYPE new_val)
@@ -248,19 +249,22 @@ std::string ResultsStats::GetSummaryHeader()
     auto current_time_raw = std::chrono::system_clock::now();
     auto current_time = std::chrono::system_clock::to_time_t(current_time_raw);
     auto current_time_final = *std::localtime(&current_time);
-    ss << std::put_time(&current_time_final, "%F %T") << std::endl;
+    ss << std::put_time(&current_time_final, "%F (year-month-day) %T (hours:minutes:seconds)") << std::endl;
     
     ss << "Simulation results used for calculations: " << _num_results << std::endl;
     
     if ( _running_time_sec > 0 ) {
-        ss << "Running time " << _running_time_sec << " seconds" << std::endl;
+        auto running_minutes = _running_time_sec / 60;
+        auto running_seconds = _running_time_sec % 60;
+        
+        ss << "Total running time " << running_minutes << ":" << running_seconds << " (minutes:seconds)" << std::endl;
     }
-    
-    ss << "=====================" << std::endl;
     
     if ( _rejection_threshold > 0.0f ) {
         ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
     }
+    
+    ss << "=====================" << std::endl;
     
     return ss.str();
 }

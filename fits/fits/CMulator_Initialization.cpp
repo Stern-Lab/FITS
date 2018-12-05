@@ -59,7 +59,7 @@ void CMulator::InitMutationRates( ZParams zparams, bool available_mutrate_range 
     // individual mutation rate
     for (auto from_allele=0; from_allele<_num_alleles; ++from_allele) {
         
-        FLOAT_TYPE sanity_mutation_rate_sum = 0.0;
+        FLOAT_TYPE sanity_mutation_rate_sum = 0.0f;
         
         if ( _debug_mode ) {
             std::cout << "Initialized mutation rates:" << std::endl;
@@ -79,14 +79,12 @@ void CMulator::InitMutationRates( ZParams zparams, bool available_mutrate_range 
             if ( _debug_mode ) {
                 std::cout << "from:" << from_allele << " to: " << to_allele << " u=" << tmp_mutation_rate << std::endl;
             }
-            
-
-            
+        
             sanity_mutation_rate_sum += tmp_mutation_rate;
         }
         
         
-        if ( std::fabs(1.0 - sanity_mutation_rate_sum ) > _epsilon_float_compare ) {
+        if ( std::fabs(1.0f - sanity_mutation_rate_sum ) > _epsilon_float_compare ) {
             std::cerr << "Warning: Mutation rates don't sum up to 1.0: " << sanity_mutation_rate_sum
             << ". Delta is " << 1.0 - sanity_mutation_rate_sum << " and epsilon is " << _epsilon_float_compare << std::endl;
             //throw( _name_of_run + ": Mutation rates don't sum up to 1.0: " + std::to_string(sanity_mutation_rate_sum) );
@@ -155,17 +153,20 @@ void CMulator::InitBasicVariables( ZParams zparams )
             _debug_mode = true;
         }
         
-        _N = zparams.GetInt(PARAM_POPULATION_SIZE);
+        _N = zparams.GetInt(PARAM_POPULATION_SIZE, -1);
+        if ( !IsValid_PopulationSize(_N)  ) {
+            
+            // only complain about invalid/missing population size, if we need it
+            if ( zparams.GetString( PARAM_INFERENCE_ARG, PARAM_INFERENCE_ARG_EMPTY ) != PARAM_INFERENCE_ARG_POPSIZE ) {
+                throw "Parameters: Missing or invalid N (must be positive).";
+            }
+        }
         
         _sample_size = zparams.GetInt( PARAM_SAMPLE_SIZE, PARAM_SAMPLE_SIZE_DEFAULT );
-        
         if ( _sample_size > 0 ) {
             _use_observed_data = true;
         }
         
-        if ( !IsValid_PopulationSize(_N)  ) {
-            throw "Parameters: Missing or invalid N (must be positive).";
-        }
         
         _alt_N = zparams.GetInt( PARAM_ALT_POPULATION_SIZE, 0 );
         _alt_generation = zparams.GetInt( PARAM_ALT_GENERATION, -1 );
@@ -207,7 +208,7 @@ void CMulator::InitBasicVariables( ZParams zparams )
     
     /* Not Mandatory, General Parameters */
     // I fear that it would cause lots of errors, we'll see
-    auto tmp_default_epsilon = 2.0f * std::numeric_limits<FLOAT_TYPE>::epsilon();
+    auto tmp_default_epsilon = 2.0f * std::numeric_limits<float>::epsilon();
     //_epsilon_float_compare = zparams.GetFloat( PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
     _epsilon_float_compare = zparams.GetDouble( PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
     

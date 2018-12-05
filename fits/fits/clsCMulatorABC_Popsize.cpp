@@ -72,7 +72,9 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( s
         local_sim_object.SetPopulationSize( std::pow( 10, current_popsize[0]) );
         local_sim_object.EvolveAllGenerations();
         
-        std::vector<FLOAT_TYPE> dummy_popsize_vector(_num_alleles, 0);
+        // 2018-12-03
+        //std::vector<FLOAT_TYPE> dummy_popsize_vector(_num_alleles, 0);
+        std::vector<FLOAT_TYPE> dummy_popsize_vector(1, 0);
         dummy_popsize_vector[0] = static_cast<FLOAT_TYPE>(current_popsize[0]);
         _float_prior_archive.push_back( dummy_popsize_vector );
         

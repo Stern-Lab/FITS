@@ -16,14 +16,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_VERBOSE
-
 #include "clsCMulatorABC.h"
 #include "fits_constants.h"
 
 clsCMulatorABC::clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file ) :
 _zparams(sim_params),
-_total_running_time(0.0f),
+_total_running_time_sec(0),
 _prior_type(PriorDistributionType::UNIFORM),
 _actual_data_file(actual_data_file),
 _simulation_result_vector(),
@@ -106,9 +104,6 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
             case MutationRate:
                 tmp_result_vector = RunMutationInferenceBatch(repeats_in_batch);
                 break;
-                
-            case None:
-                throw "Factor to infer is not defined (none)";
         }
         auto end = std::chrono::high_resolution_clock::now();
         
@@ -213,6 +208,8 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     //for ( auto& current_result : _simulation_result_vector )
         _simulation_result_vector[current_idx].distance_from_actual =
             GetDistanceSimActual(actual_matrix, _simulation_result_vector[current_idx].sim_data_matrix, scaling_vector );
+        
+        _simulation_result_vector[current_idx].distance_metric = _zparams.GetString( fits_constants::PARAM_DISTANCE, fits_constants::PARAM_DISTANCE_L1 );
         // std::cout << " distance in current result = " << current_result.distance_from_actual << std::endl;
     }
 
@@ -224,10 +221,10 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     
     auto end_global = std::chrono::high_resolution_clock::now();
     auto global_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_global - start_global);
-    _total_running_time = static_cast<double>(global_elapsed_ms.count()) / 1000.0;
+    _total_running_time_sec = static_cast<std::size_t>(global_elapsed_ms.count()) / 1000.0f;
     
     std::cout << std::endl;
-    std::cout << "Total running time: " << _total_running_time << " seconds" << std::endl;
+    std::cout << "Total running time: " << _total_running_time_sec << " seconds" << std::endl;
     std::cout << "Average simulation rate: " << boost::accumulators::mean(rate_stats) << " simulations/second" << std::endl;
 }
 
@@ -323,25 +320,14 @@ void clsCMulatorABC::SetImmediateRejection(bool new_val)
 }
 
 
-FLOAT_TYPE clsCMulatorABC::GetDistanceSimActual( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector )
+// Assumes input valididty has been checked
+FLOAT_TYPE clsCMulatorABC::DistanceL1( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector )
 {
-    
-    if ( actual_data.size1() != sim_data.size1() ) {
-        std::cerr << "DistanceSimActual - matrices don't match in size1: actual " <<
-        actual_data.size1() << "vs sim " << sim_data.size1() << std::endl;
-        throw "DistanceSimActual - matrices don't match in size1";
-    }
-    
-    if ( actual_data.size2() != sim_data.size2() ) {
-        std::cerr << "DistanceSimActual - matrices don't match in size2: actual " <<
-        actual_data.size2() << "vs sim " << sim_data.size2() << std::endl;
-        throw "DistanceSimActual - matrices don't match in size2";
+    if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+        std::cout << "Calculating L1 distance:" << std::endl;
     }
     
     MATRIX_TYPE diff_matrix = actual_data - sim_data;
-    
-    //std::cout << "actual matrix: " << actual_data << std::endl;
-    //std::cout << "sim matrix: " << sim_data << std::endl;
     
     diff_matrix = boost::numeric::ublas::abs(diff_matrix);
     
@@ -350,9 +336,10 @@ FLOAT_TYPE clsCMulatorABC::GetDistanceSimActual( const MATRIX_TYPE &actual_data,
         for ( auto col=0; col<diff_matrix.size2(); ++col ) {
             boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(diff_matrix, col);
             current_col = current_col / scaling_vector[col];
-            //std::cout << "scaling by " << scaling_vector[col] << std::endl;
             
-            // current_col = boost::numeric::ublas::element_prod( current_col, current_col );
+            if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+                std::cout << "scaling by " << scaling_vector[col] << std::endl;
+            }
         }
     }
     
@@ -365,15 +352,109 @@ FLOAT_TYPE clsCMulatorABC::GetDistanceSimActual( const MATRIX_TYPE &actual_data,
         
         sum_diff += current_allele_sum;
     }
-    // trick - sum can be for vectors, not matrices. multiply matrix by unit vector to get a vector
-    //auto sum_diff = sum(prod(boost::numeric::ublas::scalar_vector<float>(diff_matrix.size1()), diff_matrix));
     
-    //sum_diff = std::sqrt(sum_diff);
-    if ( sum_diff == 0.0f ) {
-        std::cerr << "Warning: actual data identical to simulated data (distance=0)." << std::endl;
-        std::cerr << "matrix data: " << actual_data << std::endl;
+    if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+        if ( sum_diff == 0.0f) {
+            std::cerr << "Warning: actual data identical to simulated data (distance=0)." << std::endl;
+        }
     }
+    
     return sum_diff;
+}
+
+
+// Assumes input valididty has been checked
+FLOAT_TYPE clsCMulatorABC::DistanceL2( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector )
+{
+    if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+        std::cout << "Calculating L2 distance:" << std::endl;
+    }
+    
+    MATRIX_TYPE diff_matrix = actual_data - sim_data;
+    
+    
+    // instead of ABS as in L1, square the values
+    MATRIX_TYPE squared_diff_matrix = boost::numeric::ublas::element_prod(diff_matrix, diff_matrix);
+    
+    // scale before summing up data
+    if (scaling_vector.size() > 0 ) {
+        std::cerr << "Warning: L2 distance used, scaling for this measure has not been tested and thus not used." << std::endl;
+    }
+    
+    // for each allele - sum the squares of each diff between frequencies
+    std::vector<FLOAT_TYPE> allele_l2_distance(diff_matrix.size2(), 0.0f);
+    for ( auto col=0; col<squared_diff_matrix.size2(); ++col ) {
+        boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(squared_diff_matrix, col);
+        auto current_allele_sum = boost::numeric::ublas::sum(current_col);
+        
+        allele_l2_distance[col] = std::sqrt(current_allele_sum);
+        //sum_diff += current_allele_sum;
+    }
+    FLOAT_TYPE sum_diff = std::accumulate( allele_l2_distance.cbegin(), allele_l2_distance.cend(), 0.0f );
+    
+    std::cout << "L2 distances: ";
+    
+    for ( auto val : allele_l2_distance ) {
+        std::cout << val << " ";
+    }
+    std::cout << std::endl;
+
+    
+    if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+        
+        std::cout << "L2 distances: ";
+        
+        for ( auto val : allele_l2_distance ) {
+            std::cout << val << " ";
+        }
+        std::cout << std::endl;
+        
+        if ( sum_diff == 0.0f) {
+            std::cerr << "Warning: actual data identical to simulated data (distance=0)." << std::endl;
+        }
+    }
+    
+    return sum_diff;
+}
+
+FLOAT_TYPE clsCMulatorABC::GetDistanceSimActual( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector )
+{
+    
+    FLOAT_TYPE calculated_distance = -1.0f;
+    
+    if ( actual_data.size1() != sim_data.size1() ) {
+        std::cerr << "DistanceSimActual - matrices don't match in size1: actual " <<
+        actual_data.size1() << "vs sim " << sim_data.size1() << std::endl;
+        throw "DistanceSimActual - matrices don't match in size1";
+    }
+    
+    if ( actual_data.size2() != sim_data.size2() ) {
+        std::cerr << "DistanceSimActual - matrices don't match in size2: actual " <<
+        actual_data.size2() << "vs sim " << sim_data.size2() << std::endl;
+        throw "DistanceSimActual - matrices don't match in size2";
+    }
+
+    
+    auto tmp_distance_metric = _zparams.GetString( fits_constants::PARAM_DISTANCE, fits_constants::PARAM_DISTANCE_L1 );
+
+    if ( tmp_distance_metric.compare(fits_constants::PARAM_DISTANCE_L1) == 0 ) {
+        
+        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+            std::cout << "Calculating L1 distance:" << std::endl;
+        }
+        
+        calculated_distance = DistanceL1( actual_data, sim_data, scaling_vector );
+    }
+    else if ( tmp_distance_metric.compare(fits_constants::PARAM_DISTANCE_L2) == 0 ) {
+        
+        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+            std::cout << "Calculating L2 distance:" << std::endl;
+        }
+        
+        calculated_distance = DistanceL2( actual_data, sim_data, scaling_vector );
+    }
+    
+    return calculated_distance;
 }
 
 std::vector< std::vector<FLOAT_TYPE>> clsCMulatorABC::GetPriorFloat()

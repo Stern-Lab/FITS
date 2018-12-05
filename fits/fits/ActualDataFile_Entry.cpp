@@ -23,7 +23,7 @@ void ActualDataEntry::swap(ActualDataEntry& other)
 {
     std::swap(pos, other.pos);
     std::swap(gen, other.gen);
-    std::swap(base, other.base);
+    std::swap(allele, other.allele);
     std::swap(freq, other.freq);
     std::swap(ref, other.ref);
     std::swap(read_count, other.read_count);
@@ -42,7 +42,7 @@ bool ActualDataEntry::operator<( const ActualDataEntry& other ) const
     }
     
     // we reached here, so gen == other.gen
-    return base < other.base;
+    return allele < other.allele;
 }
 
 

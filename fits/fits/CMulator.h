@@ -204,7 +204,7 @@ private:
 	bool IsValid_Frequency( FLOAT_TYPE freq ) const { return freq >= 0 && freq <= 1.0; }
 	bool IsValid_Fitness( FLOAT_TYPE fitness ) const { return fitness >= 0; }
 	bool IsValid_PopulationSize( int N ) const { return N>0; }
-	//bool IsValid_SamplingSize( int sample_size ) const { return sample_size > 0 && sample_size <=_N; }
+	
 	bool IsValid_BottleneckInterval( int interval ) const { return interval < _num_generations; } // non-positive treated as no bottleneck
 	bool IsValid_BottleneckSize( int size ) const { return size > 0 && size <= _N; }
 	/* End Internal Sanity Checks */
@@ -212,7 +212,6 @@ private:
 // set functions
 // used to be public
     // but many of them require reset to make the simulated data in sync with the parameters
-    // I don't like this and don't like the static param, library
     
 public:
     bool IsObservedDataUsed() { return _use_observed_data; }
@@ -331,10 +330,6 @@ public:
 
 	bool GetSkipStochasticStep() const;
 	
-    // to avoid direct access to array - allow to raise exceptions
-    //FLOAT_TYPE GetSimulatedFrequency( int generation, int allele ) const;
-    //void SetSimulatedFrequency(  int generation, int allele, FLOAT_TYPE frequency );
-
 	unsigned int GetTopPercentToKeep() const;
 	
 	unsigned int GetTopSimsToKeep() const;
@@ -382,7 +377,6 @@ public:
 	/* Output Functions */
     std::string GetAllOutputAsTextForR( bool header = true ) const;
     std::string GetAllOutputAsText( bool header = true, std::string delimiter = "\t" ) const;
-	//std::string GetAllOutputAsCSV() const;
     
     MATRIX_TYPE GetAllOutputAsMatrix() const;
     MATRIX_TYPE GetAllOutputAsMatrix( std::vector<int> actual_generations ) const;

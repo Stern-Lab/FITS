@@ -141,8 +141,6 @@ std::string ResultsStats::GetSummaryPopSize()
 {
     std::stringstream ss;
     
-    //ss.imbue(std::locale(fits_constants::used_locale));
-    
     
     ss << "Population Size Report" << std::endl;
     ss << GetSummaryHeader();
@@ -167,15 +165,17 @@ std::string ResultsStats::GetSummaryPopSize()
         ss << "Used a single mutation rate." << std::endl;
     }
     
+    ss << "Distance metric: " << _distance_metric << std::endl;
+    
     ss << "====================" << std::endl;
     
     ss << boost::format("%-12s") % "median";
-    ss << boost::format("%-12s") % "mean";
+    //ss << boost::format("%-12s") % "mean";
     ss << boost::format("%-12s") % "low";
     ss << boost::format("%-12s") % "high";
-    ss << boost::format("%-10s") % "minldist";
-    ss << boost::format("%-10s") % "maxldist";
-    ss << boost::format("%-10s") % "Levene's p";
+    //ss << boost::format("%-10s") % "minldist";
+    //ss << boost::format("%-10s") % "maxldist";
+    ss << boost::format("%-12s") % "pval";
     ss << std::endl;
     
     if ( levenes_pval[0] < fits_constants::LEVENES_SIGNIFICANCE ) {
@@ -185,12 +185,12 @@ std::string ResultsStats::GetSummaryPopSize()
         ss << boost::format("*%-12.2e") % _pop_median;
     }
     
-    ss << boost::format("%-12.2e") % _pop_mean;
+    //ss << boost::format("%-12.2e") % _pop_mean;
     ss << boost::format("%-12.2e") % _pop_min;
     ss << boost::format("%-12.2e") % _pop_max;
-    ss << boost::format("%-10.3d") % _distance_min;
-    ss << boost::format("%-10.3d") % _distance_max;
-    ss << boost::format("%-10.3d") % levenes_pval[0];
+    //ss << boost::format("%-10.3d") % _distance_min;
+    //ss << boost::format("%-10.3d") % _distance_max;
+    ss << boost::format("%-12.2d") % levenes_pval[0];
     
     ss << std::endl;
     

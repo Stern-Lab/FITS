@@ -47,6 +47,7 @@ struct SimulationResult {
     int wt_index;
     std::string sim_id;
     FLOAT_TYPE distance_from_actual;
+    std::string distance_metric;
     std::vector<int> actual_generations;
 
     int generation_shift;
@@ -70,7 +71,6 @@ struct SimulationResult {
     
     // constructors
     SimulationResult();
-    //SimulationResult(std::string id, FLOAT_TYPE distance);
     SimulationResult(const SimulationResult &original); // copy constructor
     SimulationResult(SimulationResult&& other) noexcept; // move constructor
     SimulationResult(const CMulator& sim_object);

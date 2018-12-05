@@ -17,7 +17,6 @@
 		993357CC219D84B40086239E /* CMulator_Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357AA219D84B10086239E /* CMulator_Utilities.cpp */; };
 		993357CD219D84B40086239E /* ResultsStats_PopulationSize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357AB219D84B10086239E /* ResultsStats_PopulationSize.cpp */; };
 		993357CE219D84B40086239E /* ResultsStats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357AD219D84B20086239E /* ResultsStats.cpp */; };
-		993357CF219D84B40086239E /* ResultsStats_Generations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357AE219D84B20086239E /* ResultsStats_Generations.cpp */; };
 		993357D0219D84B40086239E /* CMulator_Constructors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357AF219D84B20086239E /* CMulator_Constructors.cpp */; };
 		993357D1219D84B40086239E /* clsCMulatorABC_Mutrate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357B0219D84B20086239E /* clsCMulatorABC_Mutrate.cpp */; };
 		993357D2219D84B40086239E /* clsCMulatorABC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357B3219D84B20086239E /* clsCMulatorABC.cpp */; };
@@ -58,7 +57,6 @@
 		993357AB219D84B10086239E /* ResultsStats_PopulationSize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResultsStats_PopulationSize.cpp; sourceTree = "<group>"; };
 		993357AC219D84B10086239E /* fits_constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fits_constants.h; sourceTree = "<group>"; };
 		993357AD219D84B20086239E /* ResultsStats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResultsStats.cpp; sourceTree = "<group>"; };
-		993357AE219D84B20086239E /* ResultsStats_Generations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResultsStats_Generations.cpp; sourceTree = "<group>"; };
 		993357AF219D84B20086239E /* CMulator_Constructors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CMulator_Constructors.cpp; sourceTree = "<group>"; };
 		993357B0219D84B20086239E /* clsCMulatorABC_Mutrate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clsCMulatorABC_Mutrate.cpp; sourceTree = "<group>"; };
 		993357B1219D84B20086239E /* ActualDataFile.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ActualDataFile.hpp; sourceTree = "<group>"; };
@@ -135,7 +133,6 @@
 				993357A7219D84B10086239E /* PriorSampler.cpp */,
 				993357C4219D84B40086239E /* PriorSampler.hpp */,
 				993357A3219D84B10086239E /* ResultsStats_Fitness.cpp */,
-				993357AE219D84B20086239E /* ResultsStats_Generations.cpp */,
 				993357C1219D84B30086239E /* ResultsStats_IO.cpp */,
 				993357B7219D84B30086239E /* ResultsStats_MutRate.cpp */,
 				993357AB219D84B10086239E /* ResultsStats_PopulationSize.cpp */,
@@ -205,7 +202,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				993357CF219D84B40086239E /* ResultsStats_Generations.cpp in Sources */,
 				993357D9219D84B40086239E /* SimulationResult.cpp in Sources */,
 				993357D7219D84B40086239E /* ActualDataFile_Entry.cpp in Sources */,
 				993357CB219D84B40086239E /* clsCMulatorABC_PostProcessing.cpp in Sources */,

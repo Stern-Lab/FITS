@@ -16,7 +16,6 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// #define DEBUG_VERBOSE
 
 #include <iostream>
 #include <fstream>
@@ -31,8 +30,6 @@ MATRIX_TYPE CMulator::GetAllOutputAsMatrix() const
     for ( auto gen=0; gen<_current_generation; ++gen ) {
         
         for ( auto allele=0; allele<_num_alleles; ++allele ) {
-            
-            //tmp_matrix(gen,allele) = _sim_data[gen][allele];
             
             if (_use_observed_data) {
                 tmp_matrix(gen,allele) = _observed_simulated_data(gen,allele);
@@ -58,16 +55,6 @@ MATRIX_TYPE CMulator::GetAllOutputAsMatrix( std::vector<int> actual_generations 
         auto shifted_gen = actual_generations[gen_idx] - _generation_shift;
         
         for ( auto allele=0; allele<_num_alleles; ++allele ) {
-            
-            /*
-            std::cout << " output matrix generation "
-            << actual_generations[gen_idx]
-            << " shifted is " << shifted_gen
-            << " value is " << _all_simulated_data(shifted_gen,allele)
-            << std::endl;
-            */
-            
-            //tmp_matrix(gen_idx,allele) = _sim_data[shifted_gen][allele];
             
             if (_use_observed_data) {
                 tmp_matrix(gen_idx,allele) = _observed_simulated_data( shifted_gen, allele );
@@ -103,12 +90,10 @@ std::string CMulator::GetAllOutputAsText(bool header, std::string delimiter) con
 	
 	if (_current_generation>1) {
 		
-		for (auto myGeneration=0; myGeneration<_current_generation; myGeneration++) {
+		for (auto myGeneration=0; myGeneration<_current_generation; ++myGeneration) {
 			
-			for (auto myAllele=0; myAllele<_num_alleles; myAllele++) {
-				
-				// tmp_str += std::to_string(_sim_data[myGeneration][myAllele]) + "\t";
-                
+			for (auto myAllele=0; myAllele<_num_alleles; ++myAllele) {
+            
                 if (_use_observed_data) {
                     tmp_str += std::to_string( _observed_simulated_data( myGeneration, myAllele)) + "\t";
                 }
@@ -139,18 +124,18 @@ std::string CMulator::GetAllOutputAsTextForR( bool header ) const
     
     // header
     if (header) {
-        tmp_str += "gen\tbase\tfreq\n";
+        tmp_str += "gen\tallele\tfreq\n";
     }
     
     if (_current_generation>1) {
         
-        for (auto myGeneration=0; myGeneration<_current_generation; myGeneration++) {
+        for (auto myGeneration=0; myGeneration<_current_generation; ++myGeneration) {
             
-            for (auto myAllele=0; myAllele<_num_alleles; myAllele++) {
+            for (auto myAllele=0; myAllele<_num_alleles; ++myAllele) {
                 
                 tmp_str += std::to_string(myGeneration) + "\t";
                 tmp_str += std::to_string(myAllele) + "\t";
-                //tmp_str += std::to_string(_sim_data[myGeneration][myAllele]) + "\n";
+                
                 tmp_str += std::to_string( _all_simulated_data(myGeneration,myAllele) ) + "\n";
             }
         }

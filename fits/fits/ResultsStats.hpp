@@ -88,6 +88,8 @@ class ResultsStats {
 
     std::size_t _running_time_sec;
     
+    std::string _distance_metric;
+    
     std::string GetSummaryHeader();
     
 public:
@@ -135,7 +137,6 @@ public:
     double _pop_sd;
     double _pop_median;
     
-
     FLOAT_TYPE _levenes_w;
     
     FLOAT_TYPE _distance_min;
@@ -233,9 +234,8 @@ public:
     
     FLOAT_TYPE LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vector<FLOAT_TYPE> group2 );
     
+    
 private: // here for init-order - require the public vars to be initialize
-    
-    
     
     std::string GetPrintCommonHeaderStr();
     std::vector<FLOAT_TYPE> _allele_Nu; // for allele i u=f(wt->i)
