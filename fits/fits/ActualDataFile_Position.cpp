@@ -19,6 +19,13 @@
 
 #include "ActualDataFile.hpp"
 
+
+bool ActualDataPositionData::operator<( const ActualDataPositionData& other ) const
+{
+    return _position < other._position;
+}
+
+
 std::vector<int> ActualDataPositionData::GetActualGenerations( bool only_unique )
 {
     // returned cached result

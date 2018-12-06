@@ -377,7 +377,6 @@ FLOAT_TYPE clsCMulatorABC::DistanceL2( const MATRIX_TYPE &actual_data, const MAT
     
     MATRIX_TYPE diff_matrix = actual_data - sim_data;
     
-    
     // instead of ABS as in L1, square the values
     MATRIX_TYPE squared_diff_matrix = boost::numeric::ublas::element_prod(diff_matrix, diff_matrix);
     
@@ -386,41 +385,18 @@ FLOAT_TYPE clsCMulatorABC::DistanceL2( const MATRIX_TYPE &actual_data, const MAT
         std::cerr << "Warning: L2 distance used, scaling for this measure has not been tested and thus not used." << std::endl;
     }
     
-    // for each allele - sum the squares of each diff between frequencies
-    std::vector<FLOAT_TYPE> allele_l2_distance(diff_matrix.size2(), 0.0f);
+    // sum all squared differences
+    FLOAT_TYPE sum_diff = 0.0f;
     for ( auto col=0; col<squared_diff_matrix.size2(); ++col ) {
         boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(squared_diff_matrix, col);
         auto current_allele_sum = boost::numeric::ublas::sum(current_col);
         
-        allele_l2_distance[col] = std::sqrt(current_allele_sum);
-        //sum_diff += current_allele_sum;
-    }
-    FLOAT_TYPE sum_diff = std::accumulate( allele_l2_distance.cbegin(), allele_l2_distance.cend(), 0.0f );
-    
-    std::cout << "L2 distances: ";
-    
-    for ( auto val : allele_l2_distance ) {
-        std::cout << val << " ";
-    }
-    std::cout << std::endl;
-
-    
-    if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-        
-        std::cout << "L2 distances: ";
-        
-        for ( auto val : allele_l2_distance ) {
-            std::cout << val << " ";
-        }
-        std::cout << std::endl;
-        
-        if ( sum_diff == 0.0f) {
-            std::cerr << "Warning: actual data identical to simulated data (distance=0)." << std::endl;
-        }
+        sum_diff += current_allele_sum;
     }
     
-    return sum_diff;
+    return std::sqrt(sum_diff);
 }
+
 
 FLOAT_TYPE clsCMulatorABC::GetDistanceSimActual( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector )
 {

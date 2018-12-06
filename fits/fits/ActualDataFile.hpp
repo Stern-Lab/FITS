@@ -110,6 +110,8 @@ struct ActualDataPositionData {
     std::vector<int> GetActualGenerations( bool only_unique = true);
     std::vector<FLOAT_TYPE> GetActualFrequencies();
     std::vector<FLOAT_TYPE> GetInitFreqs();
+    
+    bool operator<( const ActualDataPositionData& other ) const;
 };
 
 class ActualDataFile {
