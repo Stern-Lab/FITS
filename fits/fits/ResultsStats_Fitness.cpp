@@ -315,17 +315,9 @@ std::string ResultsStats::GetSummaryFitness()
 
     ss << std::endl;
     ss << "Full Report - Fitness" << std::endl;
-    ss << "=============================\n" << std::endl;
+    ss << "=============================" << std::endl;
     ss << GetSummaryHeader();
     
-    //ss << "FITS v"<< fits_constants::current_version_str << std::endl;
-    
-    //auto current_time_raw = std::chrono::system_clock::now();
-    //auto current_time = std::chrono::system_clock::to_time_t(current_time_raw);
-    //auto current_time_final = *std::localtime(&current_time);
-    //ss << std::put_time(&current_time_final, "%F %T") << std::endl;
-    
-    //ss << "====================" << std::endl;
     
     auto tmp_size = _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1);
     ss << "Population size (N) is " << tmp_size;
@@ -368,13 +360,13 @@ std::string ResultsStats::GetSummaryFitness()
     ss << "Prior used: " << tmp_str << std::endl;
     
     if ( !bad_alleles_vec.empty() ) {
-        ss << " WARNING: inference may be unreliable (Nu<1) for alleles (*): ";
+        ss << "** WARNING: inference may be unreliable (Nu<1) for alleles (*): ";
         
         for ( auto allele_num : bad_alleles_vec ) {
             ss << allele_num << " ";
         }
         
-        ss << std::endl << std::endl;
+        ss << " **" << std::endl << std::endl;
     }
     
     if ( _rejection_threshold > 0.0f ) {
@@ -382,7 +374,7 @@ std::string ResultsStats::GetSummaryFitness()
     }
     
     
-    ss << "====================" << std::endl;
+    ss << "--------------------" << std::endl;
     
     ss << boost::format("%-10s") % "allele";
     ss << boost::format("%-10s") % "median";

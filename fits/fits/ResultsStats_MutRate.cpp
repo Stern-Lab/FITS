@@ -107,8 +107,8 @@ void ResultsStats::CalculateStatsMutation(const std::vector<SimulationResult>& r
     PriorSampler<int> sampler( min_prior_mutation_rates,
                               max_prior_mutation_rates,
                               PriorDistributionType::UNIFORM);
-    std::cout << "min rates: " << min_mutation_rates << std::endl;
-    std::cout << "max rates: " << max_mutation_rates << std::endl;
+    //std::cout << "min rates: " << min_mutation_rates << std::endl;
+    //std::cout << "max rates: " << max_mutation_rates << std::endl;
     auto mutrate_vector_list = sampler.SamplePrior( _num_results );
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
@@ -179,12 +179,12 @@ std::string ResultsStats::GetSummaryMutRate()
     
     
     ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1) << std::endl;
-    ss << "Distance metric: " << _distance_metric << std::endl << std::endl;
+    ss << "Distance metric: " << _distance_metric << std::endl;
     
     if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
-        ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")";
+        ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")" << std::endl;
     }
-    ss << std::endl;
+    
     
     if ( _single_mutrate_inferred ) {
         ss << "Inferred a single mutation rate." << std::endl;

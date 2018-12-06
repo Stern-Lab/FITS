@@ -42,6 +42,8 @@
 
 struct SimulationResult {
     
+    int pos; // for multi-locus analysis
+    
     // general
     int N;
     int wt_index;
@@ -51,6 +53,8 @@ struct SimulationResult {
     std::vector<int> actual_generations;
 
     int generation_shift;
+    
+    
     
     // in order to uniquely identify the sample from the prior used to simulate this result
     std::size_t prior_sample_index;

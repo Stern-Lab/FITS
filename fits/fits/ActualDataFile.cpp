@@ -20,37 +20,63 @@
 #include "ActualDataFile.hpp"
 
 
-ActualDataFile::ActualDataFile() :
-_actual_data(0),
-_is_initialized(false),
-_actual_generations(0),
-_actual_frequencies(0),
-_init_frequencies(0),
+ActualDataPositionData::ActualDataPositionData() :
+_actual_data(),
+_position(-1),
 _wt_index(-1),
-_num_alleles(-1)
+_num_alleles(-1),
+_actual_generations(0),
+_actual_frequencies(0.0f),
+_init_frequencies(0.0f)
+{}
+
+ActualDataPositionData::ActualDataPositionData( const ActualDataPositionData& other) :
+_actual_data(other._actual_data),
+_position(other._position),
+_wt_index(other._wt_index),
+_num_alleles(other._num_alleles),
+_actual_generations(other._actual_generations),
+_actual_frequencies(other._actual_frequencies),
+_init_frequencies(other._init_frequencies)
+{}
+
+void ActualDataPositionData::Clear()
+{
+    _actual_data.clear();
+    _position = -1;
+    _wt_index = -1;
+    _num_alleles = -1;
+    _actual_generations.clear();
+    _actual_frequencies.clear();
+    _init_frequencies.clear();
+}
+
+ActualDataFile::ActualDataFile() :
+_multi_positions(false),
+_position_data(0),
+_is_initialized(false)
 {}
 
 
 ActualDataFile::ActualDataFile( const ActualDataFile& other ) :
-_actual_data(other._actual_data),
-_is_initialized(other._is_initialized),
-_actual_generations(other._actual_generations),
-_actual_frequencies(other._actual_frequencies),
-_init_frequencies(other._init_frequencies),
-_wt_index(other._wt_index),
-_num_alleles(other._num_alleles)
+_multi_positions(other._multi_positions),
+_is_initialized(other._is_initialized)
 {}
 
+void ActualDataFile::ValidateMultiPosition(int position)
+{
+    if ( position >= 0 && !_multi_positions ) {
+        throw "Only single position, but asked for position " + std::to_string(position);
+    }
+    
+    if (_multi_positions && position < 0) {
+        throw "Multiple positions detected but non specified";
+    }
+}
 
 void ActualDataFile::LoadActualData( std::string filename )
 {
-    _actual_data.clear();
-    
-    _actual_generations.clear();
-    _actual_frequencies.clear();
-    _init_frequencies.clear();
-    _wt_index = -1;
-    _num_alleles = -1;
+    _position_data.clear();
     
     std::ifstream infile(filename);
     
@@ -61,7 +87,9 @@ void ActualDataFile::LoadActualData( std::string filename )
     
     std::string tmp_line;
     bool is_first_line = true;
+    int current_position = -1;
     
+    ActualDataPositionData tmp_position_data;
     
     // todo: check if newline needs to be normalized
     while (std::getline(infile, tmp_line)) {
@@ -70,7 +98,6 @@ void ActualDataFile::LoadActualData( std::string filename )
             is_first_line = false;
             continue;
         }
-        
         
         std::vector<std::string> line_fields;
         try {
@@ -88,14 +115,12 @@ void ActualDataFile::LoadActualData( std::string filename )
         
         
         if (line_fields.size() <=1) {
-            std::cout << "skipping line" << std::endl;
+            std::cerr << "skipping line" << std::endl;
             continue;
         }
         
-        // 2016-11-3 had enough of useleff information being read so not forcing all columns to be present
-        // except generation, allele, frequency.
-        if (line_fields.size() < ACTUAL_DATA_COLUMNS) {
-            std::cerr << "incompatible actual data file with " << line_fields.size() << " columns, expected " << ACTUAL_DATA_COLUMNS << std::endl;
+        if (line_fields.size() < ACTUAL_DATA_MINIMAL_COLS) {
+            std::cerr << "incompatible actual data file with " << line_fields.size() << " columns, expected " << ACTUAL_DATA_MINIMAL_COLS << std::endl;
             throw "incompatible actual data file.";
         }
         
@@ -116,18 +141,47 @@ void ActualDataFile::LoadActualData( std::string filename )
             tmp_data_entry.gen = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_GENERATION]);
             tmp_data_entry.allele = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_ALLELE]);
             tmp_data_entry.freq = boost::lexical_cast<FLOAT_TYPE>(line_fields[ACTUAL_DATA_COLUMN_FREQ]);
-            tmp_data_entry.pos = -1;
             tmp_data_entry.ref = -1;
             tmp_data_entry.read_count = -1;
         }
         catch (...) {
-            std::cerr << "Error while parsing actual data file (cast)." << std::endl;
+            std::cerr << "Error while parsing actual data file (cast):" << std::endl << tmp_line << std::endl;
             throw "Error while pasring actual data file (cast).";
         }
         
         
+        // assuming position column exists
+        int tmp_pos = -1;
+        if (line_fields.size() > ACTUAL_DATA_MINIMAL_COLS) {
+            try {
+                tmp_pos = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_POSITION]);
+                if (tmp_pos < 0) {
+                    throw "Generation number cannot be negative: " + std::to_string(tmp_pos);
+                }
+                
+                _multi_positions = true;
+            }
+            catch ( const char* str ) {
+                throw "Error while loading data: " + std::string(str);
+            }
+            catch (...) {
+                std::cerr << "Error while parsing actual data file - position column (cast). Data is: " << line_fields[ACTUAL_DATA_COLUMN_POSITION] << std::endl;
+                throw "Error while pasring actual data file - position column (cast). Data is:" + line_fields[ACTUAL_DATA_COLUMN_POSITION];
+            }
+        }
+        
         try {
-            _actual_data.push_back(tmp_data_entry);
+            // have we started a new position?
+            if ( (current_position != tmp_pos) && (current_position>0) ) {
+                
+                std::sort(tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end());
+                tmp_position_data._position = current_position;
+                _position_data.push_back(tmp_position_data);
+                
+                tmp_position_data.Clear();
+            }
+            current_position = tmp_pos;
+            tmp_position_data._actual_data.push_back( tmp_data_entry );
         }
         catch (...) {
             std::cerr << "Error while adding actual data entry" << std::endl;
@@ -136,7 +190,9 @@ void ActualDataFile::LoadActualData( std::string filename )
     }
     
     try {
-        std::sort(_actual_data.begin(), _actual_data.end());
+        std::sort(tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end());
+        tmp_position_data._position = current_position;
+        _position_data.push_back(tmp_position_data);
     }
     catch (...) {
         std::cerr << "Error while sorting actual data." << std::endl;
@@ -145,193 +201,6 @@ void ActualDataFile::LoadActualData( std::string filename )
     
     infile.close();
     
-    std::cout << "Done." << std::endl;
-    
     _is_initialized = true;
 }
 
-
-std::vector<int> ActualDataFile::GetActualGenerations(bool only_unique)
-{
-    if (!_is_initialized) {
-        std::cerr << "GetActualGenerations - object uninitialized" << std::endl;
-    }
-    
-    if ( _actual_generations.size() > 0 ) {
-        return _actual_generations;
-    }
-    
-    
-    std::vector<int> tmp_gen_vec;
-    
-    for (auto current_entry : _actual_data) {
-        tmp_gen_vec.push_back(current_entry.gen);
-    }
-    
-    // keep only unique values
-    // sort because unique works on censecutive repeats
-    // erase because no deletions occur but only running over existing data
-    // no need to sort - done when loading
-    //std::sort(tmp_gen_vec.begin(), tmp_gen_vec.end());
-    
-    if (only_unique) {
-        auto last = std::unique(tmp_gen_vec.begin(), tmp_gen_vec.end());
-        tmp_gen_vec.erase(last, tmp_gen_vec.end());
-    }
-    
-    _actual_generations = tmp_gen_vec;
-    return tmp_gen_vec;
-}
-
-
-// get vector of the frequencies of the alleles in the first generation
-// assumes this is sorted
-std::vector<FLOAT_TYPE> ActualDataFile::GetInitFreqs()
-{
-    if (!_is_initialized) {
-        std::cerr << "GetInitFreqs - object uninitialized" << std::endl;
-    }
-    
-    if ( _init_frequencies.size() > 0 ) {
-        return _init_frequencies;
-    }
-    
-    
-    auto first_generation = _actual_data[0].gen;
-    std::vector<FLOAT_TYPE> tmp_freqs(0);
-    
-    for (auto current_entry : _actual_data) {
-        if (current_entry.gen == first_generation) {
-            tmp_freqs.push_back(current_entry.freq);
-        }
-    }
-    
-    _init_frequencies = tmp_freqs;
-    return tmp_freqs;
-}
-
-std::vector<FLOAT_TYPE> ActualDataFile::GetActualFrequencies()
-{
-    if (!_is_initialized) {
-        std::cerr << "GetActualFrequencies - object uninitialized" << std::endl;
-    }
-    
-    if ( _actual_frequencies.size() > 0 ) {
-        return _actual_frequencies;
-    }
-    std::vector<FLOAT_TYPE> tmp_freq_vec;
-    
-    
-    for (auto current_entry : _actual_data) {
-        tmp_freq_vec.push_back(current_entry.freq);
-    }
-    
-    _actual_frequencies = tmp_freq_vec;
-    return tmp_freq_vec;
-}
-
-
-int ActualDataFile::GetFirstGeneration()
-{
-    if (!_is_initialized) {
-        std::cerr << "GetFirstGeneration - object uninitialized" << std::endl;
-    }
-    
-    // not need to sort, it's done when loaded
-    //std::sort(_actual_data.begin(), _actual_data.end());
-    
-    auto ret_gen = _actual_data[0].gen;
-    return ret_gen;
-}
-
-int ActualDataFile::GetLastGeneration()
-{
-    if (!_is_initialized) {
-        std::cerr << "GetLastGeneration - object uninitialized" << std::endl;
-    }
-    
-    // not need to sort, it's done when loaded
-    //std::sort(_actual_data.begin(), _actual_data.end());
-    
-    auto ret_gen = _actual_data[ _actual_data.size() - 1 ].gen;
-    return ret_gen;
-}
-
-
-int ActualDataFile::GetNumberOfAlleles()
-{
-    if ( _actual_data.empty() ) {
-        throw "Get number of alleles - actual data vector is empty.";
-    }
-    
-    if ( _actual_data.size() <= 1 ) {
-        throw "Get number of alleles - actual data vector contains only 1 entry.";
-    }
-    
-    if ( _num_alleles > -1 ) {
-        return _num_alleles;
-    }
-    
-    // not need to sort, it's done when loaded
-    // std::sort(_actual_data.begin(), _actual_data.end());
-    
-    auto max_known_allele = 0;
-    auto allele_ascending = true;
-    
-    while ( max_known_allele < _actual_data.size() && allele_ascending ) {
-        ++max_known_allele;
-        allele_ascending =
-        _actual_data[max_known_allele].allele > _actual_data[max_known_allele-1].allele;
-    
-    }
-    
-    _num_alleles = max_known_allele;
-    return max_known_allele;
-}
-
-
-MATRIX_TYPE ActualDataFile::GetActualFreqsAsMatrix()
-{
-    auto num_alleles = GetNumberOfAlleles();
-    auto actual_generations = GetActualGenerations();
-    auto num_generations = actual_generations.size();
-    
-    MATRIX_TYPE freq_matrix( num_generations, num_alleles );
-    
-    auto actual_freqs = GetActualFrequencies();
-    
-    for ( auto i=0; i<actual_freqs.size(); ++i ) {
-        
-        auto current_row = i / num_alleles;
-        auto current_col = i %  num_alleles;
-        
-        freq_matrix(current_row, current_col) = actual_freqs[i];
-    }
-    
-    return freq_matrix;
-}
-
-
-int ActualDataFile::GetWTIndex()
-{
-    if ( _wt_index > -1 ) {
-        return _wt_index;
-    }
-    
-    auto first_generation = _actual_data[0].gen;
-    
-    auto current_wt_idx = -1;
-    FLOAT_TYPE current_wt_freq = -1.0f;
-    
-    for (auto current_entry : _actual_data) {
-        if ( current_entry.gen == first_generation ) {
-            if (current_entry.freq > current_wt_freq) {
-                current_wt_idx = current_entry.allele;
-                current_wt_freq = current_entry.freq;
-            }
-        }
-    }
-    
-    _wt_index = current_wt_idx;
-    return current_wt_idx;
-}

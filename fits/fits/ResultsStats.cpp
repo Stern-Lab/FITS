@@ -264,7 +264,7 @@ std::string ResultsStats::GetSummaryHeader()
         ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
     }
     
-    ss << "=====================" << std::endl;
+    ss << "---------------------" << std::endl;
     
     return ss.str();
 }

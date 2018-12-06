@@ -19,7 +19,8 @@
 #include "SimulationResult.hpp"
 
 SimulationResult::SimulationResult()
-: N(0),
+: pos(-1),
+N(0),
 wt_index(-1),
 sim_id(""),
 distance_metric(""),
@@ -36,7 +37,8 @@ num_generations(0)
 
 
 SimulationResult::SimulationResult(const SimulationResult &original)
-: N(original.N),
+: pos(original.pos),
+N(original.N),
 wt_index(original.wt_index),
 sim_id(original.sim_id),
 distance_metric(original.distance_metric),
@@ -53,7 +55,8 @@ num_generations(original.num_generations)
 
 
 SimulationResult::SimulationResult(const CMulator& sim_object)
-: sim_id(sim_object.GetSimUID()),
+: pos(-1),
+sim_id(sim_object.GetSimUID()),
 distance_from_actual(-1.0f),
 distance_metric(""),
 fitness_values(sim_object.GetAlleleFitnessValues()),
@@ -68,7 +71,8 @@ num_generations(sim_object.GetNumOfGenerations())
 {}
 
 SimulationResult::SimulationResult(const CMulator& sim_object, std::vector<int> actual_gens)
-: sim_id(sim_object.GetSimUID()),
+: pos(-1),
+sim_id(sim_object.GetSimUID()),
 distance_from_actual(-1.0f),
 distance_metric(""),
 fitness_values(sim_object.GetAlleleFitnessValues()),
@@ -108,6 +112,7 @@ bool SimulationResult::operator<(const SimulationResult& result) const
 // Swap functions
 void SimulationResult::swap( SimulationResult& other )
 {
+    std::swap(pos, other.pos);
     std::swap(N, other.N);
     std::swap(wt_index, other.wt_index);
     sim_id.swap(other.sim_id);

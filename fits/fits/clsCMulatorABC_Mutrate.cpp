@@ -38,13 +38,13 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
     }
     
     // set initial frequencies from actual data
-    auto init_freq_vec = _actual_data_file.GetInitFreqs();
+    auto init_freq_vec = _actual_data_position.GetInitFreqs();
     for (auto i = 0; i < init_freq_vec.size(); ++i) {
         local_sim_object.SetAlleleInitFreq(i, init_freq_vec[i]);
     }
     
-    auto first_generation = _actual_data_file.GetFirstGeneration();
-    auto last_generation = _actual_data_file.GetLastGeneration();
+    auto first_generation = _actual_data_position.GetFirstGeneration();
+    auto last_generation = _actual_data_position.GetLastGeneration();
     auto num_generations = last_generation - first_generation + 1;
     local_sim_object.SetGenerationShift(first_generation);
     local_sim_object.SetNumOfGeneration(num_generations);
@@ -133,7 +133,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
         // SimulationResult sim_result(local_sim_object);
         
         // keep only the generations we need to conserve memory
-        auto tmp_actual_generations = _actual_data_file.GetActualGenerations();
+        auto tmp_actual_generations = _actual_data_position.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
         
         //tmp_res_vector.push_back(std::move(sim_result));

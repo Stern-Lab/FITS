@@ -30,13 +30,13 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
     }
     
     // set initial frequencies from actual data
-    auto init_freq_vec = _actual_data_file.GetInitFreqs();
+    auto init_freq_vec = _actual_data_position.GetInitFreqs();
     for (auto i = 0; i < init_freq_vec.size(); ++i) {
         local_sim_object.SetAlleleInitFreq(i, init_freq_vec[i]);
     }
     
-    auto first_generation = _actual_data_file.GetFirstGeneration();
-    auto last_generation = _actual_data_file.GetLastGeneration();
+    auto first_generation = _actual_data_position.GetFirstGeneration();
+    auto last_generation = _actual_data_position.GetLastGeneration();
     auto num_generations = last_generation - first_generation + 1;
     local_sim_object.SetGenerationShift(first_generation);
     local_sim_object.SetNumOfGeneration(num_generations);
@@ -46,7 +46,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
         std::cout << "last generation = " << last_generation << std::endl;
         std::cout << "number of generations = " << num_generations << std::endl;
     }
-    local_sim_object.SetWTAllele( _actual_data_file.GetWTIndex() );
+    local_sim_object.SetWTAllele( _actual_data_position.GetWTIndex() );
     
     
     // composite is the default for fitness
@@ -120,7 +120,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
         _float_prior_archive.push_back( current_fitness_vector );
                 
         // keep only the generations we need, to conserve memory 2017-04-02
-        auto tmp_actual_generations = _actual_data_file.GetActualGenerations();
+        auto tmp_actual_generations = _actual_data_position.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
         
         tmp_res_vector.push_back(sim_result);

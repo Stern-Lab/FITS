@@ -19,11 +19,11 @@
 #include "clsCMulatorABC.h"
 #include "fits_constants.h"
 
-clsCMulatorABC::clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file ) :
+clsCMulatorABC::clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position ) :
 _zparams(sim_params),
 _total_running_time_sec(0),
 _prior_type(PriorDistributionType::UNIFORM),
-_actual_data_file(actual_data_file),
+_actual_data_position(actual_data_position),
 _simulation_result_vector(),
 _float_prior_archive(),
 _int_prior_archive(),
@@ -31,7 +31,13 @@ _use_rejection_threshold(true)
 {
     ResetRejectionThreshold();
     
-    _repeats = _zparams.GetInt( "_num_repeats" );
+    //_repeats = _zparams.GetInt( "_num_repeats" );
+    try {
+        _repeats = _zparams.GetInt( fits_constants::PARAM_SIM_REPEATS );
+    }
+    catch (...) {
+        throw "Error: Number of simulations not specified in parameters file.";
+    }
     
     _num_alleles = _zparams.GetUnsignedInt( "_num_alleles", 0 );
     
@@ -45,10 +51,9 @@ _use_rejection_threshold(true)
                                         fits_constants::ACCEPTANCE_LIMIT_DEFAULT ) * _repeats;
     }
     
-    // TODO: check what rejection method we use, verify that at least one is given
     
-    _selected_actual_generations = actual_data_file.GetActualGenerations();
-    _actual_data_raw_freqs = actual_data_file.GetActualFrequencies();
+    _selected_actual_generations = _actual_data_position.GetActualGenerations();
+    _actual_data_raw_freqs = _actual_data_position.GetActualFrequencies();
     
     auto _time_for_seeding = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
     _boost_gen.seed(_time_for_seeding);
@@ -199,8 +204,8 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     
     
     // get actual data matrix
-    auto actual_generations = _actual_data_file.GetActualGenerations();
-    auto actual_matrix = _actual_data_file.GetActualFreqsAsMatrix();
+    auto actual_generations = _actual_data_position.GetActualGenerations();
+    auto actual_matrix = _actual_data_position.GetActualFreqsAsMatrix();
     
     
     // from each simulation result, get only the relevant generations

@@ -86,7 +86,8 @@ private:
 
 	std::vector<SimulationResult> _simulation_result_vector;
     
-    ActualDataFile _actual_data_file;
+    //ActualDataFile _actual_data_file;
+    ActualDataPositionData _actual_data_position;
     
     std::vector<ActualDataEntry> _actual_data_vector;
     std::vector<FLOAT_TYPE> _actual_data_raw_freqs;
@@ -97,7 +98,9 @@ private:
     std::vector< std::vector<int> > _int_prior_archive;
     
 public:
-    clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
+    
+    //clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
+    clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position );
 
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );
     

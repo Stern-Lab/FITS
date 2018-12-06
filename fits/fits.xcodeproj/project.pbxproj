@@ -30,6 +30,9 @@
 		993357DB219D84B40086239E /* ResultsStats_IO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357C1219D84B30086239E /* ResultsStats_IO.cpp */; };
 		993357DC219D84B40086239E /* ActualDataFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357C2219D84B40086239E /* ActualDataFile.cpp */; };
 		993357DD219D84B40086239E /* clsCMulatorABC_Popsize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357C3219D84B40086239E /* clsCMulatorABC_Popsize.cpp */; };
+		9966661621B9454500CC107B /* ActualDataFile_Position.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9966661521B9454500CC107B /* ActualDataFile_Position.cpp */; };
+		9966661821B94D6400CC107B /* ActualDataFile_File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9966661721B94D6400CC107B /* ActualDataFile_File.cpp */; };
+		9966661A21B96B1300CC107B /* FITS_Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9966661921B96B1300CC107B /* FITS_Tests.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -78,6 +81,9 @@
 		993357C3219D84B40086239E /* clsCMulatorABC_Popsize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = clsCMulatorABC_Popsize.cpp; sourceTree = "<group>"; };
 		993357C4219D84B40086239E /* PriorSampler.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PriorSampler.hpp; sourceTree = "<group>"; };
 		993357DE219D94C90086239E /* gpl.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gpl.txt; sourceTree = "<group>"; };
+		9966661521B9454500CC107B /* ActualDataFile_Position.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ActualDataFile_Position.cpp; sourceTree = "<group>"; };
+		9966661721B94D6400CC107B /* ActualDataFile_File.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ActualDataFile_File.cpp; sourceTree = "<group>"; };
+		9966661921B96B1300CC107B /* FITS_Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FITS_Tests.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,8 +116,9 @@
 		9933579B219D83F40086239E /* fits */ = {
 			isa = PBXGroup;
 			children = (
-				993357DE219D94C90086239E /* gpl.txt */,
 				993357BC219D84B30086239E /* ActualDataFile_Entry.cpp */,
+				9966661721B94D6400CC107B /* ActualDataFile_File.cpp */,
+				9966661521B9454500CC107B /* ActualDataFile_Position.cpp */,
 				993357C2219D84B40086239E /* ActualDataFile.cpp */,
 				993357B1219D84B20086239E /* ActualDataFile.hpp */,
 				993357B9219D84B30086239E /* clsCMulatorABC_Fitness.cpp */,
@@ -130,6 +137,8 @@
 				993357BB219D84B30086239E /* CMulator.h */,
 				993357BD219D84B30086239E /* CMulatorMain.cpp */,
 				993357AC219D84B10086239E /* fits_constants.h */,
+				9966661921B96B1300CC107B /* FITS_Tests.cpp */,
+				993357DE219D94C90086239E /* gpl.txt */,
 				993357A7219D84B10086239E /* PriorSampler.cpp */,
 				993357C4219D84B40086239E /* PriorSampler.hpp */,
 				993357A3219D84B10086239E /* ResultsStats_Fitness.cpp */,
@@ -210,15 +219,18 @@
 				993357DC219D84B40086239E /* ActualDataFile.cpp in Sources */,
 				993357CC219D84B40086239E /* CMulator_Utilities.cpp in Sources */,
 				993357CA219D84B40086239E /* CMulator_Core.cpp in Sources */,
+				9966661821B94D6400CC107B /* ActualDataFile_File.cpp in Sources */,
 				993357D0219D84B40086239E /* CMulator_Constructors.cpp in Sources */,
 				993357C6219D84B40086239E /* CMulator_GetSet.cpp in Sources */,
 				993357CE219D84B40086239E /* ResultsStats.cpp in Sources */,
 				993357D2219D84B40086239E /* clsCMulatorABC.cpp in Sources */,
 				993357C8219D84B40086239E /* clsCMulatorABC_Utilities.cpp in Sources */,
 				993357CD219D84B40086239E /* ResultsStats_PopulationSize.cpp in Sources */,
+				9966661A21B96B1300CC107B /* FITS_Tests.cpp in Sources */,
 				993357C7219D84B40086239E /* CMulator_IO.cpp in Sources */,
 				993357C5219D84B40086239E /* ResultsStats_Fitness.cpp in Sources */,
 				993357C9219D84B40086239E /* PriorSampler.cpp in Sources */,
+				9966661621B9454500CC107B /* ActualDataFile_Position.cpp in Sources */,
 				993357D1219D84B40086239E /* clsCMulatorABC_Mutrate.cpp in Sources */,
 				993357DB219D84B40086239E /* ResultsStats_IO.cpp in Sources */,
 				993357D8219D84B40086239E /* CMulatorMain.cpp in Sources */,

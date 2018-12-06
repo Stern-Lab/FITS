@@ -115,8 +115,8 @@ namespace fits_constants {
     const std::string PARAM_LOGISTIC_GROWTH = "_logistic_growth";
     const std::string PARAM_LOGISTIC_GROWTH_K = "_logistic_growth_K";
     const std::string PARAM_LOGISTIC_GROWTH_r = "_logistic_growth_r";
-    const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MIN = 0.0;
-    const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MAX = 2.0;
+    const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MIN = 0.0f;
+    const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MAX = 2.0f;
     
     const std::string PARAM_EPSILON_FLOAT_COMPARE = "_epsilon_float_compare";
     
