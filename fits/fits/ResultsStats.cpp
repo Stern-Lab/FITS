@@ -22,7 +22,7 @@ ResultsStats::ResultsStats(ZParams zparams)
 :
 _running_time_sec(0),
 _num_results(0),
-_num_alleles(0),
+_num_alleles( zparams.GetInt(fits_constants::PARAM_NUM_ALLELES, 0) ),
 _num_generations(0),
 allele_mean_fitness(_num_alleles),
 allele_sd_fitness(_num_alleles),
@@ -252,6 +252,8 @@ std::string ResultsStats::GetSummaryHeader()
     ss << std::put_time(&current_time_final, "%F (year-month-day) %T (hours:minutes:seconds)") << std::endl;
     
     ss << "Simulation results used for calculations: " << _num_results << std::endl;
+    
+    ss << "Alleles: " << _num_alleles << std::endl;
     
     if ( _running_time_sec > 0 ) {
         auto running_minutes = _running_time_sec / 60;

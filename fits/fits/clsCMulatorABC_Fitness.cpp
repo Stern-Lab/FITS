@@ -69,24 +69,14 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
         std::cerr << "Unkown prior distribution: " << tmp_prior << ". Setting to uniform as default." << std::endl;
     }
 
-    //sampler.SetManualCategoryProportions(_zparams);
-    //std::cout << "checkpoint 3" << std::endl;
     auto min_fitness_vec = local_sim_object.GetAlleleMinFitnessValues();
     auto max_fitness_vec = local_sim_object.GetAlleleMaxFitnessValues();
     
-    
-    //std::cout << "checkpoint 3.5" << std::endl;
-    
     PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
-    //std::cout << "checkpoint 4" << std::endl;
-    
-    
-    //std::cout << "checkpoint 5" << std::endl;
-    //auto fitness_vector_list = _fitness_range.GetRandomCombinations(num_simulations, false);
-    //std::cout << "prior...";
+
     auto fitness_vector_list = sampler.SamplePrior(num_simulations);
-    //std::cout << " Done." << std::endl;
-    //auto fitness_vector_list = sampler.SamplePriorFast(num_simulations);
+
+
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
         std::cout << "BEGIN Debug: Prior distribution" << std::endl;
@@ -110,7 +100,6 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
     
     
     // simulation for each set of parameters
-    
     for (auto current_fitness_vector : fitness_vector_list) {
 
         local_sim_object.Reset_Soft();

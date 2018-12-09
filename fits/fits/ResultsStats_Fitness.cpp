@@ -31,8 +31,6 @@ void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& re
     
     MATRIX_TYPE posterior_matrix( _num_results, _num_alleles );
     
-    
-    
     boost::accumulators::accumulator_set<
     FLOAT_TYPE,
     boost::accumulators::stats<

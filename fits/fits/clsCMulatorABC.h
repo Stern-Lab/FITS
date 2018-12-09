@@ -64,7 +64,7 @@ enum FactorToInfer {
 class clsCMulatorABC 
 {
 private:
-    double _total_running_time_sec;
+    std::size_t _total_running_time_sec;
     
     boost::mt19937 _boost_gen;
     
@@ -95,11 +95,12 @@ private:
     
     // stores samples from the prior
     std::vector< std::vector<FLOAT_TYPE> > _float_prior_archive;
-    std::vector< std::vector<int> > _int_prior_archive;
+    //std::vector< std::vector<int> > _int_prior_archive;
     
 public:
     
     //clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
+    clsCMulatorABC();
     clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position );
 
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );

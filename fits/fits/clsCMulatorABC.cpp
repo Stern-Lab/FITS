@@ -19,6 +19,9 @@
 #include "clsCMulatorABC.h"
 #include "fits_constants.h"
 
+clsCMulatorABC::clsCMulatorABC()
+{}
+
 clsCMulatorABC::clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position ) :
 _zparams(sim_params),
 _total_running_time_sec(0),
@@ -26,7 +29,6 @@ _prior_type(PriorDistributionType::UNIFORM),
 _actual_data_position(actual_data_position),
 _simulation_result_vector(),
 _float_prior_archive(),
-_int_prior_archive(),
 _use_rejection_threshold(true)
 {
     ResetRejectionThreshold();
@@ -64,12 +66,12 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
 {
     _simulation_result_vector.clear();
     _float_prior_archive.clear();
-    _int_prior_archive.clear();
+    // _int_prior_archive.clear();
     
     
     
     // performace tracking
-    boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::mean>> rate_stats;
+    boost::accumulators::accumulator_set<std::size_t, boost::accumulators::stats<boost::accumulators::tag::mean>> rate_stats;
     
     auto remaining_repeats = _repeats;
     auto repeats_in_batch = _repeats / number_of_batches;
@@ -158,29 +160,6 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     } // while (remaining_repeats > 0)
     
     
-    /*
-     // NOT RELEVANT ANYMORE
-     
-    std::cout << "Freeing up memory... ";
-    std::cout << _simulation_result_vector.capacity() << " -> ";
-    _simulation_result_vector.shrink_to_fit();
-    std::cout << _simulation_result_vector.capacity();
-    std::cout << "Done." << std::endl;
-     */
-    
-    /*
-    if (_simulation_result_vector.size() > _sims_to_keep) {
-        
-        std::cout << "Total results count is " << _simulation_result_vector.size()
-        << ", capacity is " << _simulation_result_vector.capacity() << std::endl;
-        
-        // added 2016-09-04 maybe this will help to prevent page fault previouly caused by large vectors
-        _simulation_result_vector.shrink_to_fit();
-        
-        std::cout << "Final results count is " << _simulation_result_vector.size() << ", capacity is " << _simulation_result_vector.capacity() << std::endl;
-    }
-    */
-    
     std::cout << "Calculating distance... ";
     
     // scaling factor; default actualling means no scaling (divide by 1)
@@ -198,9 +177,6 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     if ( scaling_option_str.compare(fits_constants::PARAM_SCALING_MAD) == 0) {
         scaling_vector = GetMADPerAllele(0, _simulation_result_vector.size());
     }
-    
-    //std::cout << "scaling vector" << scaling_vector.size() << std::endl;
-    //auto scaling_vector = GetMADPerAllele(0, _simulation_result_vector.size());
     
     
     // get actual data matrix
@@ -226,10 +202,9 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     
     auto end_global = std::chrono::high_resolution_clock::now();
     auto global_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_global - start_global);
-    _total_running_time_sec = static_cast<std::size_t>(global_elapsed_ms.count()) / 1000.0f;
+    _total_running_time_sec = static_cast<std::size_t>(global_elapsed_ms.count()) / 1000;
     
-    std::cout << std::endl;
-    std::cout << "Total running time: " << _total_running_time_sec << " seconds" << std::endl;
+    std::cout << "Running time for position: " << _total_running_time_sec << " seconds" << std::endl;
     std::cout << "Average simulation rate: " << boost::accumulators::mean(rate_stats) << " simulations/second" << std::endl;
 }
 
@@ -420,17 +395,9 @@ FLOAT_TYPE clsCMulatorABC::GetDistanceSimActual( const MATRIX_TYPE &actual_data,
 
     if ( tmp_distance_metric.compare(fits_constants::PARAM_DISTANCE_L1) == 0 ) {
         
-        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-            std::cout << "Calculating L1 distance:" << std::endl;
-        }
-        
         calculated_distance = DistanceL1( actual_data, sim_data, scaling_vector );
     }
     else if ( tmp_distance_metric.compare(fits_constants::PARAM_DISTANCE_L2) == 0 ) {
-        
-        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-            std::cout << "Calculating L2 distance:" << std::endl;
-        }
         
         calculated_distance = DistanceL2( actual_data, sim_data, scaling_vector );
     }
@@ -443,11 +410,6 @@ std::vector< std::vector<FLOAT_TYPE>> clsCMulatorABC::GetPriorFloat()
     return _float_prior_archive;
 }
 
-std::vector< std::vector<int>> clsCMulatorABC::GetPriorInt()
-{
-    return _int_prior_archive;
-}
-
 std::string clsCMulatorABC::GetPriorFloatAsString()
 {
     std::string tmp_str = "";
@@ -456,21 +418,6 @@ std::string clsCMulatorABC::GetPriorFloatAsString()
         for ( auto current_val : current_vec ) {
             
             tmp_str += std::to_string(current_val) + "\t";
-        }
-        tmp_str = tmp_str + "\n";
-    }
-    return tmp_str;
-}
-
-std::string clsCMulatorABC::GetPriorIntAsString()
-{
-    std::string tmp_str = "";
-    for ( auto current_vec : _int_prior_archive ) {
-        
-        for ( auto current_val : current_vec ) {
-            
-            tmp_str += std::to_string(current_val) + "\t";
-            std::cout << tmp_str << "\t";
         }
         tmp_str = tmp_str + "\n";
     }

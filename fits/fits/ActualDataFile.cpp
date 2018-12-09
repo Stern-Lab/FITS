@@ -201,6 +201,26 @@ void ActualDataFile::LoadActualData( std::string filename )
     
     infile.close();
     
+    
+    // do some consistency checks for all positions
+    if ( _multi_positions ) {
+        
+        int global_num_alleles = -1;
+        for ( auto current_position_data : _position_data ) {
+            
+            if ( global_num_alleles < 0 ) {
+                global_num_alleles = current_position_data.GetNumberOfAlleles();
+                continue;
+            }
+            
+            auto current_num_alleles = current_position_data.GetNumberOfAlleles();
+            
+            if ( global_num_alleles != current_num_alleles ) {
+                std::cerr << "Inconsistant number of alleles found in actual data file (" << global_num_alleles << " vs. " << current_num_alleles << ")" << std::endl;
+                throw "Inconsistant number of alleles found in data file";
+            }
+        }
+    }
     _is_initialized = true;
 }
 

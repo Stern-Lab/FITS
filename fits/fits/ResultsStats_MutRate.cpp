@@ -177,7 +177,7 @@ std::string ResultsStats::GetSummaryMutRate()
      //   ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
     //}
     
-    
+
     ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1) << std::endl;
     ss << "Distance metric: " << _distance_metric << std::endl;
     
@@ -185,12 +185,12 @@ std::string ResultsStats::GetSummaryMutRate()
         ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")" << std::endl;
     }
     
-    
     if ( _single_mutrate_inferred ) {
         ss << "Inferred a single mutation rate." << std::endl;
     }
     
     ss << "====================" << std::endl;
+    
     
     // first header row - "to"
     ss << boost::format("%-12s") % "";
@@ -198,6 +198,7 @@ std::string ResultsStats::GetSummaryMutRate()
         ss << boost::format("%-48s") % ("to " + std::to_string(col));
     }
     ss << std::endl;
+    
     
     // second header row
     ss << boost::format("%-12s") % "";

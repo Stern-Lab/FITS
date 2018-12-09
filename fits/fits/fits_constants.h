@@ -35,7 +35,7 @@ namespace fits_constants {
     
     
     /* GENERAL */
-    const std::string current_version_str = "1.1";
+    const std::string current_version_str = "1.1.1";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05;
     
     /* COMMAND LINE ARGUMANTS */

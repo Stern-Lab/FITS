@@ -90,34 +90,49 @@ int ActualDataPositionData::GetNumberOfAlleles()
         throw "Get number of alleles - actual data vector contains only 1 entry.";
     }
     
-    if ( _num_alleles > -1 ) {
+    if ( _num_alleles > 0 ) {
         return _num_alleles;
     }
     
-    // not need to sort, it's done when loaded
-    // std::sort(_actual_data.begin(), _actual_data.end());
+    auto first_gen = _actual_data[0].gen;
+    int i=0;
     
-    auto max_known_allele = 0;
-    auto allele_ascending = true;
-    
-    while ( max_known_allele < _actual_data.size() && allele_ascending ) {
-        ++max_known_allele;
-        allele_ascending =
-        _actual_data[max_known_allele].allele > _actual_data[max_known_allele-1].allele;
-        
+    while ( _actual_data[i].gen == first_gen ) {
+        ++i;
     }
     
-    _num_alleles = max_known_allele;
-    return max_known_allele;
+    //std::cout << "GetNumberOfAlleles: " << i << std::endl;
+    _num_alleles = i;
+    
+    return _num_alleles;
 }
+
 
 int ActualDataPositionData::GetWTIndex()
 {
+    
+    if ( _wt_index > -1 ) {
+        return _wt_index;
+    }
+    
     auto first_generation = _actual_data[0].gen;
     
+    int current_idx = 0;
     auto current_wt_idx = -1;
     FLOAT_TYPE current_wt_freq = -1.0f;
     
+    while (_actual_data[current_idx].gen == first_generation ) {
+        if ( _actual_data[current_idx].freq > current_wt_freq ) {
+            current_wt_freq = _actual_data[current_idx].freq;
+            current_wt_idx = current_idx;
+        }
+        ++current_idx;
+    }
+    
+    _wt_index = current_wt_idx;
+    return current_wt_idx;
+    
+    /*
     for (auto current_entry : _actual_data) {
         if ( current_entry.gen == first_generation ) {
             if (current_entry.freq > current_wt_freq) {
@@ -126,9 +141,7 @@ int ActualDataPositionData::GetWTIndex()
             }
         }
     }
-    
-    _wt_index = current_wt_idx;
-    return current_wt_idx;
+     */
 }
 
 
