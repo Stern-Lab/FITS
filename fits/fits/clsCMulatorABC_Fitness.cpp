@@ -19,7 +19,7 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::size_t num_simulations )
+std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( PRIOR_DISTRIB prior_distrib )
 {
     // initialization
     CMulator local_sim_object(_zparams);
@@ -69,20 +69,19 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
         std::cerr << "Unkown prior distribution: " << tmp_prior << ". Setting to uniform as default." << std::endl;
     }
 
-    auto min_fitness_vec = local_sim_object.GetAlleleMinFitnessValues();
-    auto max_fitness_vec = local_sim_object.GetAlleleMaxFitnessValues();
+    //auto min_fitness_vec = local_sim_object.GetAlleleMinFitnessValues();
+    //auto max_fitness_vec = local_sim_object.GetAlleleMaxFitnessValues();
     
-    PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
+    //PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
 
-    auto fitness_vector_list = sampler.SamplePrior(num_simulations);
-
+    //auto fitness_vector_list = sampler.SamplePrior(num_simulations);
 
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
         std::cout << "BEGIN Debug: Prior distribution" << std::endl;
         std::cout << "================================" << std::endl;
         
-        for ( auto current_fitness_vector : fitness_vector_list ) {
+        for ( auto current_fitness_vector : prior_distrib ) {
             
             for ( auto current_fitness_val : current_fitness_vector ) {
                 
@@ -100,7 +99,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( std::siz
     
     
     // simulation for each set of parameters
-    for (auto current_fitness_vector : fitness_vector_list) {
+    for (auto current_fitness_vector : prior_distrib) {
 
         local_sim_object.Reset_Soft();
         local_sim_object.SetFitnessValues(current_fitness_vector);

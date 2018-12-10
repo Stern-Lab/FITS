@@ -18,7 +18,7 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( std::size_t num_simulations )
+std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( PRIOR_DISTRIB prior_distrib )
 {
     // initialization
     CMulator local_sim_object(_zparams);
@@ -61,12 +61,12 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( s
     
     PriorSampler<FLOAT_TYPE> sampler( minN, maxN, PriorDistributionType::UNIFORM );
     
-    auto popsize_vector_list = sampler.SamplePrior(num_simulations);
+    //auto popsize_vector_list = sampler.SamplePrior(num_simulations);
     
-    std::vector<SimulationResult> tmp_res_vector;
+        std::vector<SimulationResult> tmp_res_vector;
     
     // simulation for each set of parameters
-    for (auto current_popsize : popsize_vector_list) {
+    for (auto current_popsize : prior_distrib) {
         
         local_sim_object.Reset_Soft();
         local_sim_object.SetPopulationSize( std::pow( 10, current_popsize[0]) );

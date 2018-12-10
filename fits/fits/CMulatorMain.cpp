@@ -115,13 +115,17 @@ int InferABC( FactorToInfer factor,
     std::size_t running_time_sec = 0;
     std::vector<SimulationResult> accepted_results_vector(0);
     std::vector< std::vector<FLOAT_TYPE>> used_prior_distrib;
-    auto results_to_accept = -1;
+    std::size_t results_to_accept = 0;
     
     try {
         
         auto positions_detected = actual_data_file.GetNumberOfPositions();
         
         if (positions_detected>1) {
+            
+            // multiple positions
+            
+            std::vector< std::vector<FLOAT_TYPE>> global_prior(0);
             
             auto actual_positions_vec = actual_data_file.GetPositionNumbers();
             
@@ -134,6 +138,12 @@ int InferABC( FactorToInfer factor,
                 /*  Run simulations  */
                 /* ----------------- */
                 clsCMulatorABC abc_object_sim( my_zparams, current_position_data );
+                
+                if ( !global_prior.empty() ) {
+                    std::cout << "setting global prior" << std::endl;
+                    abc_object_sim.SetPriorFloat(global_prior);
+                }
+                
                 
                 results_to_accept = abc_object_sim.GetNumberOfKeptResults() * positions_detected;
                 
@@ -159,15 +169,24 @@ int InferABC( FactorToInfer factor,
                 }
                 std::cout << "Done." << std::endl;
                 
-                if ( prior_output_filename.compare("") != 0 ) {
+                if ( global_prior.empty() ) {
+                    std::cout << "storing global prior: ";
+                    //global_prior = abc_object_sim.GetPriorFloat();
+                    
                     auto tmp_prior = abc_object_sim.GetPriorFloat();
                     
                     for ( auto current_vec : tmp_prior ) {
+                        global_prior.push_back(current_vec);
                         used_prior_distrib.push_back(current_vec);
                     }
+                    
+                    std::cout << global_prior.size() << std::endl;
                 }
             }
             
+            if ( prior_output_filename.compare("") != 0 ) {
+                
+            }
             
             std::cout << "Finished running simulations." << std::endl;
             

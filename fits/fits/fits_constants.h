@@ -30,6 +30,7 @@
 #define FLOAT_TYPE double
 #define MATRIX_TYPE boost::numeric::ublas::matrix<FLOAT_TYPE>
 #define INT_MATRIX boost::numeric::ublas::matrix<int>
+#define PRIOR_DISTRIB std::vector< std::vector<FLOAT_TYPE> >
 
 namespace fits_constants {
     

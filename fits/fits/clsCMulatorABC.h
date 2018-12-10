@@ -83,6 +83,7 @@ private:
     ZParams _zparams;
     
     PriorDistributionType _prior_type;
+    
 
 	std::vector<SimulationResult> _simulation_result_vector;
     
@@ -124,10 +125,17 @@ public:
     std::vector<SimulationResult> GetResultsVector(bool only_accepted_results=false);
     
     void RunABCInference( FactorToInfer factor, std::size_t number_of_batches );
-    std::vector<SimulationResult> RunFitnessInferenceBatch( std::size_t num_simulations );
-    std::vector<SimulationResult> RunPopulationSizeInferenceBatch( std::size_t num_simulations );
-    std::vector<SimulationResult> RunMutationInferenceBatch( std::size_t num_simulations );
+    
+    
+    //std::vector<SimulationResult> RunFitnessInferenceBatch( std::size_t num_simulations );
+    //std::vector<SimulationResult> RunPopulationSizeInferenceBatch( std::size_t num_simulations );
+    //std::vector<SimulationResult> RunMutationInferenceBatch( std::size_t num_simulations );
 
+    std::vector<SimulationResult> RunFitnessInferenceBatch( PRIOR_DISTRIB prior_distrib );
+    std::vector<SimulationResult> RunPopulationSizeInferenceBatch( PRIOR_DISTRIB prior_distrib );
+    std::vector<SimulationResult> RunMutationInferenceBatch( PRIOR_DISTRIB prior_distrib );
+
+    
     std::vector<FLOAT_TYPE> GetSDPerAllele( std::size_t start_idx, std::size_t end_idx );
     std::vector<FLOAT_TYPE> GetMADPerAllele( std::size_t start_idx, std::size_t end_idx );
     void DivideEachAllele( std::size_t start_idx, std::size_t end_idx, std::vector<FLOAT_TYPE> value_vector );
@@ -135,7 +143,9 @@ public:
     void CalculateResultsDistances( FLOAT_TYPE scaling_factor = 1.0f );
     
     std::vector< std::vector<FLOAT_TYPE>> GetPriorFloat();
-    std::vector< std::vector<int>> GetPriorInt();
+    void SetPriorFloat( std::vector< std::vector<FLOAT_TYPE>> given_prior );
+    bool _use_stored_prior;
+    //std::vector< std::vector<int>> GetPriorInt();
     
     std::string GetPriorFloatAsString();
     std::string GetPriorIntAsString();

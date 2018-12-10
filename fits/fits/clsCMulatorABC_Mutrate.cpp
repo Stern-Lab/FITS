@@ -18,7 +18,7 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::size_t num_simulations )
+std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( PRIOR_DISTRIB prior_distrib )
 {
     // initialize sim object
     CMulator local_sim_object(_zparams);
@@ -54,12 +54,13 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
     auto wt_allele_idx = static_cast<unsigned int>(std::distance(init_freq_vec.begin(), wt_allele_it));
     local_sim_object.SetWTAllele(wt_allele_idx, 0.0f, 2.0f);
     
-    auto min_matrix = local_sim_object.GetMinMutationRateMatrix();
-    auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
+    //auto min_matrix = local_sim_object.GetMinMutationRateMatrix();
+    //auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
     
-    PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM);
+    //PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM);
     
-    auto mutrate_vector_list = sampler.SamplePrior( num_simulations );
+    
+    //std::vector< std::vector<FLOAT_TYPE> >  mutrate_vector_list;
     
     
     std::vector<SimulationResult> tmp_res_vector;
@@ -69,9 +70,9 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
     }
     
     // simulation for each set of parameters
-    for (auto current_mutrate_idx=0; current_mutrate_idx<mutrate_vector_list.size(); ++current_mutrate_idx ) {
+    for (auto current_mutrate_idx=0; current_mutrate_idx<prior_distrib.size(); ++current_mutrate_idx ) {
         
-        auto current_mutrate_vector = mutrate_vector_list[current_mutrate_idx];
+        auto current_mutrate_vector = prior_distrib[current_mutrate_idx];
         
         local_sim_object.Reset_Soft();
         
