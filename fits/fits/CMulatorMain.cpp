@@ -114,8 +114,10 @@ int InferABC( FactorToInfer factor,
     FLOAT_TYPE tmp_rejection_threshold = -1.0f;
     std::size_t running_time_sec = 0;
     std::vector<SimulationResult> accepted_results_vector(0);
-    std::vector< std::vector<FLOAT_TYPE>> used_prior_distrib;
+    PRIOR_DISTRIB used_prior_distrib;
     std::size_t results_to_accept = 0;
+    PriorDistributionType prior_type;
+    std::vector<FLOAT_TYPE> multi_pos_distance_vec;
     
     try {
         
@@ -125,9 +127,11 @@ int InferABC( FactorToInfer factor,
             
             // multiple positions
             
-            std::vector< std::vector<FLOAT_TYPE>> global_prior(0);
+            //std::vector< std::vector<FLOAT_TYPE>> global_prior(0);
             
             auto actual_positions_vec = actual_data_file.GetPositionNumbers();
+            
+            PRIOR_DISTRIB global_prior;
             
             for ( auto current_position_num : actual_positions_vec ) {
                 
@@ -137,15 +141,22 @@ int InferABC( FactorToInfer factor,
                 /* ----------------- */
                 /*  Run simulations  */
                 /* ----------------- */
-                clsCMulatorABC abc_object_sim( my_zparams, current_position_data );
+                clsCMulatorABC abc_object_sim( my_zparams, current_position_data, factor );
                 
-                if ( !global_prior.empty() ) {
-                    std::cout << "setting global prior" << std::endl;
+                
+                // we want to use the prior generated for this position - for all of the rest
+                if ( global_prior.empty() ) {
+                    global_prior = abc_object_sim.GetPriorFloat();
+                    used_prior_distrib = abc_object_sim.GetPriorFloat();
+                }
+                else {
                     abc_object_sim.SetPriorFloat(global_prior);
                 }
+                prior_type = abc_object_sim.GetPriorType();
                 
                 
-                results_to_accept = abc_object_sim.GetNumberOfKeptResults() * positions_detected;
+                // results_to_accept = abc_object_sim.GetNumberOfKeptResults() * positions_detected;
+                results_to_accept = abc_object_sim.GetNumberOfKeptResults();
                 
                 abc_object_sim.SetImmediateRejection(false);
                 
@@ -156,36 +167,38 @@ int InferABC( FactorToInfer factor,
                 }
                 
                 abc_object_sim.RunABCInference(factor, num_batches);
-                running_time_sec += abc_object_sim.GetSunningTimeSec();
+                running_time_sec += abc_object_sim.GetRunningTimeSec();
                 tmp_rejection_threshold = abc_object_sim.GetRejectionThreshold();
                 
                 /* --------------- */
                 /*  Store results  */
                 /* --------------- */
-                std::cout << "Gathering results... ";
+                std::cout << "Aggregating multi-polsition data... ";
                 auto tmp_accepted_results_vec = abc_object_sim.GetResultsVector(false);
-                for ( auto tmp_result : tmp_accepted_results_vec ) {
-                    accepted_results_vector.push_back(tmp_result);
+                
+                // add distances - make sure data is consistent
+                if ( accepted_results_vector.empty() ) {
+                    for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
+                        tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
+                        accepted_results_vector.push_back( tmp_accepted_results_vec[result_idx] );
+                    }
+                }
+                else {
+                    for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
+                        
+                        // test consistency
+                        //std::cout << "\ncorrent stored fitness: ";
+                        //for ( auto val : accepted_results_vector[result_idx].fitness_values ) std::cout << val << ",";
+                        //std::cout << "\tdistance=" << accepted_results_vector[result_idx].distance_from_actual << std::endl;
+                        //std::cout << "addings to fitness: ";
+                        //for ( auto val : accepted_results_vector[result_idx].fitness_values ) std::cout << val << ",";
+                        
+                        accepted_results_vector[result_idx].distance_from_actual += tmp_accepted_results_vec[result_idx].distance_from_actual;
+                        
+                        //std::cout << "\tdistance=" << accepted_results_vector[result_idx].distance_from_actual << std::endl;
+                    }
                 }
                 std::cout << "Done." << std::endl;
-                
-                if ( global_prior.empty() ) {
-                    std::cout << "storing global prior: ";
-                    //global_prior = abc_object_sim.GetPriorFloat();
-                    
-                    auto tmp_prior = abc_object_sim.GetPriorFloat();
-                    
-                    for ( auto current_vec : tmp_prior ) {
-                        global_prior.push_back(current_vec);
-                        used_prior_distrib.push_back(current_vec);
-                    }
-                    
-                    std::cout << global_prior.size() << std::endl;
-                }
-            }
-            
-            if ( prior_output_filename.compare("") != 0 ) {
-                
             }
             
             std::cout << "Finished running simulations." << std::endl;
@@ -205,7 +218,9 @@ int InferABC( FactorToInfer factor,
             /* ----------------- */
             /*  Run simulations  */
             /* ----------------- */
-            clsCMulatorABC abc_object_sim( my_zparams, actual_data_file.GetFirstPosition() );
+            clsCMulatorABC abc_object_sim( my_zparams, actual_data_file.GetFirstPosition(), factor );
+            
+            prior_type = abc_object_sim.GetPriorType();
             
             abc_object_sim.SetImmediateRejection(false);
             
@@ -216,7 +231,7 @@ int InferABC( FactorToInfer factor,
             }
             
             abc_object_sim.RunABCInference(factor, num_batches);
-            running_time_sec += abc_object_sim.GetSunningTimeSec();
+            running_time_sec += abc_object_sim.GetRunningTimeSec();
             tmp_rejection_threshold = abc_object_sim.GetRejectionThreshold();
             
             /* --------------- */
@@ -227,15 +242,9 @@ int InferABC( FactorToInfer factor,
             for ( auto tmp_result : tmp_accepted_results_vec ) {
                 accepted_results_vector.push_back(tmp_result);
             }
+            used_prior_distrib = abc_object_sim.GetPriorFloat();
             std::cout << "Done." << std::endl;
             
-            if ( prior_output_filename.compare("") != 0 ) {
-                auto tmp_prior = abc_object_sim.GetPriorFloat();
-                
-                for ( auto current_vec : tmp_prior ) {
-                    used_prior_distrib.push_back(current_vec);
-                }
-            }
             std::cout << "Finished running simulations." << std::endl << std::endl;
         }
         
@@ -245,7 +254,11 @@ int InferABC( FactorToInfer factor,
         /* --------------------- */
         std::cout << "Processing results (" <<  accepted_results_vector.size() << " simulations):" << std::endl;
         
-        ResultsStats result_stats(my_zparams);
+        
+        
+        ResultsStats result_stats( my_zparams, prior_type, used_prior_distrib, accepted_results_vector );
+        
+        result_stats.SetPriorType(prior_type);
         
         // result_stats.SetRejectionThreshold( abc_object_sim.GetRejectionThreshold() );
         result_stats.SetRejectionThreshold( tmp_rejection_threshold );
@@ -262,8 +275,10 @@ int InferABC( FactorToInfer factor,
             case Fitness: {
                 
                 try {
-                    result_stats.SetPriorDistrib( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT ) );
-                    result_stats.CalculateStatsFitness(accepted_results_vector);
+                    //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT ) );
+                    //result_stats.CalculateStatsFitness(accepted_results_vector);
+                    //result_stats.SetPriorDistrib(used_prior_distrib);
+                    result_stats.CalculateStatsFitness();
                 }
                 catch (std::string str) {
                     std::cerr << "Exception caught: " << str << std::endl;
@@ -295,10 +310,6 @@ int InferABC( FactorToInfer factor,
                     
                     if ( prior_output_filename.compare("") != 0 ) {
                         std::cout << "Writing prior... ";
-                        
-                        // auto tmp_prior = abc_object_sim.GetPriorFloat();
-                        // result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
-                        
                         result_stats.WritePriorDistribToFile(used_prior_distrib, prior_output_filename);
                         std::cout << "Done." << std::endl;
                     }
@@ -329,9 +340,11 @@ int InferABC( FactorToInfer factor,
             case PopulationSize: {
                 
                 try {
-                    result_stats.SetPriorDistrib( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
+                    //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
+                    //result_stats.SetPriorDistrib(used_prior_distrib);
                     //result_stats.CalculateStatsFitness(accepted_results_vector);
-                    result_stats.CalculateStatsPopulationSize(accepted_results_vector);
+                    //result_stats.CalculateStatsPopulationSize(accepted_results_vector);
+                    result_stats.CalculateStatsPopulationSize();
                 }
                 catch (std::string str) {
                     std::cerr << "Exception caught: " << str << std::endl;
@@ -365,10 +378,6 @@ int InferABC( FactorToInfer factor,
                     
                     if ( prior_output_filename.compare("") != 0 ) {
                         std::cout << "Writing prior... ";
-                        
-                        // auto tmp_prior = abc_object_sim.GetPriorFloat();
-                        // result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
-                        
                         result_stats.WritePriorDistribToFile(used_prior_distrib, prior_output_filename);
                         std::cout << "Done." << std::endl;
                     }
@@ -401,8 +410,10 @@ int InferABC( FactorToInfer factor,
                 
                 try {
                     result_stats.SetSingleMutrateInferred( infer_single_mutrate != 0 );
-                    result_stats.SetPriorDistrib( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
-                    result_stats.CalculateStatsMutation(accepted_results_vector);
+                    //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
+                    //result_stats.SetPriorDistrib(used_prior_distrib);
+                    //result_stats.CalculateStatsMutation(accepted_results_vector);
+                    result_stats.CalculateStatsMutation();
                 }
                 catch (std::string str) {
                     std::cerr << "Exception caught: " << str << std::endl;
@@ -434,10 +445,6 @@ int InferABC( FactorToInfer factor,
                     
                     if ( prior_output_filename.compare("") != 0 ) {
                         std::cout << "Writing prior... ";
-                        
-                        // auto tmp_prior = abc_object_sim.GetPriorFloat();
-                        // result_stats.WritePriorDistribToFile(tmp_prior, prior_output_filename);
-                        
                         result_stats.WritePriorDistribToFile(used_prior_distrib, prior_output_filename);
                         std::cout << "Done." << std::endl;
                     }

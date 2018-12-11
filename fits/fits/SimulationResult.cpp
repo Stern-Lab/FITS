@@ -32,7 +32,8 @@ fitness_values(),
 sim_data_matrix(),
 mutation_rates(),
 generation_interval(0),
-num_generations(0)
+num_generations(0),
+_is_multi_position(false)
 {}
 
 
@@ -50,7 +51,8 @@ fitness_values(original.fitness_values),
 sim_data_matrix(original.sim_data_matrix),
 mutation_rates(original.mutation_rates),
 generation_interval(original.generation_interval),
-num_generations(original.num_generations)
+num_generations(original.num_generations),
+_is_multi_position(false)
 {}
 
 
@@ -67,7 +69,8 @@ prior_sample_index(0),
 sim_data_matrix(sim_object.GetAllOutputAsMatrix()),
 generation_shift(sim_object.GetGenerationShift()),
 actual_generations(),
-num_generations(sim_object.GetNumOfGenerations())
+num_generations(sim_object.GetNumOfGenerations()),
+_is_multi_position(false)
 {}
 
 SimulationResult::SimulationResult(const CMulator& sim_object, std::vector<int> actual_gens)
@@ -82,7 +85,8 @@ mutation_rates(sim_object.GetMutationRateMatrix()),
 prior_sample_index(0),
 generation_shift(sim_object.GetGenerationShift()),
 actual_generations(actual_gens),
-num_generations(sim_object.GetNumOfGenerations())
+num_generations(sim_object.GetNumOfGenerations()),
+_is_multi_position(false)
 {
     if ( actual_generations.empty() ) {
         std::cerr << "Actual Generation list is empty" << std::endl;
@@ -112,12 +116,13 @@ bool SimulationResult::operator<(const SimulationResult& result) const
 // Swap functions
 void SimulationResult::swap( SimulationResult& other )
 {
+    std::swap(_is_multi_position, other._is_multi_position);
     std::swap(pos, other.pos);
     std::swap(N, other.N);
     std::swap(wt_index, other.wt_index);
     sim_id.swap(other.sim_id);
     
-    std::swap(distance_metric,other.distance_metric),
+    std::swap(distance_metric,other.distance_metric);
     std::swap(distance_from_actual, other.distance_from_actual);
     actual_generations.swap(other.actual_generations);
     std::swap(generation_shift, other.generation_shift);

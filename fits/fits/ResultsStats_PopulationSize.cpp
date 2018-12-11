@@ -19,9 +19,9 @@
 #include "ResultsStats.hpp"
 
 
-void ResultsStats::CalculateStatsPopulationSize(const std::vector<SimulationResult>& result_vector)
+void ResultsStats::CalculateStatsPopulationSize()
 {
-    _num_results = result_vector.size();
+    _num_results = _result_vector.size();
     
     boost::accumulators::accumulator_set<
     FLOAT_TYPE,
@@ -41,7 +41,7 @@ void ResultsStats::CalculateStatsPopulationSize(const std::vector<SimulationResu
     
 
     std::vector<int> popsize_storage;
-    for ( auto sim_result : result_vector ) {
+    for ( auto sim_result : _result_vector ) {
         acc_distance(sim_result.distance_from_actual);
         
         acc_population_size(sim_result.N);
@@ -69,13 +69,13 @@ void ResultsStats::CalculateStatsPopulationSize(const std::vector<SimulationResu
     std::vector<int> minN {_zparams.GetInt(fits_constants::PARAM_MIN_LOG_POPSIZE)};
     std::vector<int> maxN {_zparams.GetInt(fits_constants::PARAM_MAX_LOG_POPSIZE)};
     
-    PriorSampler<int> sampler( minN, maxN, PriorDistributionType::UNIFORM );
+    //PriorSampler<int> sampler( minN, maxN, PriorDistributionType::UNIFORM );
     
-    auto popsize_vector_list = sampler.SamplePrior(_num_results);
-    std::vector<int> prior_vec_int;
-    for ( auto current_vec : popsize_vector_list ) {
-        prior_vec_int.push_back( std::pow( 10, current_vec[0] ) );
-    }
+    //auto popsize_vector_list = sampler.SamplePrior(_num_results);
+    //std::vector<int> prior_vec_int;
+    //for ( auto current_vec : popsize_vector_list ) {
+    //    prior_vec_int.push_back( std::pow( 10, current_vec[0] ) );
+    //}
     
     //auto prior_vec_int = sampler.SamplePrior(_num_results)[1];
     
@@ -96,10 +96,13 @@ void ResultsStats::CalculateStatsPopulationSize(const std::vector<SimulationResu
     std::vector<FLOAT_TYPE> posterior_vec;
     std::vector<FLOAT_TYPE> prior_vec_float; // this provides conversion
     
-    prior_vec_float.resize( prior_vec_int.size() );
-    posterior_vec.resize( prior_vec_int.size() );
+    for ( auto current_vec : _prior_distrib ) {
+        prior_vec_float.push_back( std::pow( 10, current_vec[0] ) );
+    }
+    // prior_vec_float.resize( prior_vec_int.size() );
+    posterior_vec.resize( prior_vec_float.size() );
     
-    std::copy( prior_vec_int.cbegin(), prior_vec_int.cend(), prior_vec_float.begin() );
+    //std::copy( prior_vec_int.cbegin(), prior_vec_int.cend(), prior_vec_float.begin() );
     std::copy( popsize_storage.cbegin(), popsize_storage.cend(), posterior_vec.begin() );
     
     /*

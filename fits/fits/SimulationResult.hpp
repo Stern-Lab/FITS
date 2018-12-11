@@ -81,6 +81,10 @@ struct SimulationResult {
     
     SimulationResult(const CMulator& sim_object, std::vector<int> actual_gens);
     
+    bool _is_multi_position;
+    void SetMultiPosition( bool is_multi_position ) { _is_multi_position = is_multi_position; }
+    bool GetMultiPosition() { return _is_multi_position; }
+    
     // swap for sorting
     void swap(SimulationResult& other);
     
@@ -95,6 +99,8 @@ struct SimulationResult {
     
     // this is used when the simulation result is taken as pseudo-data
     std::vector<FLOAT_TYPE> GetSDForEachAllele();
+    
+    
 };
 
 #endif /* SimulationResult_hpp */

@@ -18,7 +18,7 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( PRIOR_DISTRIB prior_distrib )
+std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
 {
     // initialize sim object
     CMulator local_sim_object(_zparams);
@@ -66,7 +66,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( PRIOR_D
     std::vector<SimulationResult> tmp_res_vector;
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-        std::cout << "Prior archive size : " << _float_prior_archive.size() << std::endl;
+        std::cout << "Prior distrib size : " << _global_prior.size() << std::endl;
     }
     
     // simulation for each set of parameters
@@ -128,7 +128,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( PRIOR_D
         
         local_sim_object.EvolveAllGenerations();
         
-        _float_prior_archive.push_back( current_mutrate_vector);
+        //_float_prior_archive.push_back( current_mutrate_vector);
         
         
         // SimulationResult sim_result(local_sim_object);

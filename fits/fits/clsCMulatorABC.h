@@ -95,14 +95,15 @@ private:
     std::vector<int> _selected_actual_generations;
     
     // stores samples from the prior
-    std::vector< std::vector<FLOAT_TYPE> > _float_prior_archive;
+    PRIOR_DISTRIB _float_prior_archive;
+    PRIOR_DISTRIB _global_prior;
     //std::vector< std::vector<int> > _int_prior_archive;
     
 public:
     
     //clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
     clsCMulatorABC();
-    clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position );
+    clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position, FactorToInfer factor_to_infer );
 
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );
     
@@ -120,7 +121,7 @@ public:
 
     std::size_t GetRepeats();
     
-    std::size_t GetSunningTimeSec() { return _total_running_time_sec; }
+    std::size_t GetRunningTimeSec() { return _total_running_time_sec; }
     
     std::vector<SimulationResult> GetResultsVector(bool only_accepted_results=false);
     
@@ -131,9 +132,9 @@ public:
     //std::vector<SimulationResult> RunPopulationSizeInferenceBatch( std::size_t num_simulations );
     //std::vector<SimulationResult> RunMutationInferenceBatch( std::size_t num_simulations );
 
-    std::vector<SimulationResult> RunFitnessInferenceBatch( PRIOR_DISTRIB prior_distrib );
-    std::vector<SimulationResult> RunPopulationSizeInferenceBatch( PRIOR_DISTRIB prior_distrib );
-    std::vector<SimulationResult> RunMutationInferenceBatch( PRIOR_DISTRIB prior_distrib );
+    std::vector<SimulationResult> RunFitnessInferenceBatch( const PRIOR_DISTRIB &prior_distrib );
+    std::vector<SimulationResult> RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB &prior_distrib );
+    std::vector<SimulationResult> RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib );
 
     
     std::vector<FLOAT_TYPE> GetSDPerAllele( std::size_t start_idx, std::size_t end_idx );
@@ -142,8 +143,9 @@ public:
     
     void CalculateResultsDistances( FLOAT_TYPE scaling_factor = 1.0f );
     
-    std::vector< std::vector<FLOAT_TYPE>> GetPriorFloat();
-    void SetPriorFloat( std::vector< std::vector<FLOAT_TYPE>> given_prior );
+    PRIOR_DISTRIB GetPriorFloat();
+    void SetPriorFloat( PRIOR_DISTRIB given_prior );
+    PriorDistributionType GetPriorType() { return _prior_type; }
     bool _use_stored_prior;
     //std::vector< std::vector<int>> GetPriorInt();
     

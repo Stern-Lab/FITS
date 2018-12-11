@@ -18,7 +18,7 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( PRIOR_DISTRIB prior_distrib )
+std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
 {
     // initialization
     CMulator local_sim_object(_zparams);
@@ -56,14 +56,14 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( P
     
     local_sim_object.SetWTAllele(wt_allele_idx, 0.0f, 2.0f);
     
-    std::vector<FLOAT_TYPE> minN {_zparams.GetDouble(fits_constants::PARAM_MIN_LOG_POPSIZE)};
-    std::vector<FLOAT_TYPE> maxN {_zparams.GetDouble(fits_constants::PARAM_MAX_LOG_POPSIZE)};
+    //std::vector<FLOAT_TYPE> minN {_zparams.GetDouble(fits_constants::PARAM_MIN_LOG_POPSIZE)};
+    //std::vector<FLOAT_TYPE> maxN {_zparams.GetDouble(fits_constants::PARAM_MAX_LOG_POPSIZE)};
     
-    PriorSampler<FLOAT_TYPE> sampler( minN, maxN, PriorDistributionType::UNIFORM );
+    //PriorSampler<FLOAT_TYPE> sampler( minN, maxN, PriorDistributionType::UNIFORM );
     
     //auto popsize_vector_list = sampler.SamplePrior(num_simulations);
     
-        std::vector<SimulationResult> tmp_res_vector;
+    std::vector<SimulationResult> tmp_res_vector;
     
     // simulation for each set of parameters
     for (auto current_popsize : prior_distrib) {
@@ -74,9 +74,9 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( P
         
         // 2018-12-03
         //std::vector<FLOAT_TYPE> dummy_popsize_vector(_num_alleles, 0);
-        std::vector<FLOAT_TYPE> dummy_popsize_vector(1, 0);
-        dummy_popsize_vector[0] = static_cast<FLOAT_TYPE>(current_popsize[0]);
-        _float_prior_archive.push_back( dummy_popsize_vector );
+        //std::vector<FLOAT_TYPE> dummy_popsize_vector(1, 0);
+        //dummy_popsize_vector[0] = static_cast<FLOAT_TYPE>(current_popsize[0]);
+        //_float_prior_archive.push_back( dummy_popsize_vector );
         
         // keep only the generations we need to conserve memory
         auto tmp_actual_generations = _actual_data_position.GetActualGenerations();

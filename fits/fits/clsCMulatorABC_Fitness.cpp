@@ -19,7 +19,7 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( PRIOR_DISTRIB prior_distrib )
+std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
 {
     // initialization
     CMulator local_sim_object(_zparams);
@@ -105,7 +105,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( PRIOR_DI
         local_sim_object.SetFitnessValues(current_fitness_vector);
         local_sim_object.EvolveAllGenerations();
         
-        _float_prior_archive.push_back( current_fitness_vector );
+        //_float_prior_archive.push_back( current_fitness_vector );
                 
         // keep only the generations we need, to conserve memory 2017-04-02
         auto tmp_actual_generations = _actual_data_position.GetActualGenerations();
