@@ -157,13 +157,15 @@ void ResultsStats::CalculateStatsMutation()
 }
 
 
-std::string ResultsStats::GetSummaryMutRate()
+std::string ResultsStats::GetSummaryMutRate( bool table_only )
 {
     std::stringstream ss;
     
+    if (!table_only) {
+        ss << "Mutation Rate Report" << std::endl;
+        ss << GetSummaryHeader();
+    }
     
-    ss << "Mutation Rate Report" << std::endl;
-    ss << GetSummaryHeader();
     
     //auto current_time_raw = std::chrono::system_clock::now();
     //auto current_time = std::chrono::system_clock::to_time_t(current_time_raw);
@@ -179,18 +181,20 @@ std::string ResultsStats::GetSummaryMutRate()
     //}
     
 
-    ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1) << std::endl;
-    ss << "Distance metric: " << _distance_metric << std::endl;
-    
-    if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
-        ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")" << std::endl;
+    if (!table_only) {
+        ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1) << std::endl;
+        ss << "Distance metric: " << _distance_metric << std::endl;
+        
+        if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
+            ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")" << std::endl;
+        }
+        
+        if ( _single_mutrate_inferred ) {
+            ss << "Inferred a single mutation rate." << std::endl;
+        }
+        
+        ss << "====================" << std::endl;
     }
-    
-    if ( _single_mutrate_inferred ) {
-        ss << "Inferred a single mutation rate." << std::endl;
-    }
-    
-    ss << "====================" << std::endl;
     
     
     // first header row - "to"
@@ -267,8 +271,11 @@ std::string ResultsStats::GetSummaryMutRate()
     }
     ss << std::endl;
     
-    if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
-        ss << _zparams.GetAllParameters() << std::endl;
+    
+    if (!table_only) {
+        if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
+            ss << _zparams.GetAllParameters() << std::endl;
+        }
     }
     
     return ss.str();

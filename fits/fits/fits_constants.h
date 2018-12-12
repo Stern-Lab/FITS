@@ -32,11 +32,19 @@
 #define INT_MATRIX boost::numeric::ublas::matrix<int>
 #define PRIOR_DISTRIB std::vector< std::vector<FLOAT_TYPE> >
 
+enum FactorToInfer {
+    Fitness,
+    MutationRate,
+    PopulationSize
+};
+
+
 namespace fits_constants {
     
     
+    
     /* GENERAL */
-    const std::string current_version_str = "1.1.1";
+    const std::string current_version_str = "1.1.2";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05;
     
     /* COMMAND LINE ARGUMANTS */
@@ -140,10 +148,19 @@ namespace fits_constants {
     // prior distributions
     const std::string PARAM_PRIOR_DISTRIB = "_prior_distribution";
     const std::string PARAM_PRIOR_DISTRIB_UNIFORM = "uniform";
+    
+    
     const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL = "log_normal";
+    const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL_SIGMA = "log_normal_sigma";
+    const FLOAT_TYPE PARAM_PRIOR_DISTRIB_LOGNORMAL_SIGMA_DEFAULT = 0.149f;
+    const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL_MU = "log_normal_mu";
+    const FLOAT_TYPE PARAM_PRIOR_DISTRIB_LOGNORMAL_MU_DEFAULT = -0.248f;
+    const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL_LETHAL = "log_normal_lethal";
+    const FLOAT_TYPE PARAM_PRIOR_DISTRIB_LOGNORMAL_LETHAL_DEFAULT = 0.045f;
+    
     const std::string PARAM_PRIOR_DISTRIB_COMPOSITE = "fitness_composite";
     const std::string PARAM_PRIOR_DISTRIB_SMOOTHED_COMPOSITE = "smoothed_composite";
-    const std::string PARAM_PRIOR_DISTRIB_DEFAULT = "uniform";
+    const std::string PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT = "log_normal";
     
     // composite prior for fitness inference
     // if one is manually chosen - all rest must be also

@@ -59,6 +59,8 @@ private:
     std::vector<C> _max_vector;
     PriorDistributionType _distrib_type;
     
+    FLOAT_TYPE _log_normal_sigma, _log_normal_mu, _log_normal_lethal;
+    
     // this is meant to be used with a posterior distribution
     // loaded as a new prior for this iteration
     MATRIX_TYPE _custom_distribution;
@@ -119,7 +121,8 @@ public:
     _min_vector(0),
     _max_vector(0),
     _distrib_matrix(40,2),
-    _distrib_type(PriorDistributionType::UNIFORM)
+    _distrib_type(PriorDistributionType::UNIFORM),
+    _log_normal_mu(-0.248f), _log_normal_sigma(0.149f), _log_normal_lethal(0.045f)
     {
         _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
         _rnd_gen.seed(_rnd_seed);
@@ -127,6 +130,7 @@ public:
     }
     
     PriorSampler( std::vector<C> min_values, std::vector<C> max_values, PriorDistributionType distrib_type ) :
+    _log_normal_mu(-0.248f), _log_normal_sigma(0.149f), _log_normal_lethal(0.045f),
     _distrib_type(distrib_type),
     _distrib_matrix(40,2)
     {
@@ -146,6 +150,7 @@ public:
     PriorSampler( boost::numeric::ublas::matrix<C> min_matrix,
                   boost::numeric::ublas::matrix<C> max_matrix,
                   PriorDistributionType distrib_type ) :
+    _log_normal_mu(-0.248f), _log_normal_sigma(0.149f), _log_normal_lethal(0.045f),
     _min_vector(0),
     _max_vector(0),
     _distrib_type(distrib_type)
@@ -166,6 +171,7 @@ public:
     }
     
     PriorSampler( PriorSampler<C> &original ) :
+    _log_normal_mu(original._log_normal_mu), _log_normal_sigma(original._log_normal_sigma), _log_normal_lethal(original._log_normal_lethal),
     _min_vector(original._min_vector),
     _max_vector(original._max_vector),
     _rnd_gen(0),
@@ -218,19 +224,19 @@ private:
             case PriorDistributionType::FITNESS_LOGNORMAL: {
                 
                 // values and algorithm inspired by Bons et al. doi: 10.1093/ve/vey029
-                FLOAT_TYPE sigma = 0.149f;
-                FLOAT_TYPE mu = -0.248f;
-                FLOAT_TYPE lethal_fraction = 0.045f;
+                //FLOAT_TYPE sigma =
+                //FLOAT_TYPE mu = -0.248f;
+                //FLOAT_TYPE lethal_fraction = 0.045f;
                 
                 // not using the uniform01 for consistency with other distributions, e.g. () oprator
                 boost::random::uniform_real_distribution<FLOAT_TYPE> lethal_distrib(0.0f, 1.0f);
                 
                 auto tmp_lethal_prob = lethal_distrib(_rnd_gen);
-                if ( tmp_lethal_prob <= lethal_fraction ) {
+                if ( tmp_lethal_prob <= _log_normal_lethal ) {
                     tmp_val = 0.0f;
                 }
                 else {
-                    boost::random::lognormal_distribution<FLOAT_TYPE> lognorm_distrib(mu, sigma);
+                    boost::random::lognormal_distribution<FLOAT_TYPE> lognorm_distrib( _log_normal_mu, _log_normal_sigma );
                     do {
                         tmp_val = lognorm_distrib(_rnd_gen);
                     } while ( tmp_val < min || tmp_val > max );

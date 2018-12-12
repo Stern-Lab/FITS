@@ -159,7 +159,7 @@ void ActualDataFile::LoadActualData( std::string filename )
                     throw "Generation number cannot be negative: " + std::to_string(tmp_pos);
                 }
                 
-                _multi_positions = true;
+                
             }
             catch ( const char* str ) {
                 throw "Error while loading data: " + std::string(str);
@@ -174,9 +174,13 @@ void ActualDataFile::LoadActualData( std::string filename )
             // have we started a new position?
             if ( (current_position != tmp_pos) && (current_position>0) ) {
                 
+                if ( !tmp_position_data._actual_data.empty() ) {
+                    _is_initialized = true;
+                }
                 std::sort(tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end());
                 tmp_position_data._position = current_position;
                 _position_data.push_back(tmp_position_data);
+                _multi_positions = true;
                 
                 tmp_position_data.Clear();
             }
@@ -190,6 +194,10 @@ void ActualDataFile::LoadActualData( std::string filename )
     }
     
     try {
+        if ( !tmp_position_data._actual_data.empty() ) {
+            _is_initialized = true;
+        }
+        
         std::sort(tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end());
         tmp_position_data._position = current_position;
         _position_data.push_back(tmp_position_data);
@@ -201,6 +209,10 @@ void ActualDataFile::LoadActualData( std::string filename )
     
     infile.close();
     
+    // finished going through file - have we read any data?
+    if ( !_is_initialized ) {
+        throw "actual data file appears to be empty.";
+    }
     
     // do some consistency checks for all positions
     if ( _multi_positions ) {
@@ -221,6 +233,6 @@ void ActualDataFile::LoadActualData( std::string filename )
             }
         }
     }
-    _is_initialized = true;
+    
 }
 

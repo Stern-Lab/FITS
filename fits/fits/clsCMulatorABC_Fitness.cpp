@@ -51,7 +51,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     
     // composite is the default for fitness
     auto tmp_prior = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
-                                         fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT );
+                                         fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
     
     if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) == 0 ) {
         _prior_type = UNIFORM;

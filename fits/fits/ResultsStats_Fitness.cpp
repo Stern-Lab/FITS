@@ -289,17 +289,15 @@ void ResultsStats::CalculateStatsFitness()
         
         levenes_pval[current_allele] = levenes_p;
     }
-    
-    
-    
 }
 
 
-std::string ResultsStats::GetSummaryFitness()
+std::string ResultsStats::GetSummaryFitness( bool table_only )
 {
     
     std::stringstream ss;
     
+    /*
     ss << "Quick Report - Fitness" << std::endl;
     ss << "=============================" << std::endl;
 
@@ -310,10 +308,10 @@ std::string ResultsStats::GetSummaryFitness()
 
     for ( auto current_allele=0; current_allele<_num_alleles; ++current_allele ) {
 
-        /*
-         Changed 2018-07-03
-         Adding insignificant pval to the warning
-         */
+     
+         // Changed 2018-07-03
+         // Adding insignificant pval to the warning
+     
         if ( _allele_Nu[current_allele] >= 1.0 &&
             levenes_pval[current_allele] < fits_constants::LEVENES_SIGNIFICANCE ) {
             ss << boost::format(" %-10d") % current_allele;
@@ -330,38 +328,44 @@ std::string ResultsStats::GetSummaryFitness()
     }
 
     ss << std::endl;
-    ss << "Full Report - Fitness" << std::endl;
-    ss << "=============================" << std::endl;
-    ss << GetSummaryHeader();
-    
-    
-    auto tmp_size = _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1);
-    ss << "Population size (N) is " << tmp_size;
-    
-    if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
-        ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")";
+    */
+
+    if ( !table_only ) {
+        ss << "Full Report - Fitness" << std::endl;
+        ss << "=============================" << std::endl;
+        ss << GetSummaryHeader();
+        
+        
+        auto tmp_size = _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1);
+        ss << "Population size (N) is " << tmp_size;
+        
+        if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
+            ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")";
+        }
+        ss << std::endl;
+        
+        
+        auto tmp_scaling_str = _zparams.GetString( fits_constants::PARAM_SCALING,
+                                                  fits_constants::PARAM_SCALING_DEFAULT );
+        
+        if ( tmp_scaling_str.compare(fits_constants::PARAM_SCALING_OFF) == 0 ) {
+            ss << "Data has not been scaled" << std::endl;
+        }
+        else {
+            ss << "Data was scaled using " << tmp_scaling_str << std::endl;
+        }
+        
+        if ( _single_mutrate_used ) {
+            ss << "Used a single mutation rate." << std::endl;
+        }
+        else {
+            ss << "Used individual mutation rates." << std::endl;
+        }
+        
+        ss << "Distance metric: " << _distance_metric << std::endl;
+        
     }
-    ss << std::endl;
     
-    
-    auto tmp_scaling_str = _zparams.GetString( fits_constants::PARAM_SCALING,
-                                              fits_constants::PARAM_SCALING_DEFAULT );
-    
-    if ( tmp_scaling_str.compare(fits_constants::PARAM_SCALING_OFF) == 0 ) {
-        ss << "Data has not been scaled" << std::endl;
-    }
-    else {
-        ss << "Data was scaled using " << tmp_scaling_str << std::endl;
-    }
-    
-    if ( _single_mutrate_used ) {
-        ss << "Used a single mutation rate." << std::endl;
-    }
-    else {
-        ss << "Used individual mutation rates." << std::endl;
-    }
-    
-    ss << "Distance metric: " << _distance_metric << std::endl;
     
     // warning for Nu
     std::vector<int> bad_alleles_vec;
@@ -371,26 +375,32 @@ std::string ResultsStats::GetSummaryFitness()
         }
     }
     
-    auto tmp_str = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
-                                      fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT );
-    ss << "Prior used: " << tmp_str << std::endl;
-    
-    if ( !bad_alleles_vec.empty() ) {
-        ss << "** WARNING: inference may be unreliable (Nu<1) for alleles (*): ";
+    if ( !table_only ) {
+        auto prior_str = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
+                                          fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
         
-        for ( auto allele_num : bad_alleles_vec ) {
-            ss << allele_num << " ";
+        ss << "Prior used: " << prior_str << std::endl;
+        
+        if ( !bad_alleles_vec.empty() ) {
+            ss << "** WARNING: inference may be unreliable (Nu<1) for alleles (*): ";
+            
+            for ( auto allele_num : bad_alleles_vec ) {
+                ss << allele_num << " ";
+            }
+            
+            ss << " **" << std::endl << std::endl;
         }
         
-        ss << " **" << std::endl << std::endl;
+        if ( _rejection_threshold > 0.0f ) {
+            ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
+        }
+        
+        ss << "--------------------" << std::endl;
     }
     
-    if ( _rejection_threshold > 0.0f ) {
-        ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
-    }
     
     
-    ss << "--------------------" << std::endl;
+    // TABLE PRINTING
     
     ss << boost::format("%-10s") % "allele";
     ss << boost::format("%-10s") % "median";
@@ -447,8 +457,10 @@ std::string ResultsStats::GetSummaryFitness()
     
     ss << std::endl;
     
-    if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
-        ss << _zparams.GetAllParameters() << std::endl;
+    if ( !table_only ) {
+        if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
+            ss << _zparams.GetAllParameters() << std::endl;
+        }
     }
     
     return ss.str();

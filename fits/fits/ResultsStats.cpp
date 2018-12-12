@@ -80,7 +80,7 @@ std::string ResultsStats::GetPrintCommonHeaderStr()
     return tmp_str;
 }
 
-void ResultsStats::WritePriorDistribToFile( const PRIOR_DISTRIB& prior_distrib, std::string filename )
+void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distrib, std::string filename )
 {
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
     
@@ -99,6 +99,26 @@ void ResultsStats::WritePriorDistribToFile( const PRIOR_DISTRIB& prior_distrib, 
         throw my_err.c_str();
     }
  
+    // print title according to the prior type
+    switch (factor_to_infer) {
+        case Fitness: {
+            outfile << "allele0";
+            
+            for (auto i = 1; i < prior_distrib[0].size(); i++) {
+                outfile << "\t" << "allele" << i;
+            }
+            outfile << std::endl;
+            break;
+        }
+            
+        case MutationRate: {
+            break;
+        }
+            
+        case PopulationSize: {
+            break;
+        }
+    }
     
     for ( auto current_vec : prior_distrib ) {
         
@@ -326,3 +346,5 @@ std::vector<FLOAT_TYPE> ResultsStats::DownsampleVector( const std::vector<FLOAT_
     
     return result_vec;
 }
+
+

@@ -23,7 +23,8 @@ std::string ResultsStats::GetFitnessDistrib(const std::vector<SimulationResult>&
     std::stringstream ss;
     
     // header
-    ss << "sim_id" << "\t" << "distance";
+    //ss << "sim_id" << "\t" << "distance";
+    ss << "distance";
     for (auto i = 0; i < result_vector[0].fitness_values.size(); i++) {
         ss << "\t" << "allele" << i;
     }
@@ -37,7 +38,8 @@ std::string ResultsStats::GetFitnessDistrib(const std::vector<SimulationResult>&
     
     for ( auto tmp_entry : result_vector ) {
         
-        ss << tmp_entry.sim_id << "\t" << boost::format("%-10.3d") % tmp_entry.distance_from_actual;
+        // ss << tmp_entry.sim_id << "\t" << boost::format("%-10.3d") % tmp_entry.distance_from_actual;
+        ss << boost::format("%-10.3d") % tmp_entry.distance_from_actual;
         
         for ( auto tmpval : tmp_entry.fitness_values ) {
             ss << "\t" << tmpval;

@@ -138,12 +138,10 @@ public:
     void CalculateStatsFitness();
     void CalculateStatsPopulationSize();
     void CalculateStatsMutation();
-    void CalculateStatsGenerations();
      
-    std::string GetSummaryFitness();
-    std::string GetSummaryPopSize();
-    std::string GetSummaryMutRate();
-    std::string GetSummaryGenerations();
+    std::string GetSummaryFitness( bool table_only = false );
+    std::string GetSummaryPopSize( bool table_only = false );
+    std::string GetSummaryMutRate( bool table_only = false );
     
     void SetRejectionThreshold(FLOAT_TYPE new_val);
     FLOAT_TYPE GetRejectionThreshold();
@@ -243,7 +241,7 @@ public:
     void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     void WriteGenerationsDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     
-    void WritePriorDistribToFile( const PRIOR_DISTRIB& prior_distrib, std::string filename );
+    void WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distrib, std::string filename );
     
     // void WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename );
     

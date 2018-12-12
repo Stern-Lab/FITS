@@ -140,13 +140,16 @@ void ResultsStats::CalculateStatsPopulationSize()
 }
 
 
-std::string ResultsStats::GetSummaryPopSize()
+std::string ResultsStats::GetSummaryPopSize( bool table_only )
 {
     std::stringstream ss;
     
     
-    ss << "Population Size Report" << std::endl;
-    ss << GetSummaryHeader();
+    if (!table_only) {
+        ss << "Population Size Report" << std::endl;
+        ss << GetSummaryHeader();
+    }
+    
     
     //ss << "FITS v"<< fits_constants::current_version_str << std::endl;
     
@@ -164,13 +167,15 @@ std::string ResultsStats::GetSummaryPopSize()
     //}
     
     
-    if ( _single_mutrate_used ) {
-        ss << "Used a single mutation rate." << std::endl;
+    if (!table_only) {
+        if ( _single_mutrate_used ) {
+            ss << "Used a single mutation rate." << std::endl;
+        }
+        
+        ss << "Distance metric: " << _distance_metric << std::endl;
+        
+        ss << "====================" << std::endl;
     }
-    
-    ss << "Distance metric: " << _distance_metric << std::endl;
-    
-    ss << "====================" << std::endl;
     
     ss << boost::format("%-12s") % "median";
     //ss << boost::format("%-12s") % "mean";
@@ -185,6 +190,7 @@ std::string ResultsStats::GetSummaryPopSize()
         ss << boost::format("%-12.2e") % _pop_median;
     }
     else {
+        // add asterisk
         ss << boost::format("*%-12.2e") % _pop_median;
     }
     
@@ -197,8 +203,10 @@ std::string ResultsStats::GetSummaryPopSize()
     
     ss << std::endl;
     
-    if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
-        ss << _zparams.GetAllParameters() << std::endl;
+    if (!table_only) {
+        if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
+            ss << _zparams.GetAllParameters() << std::endl;
+        }
     }
     
     return ss.str();

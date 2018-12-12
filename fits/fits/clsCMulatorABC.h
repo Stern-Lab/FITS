@@ -54,11 +54,6 @@
 #include "PriorSampler.hpp"
 #include "ActualDataFile.hpp"
 
-enum FactorToInfer {
-    Fitness,
-    MutationRate,
-    PopulationSize
-};
 
 
 class clsCMulatorABC 

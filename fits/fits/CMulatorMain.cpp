@@ -100,6 +100,14 @@ int InferABC( FactorToInfer factor,
         }
         
     }
+    catch (std::string str) {
+        std::cerr << "Exception while loading actual data: " << str << std::endl;
+        return 1;
+    }
+    catch (const char* str) {
+        std::cerr << "Exception while loading actual data: " << str << std::endl;
+        return 1;
+    }
     catch (std::exception& e) {
         std::cerr << "Exception while loading actual data: " << e.what() << std::endl;
         return 1;
@@ -298,7 +306,7 @@ int InferABC( FactorToInfer factor,
                 
                 
                 try {
-                    std::string tmp_summary_str = result_stats.GetSummaryFitness();
+                    std::string tmp_summary_str = result_stats.GetSummaryFitness(true);
                     
                     std::cout << "Writing posterior... ";
                     result_stats.WriteFitnessDistribToFile(accepted_results_vector, posterior_output_filename);
@@ -310,7 +318,7 @@ int InferABC( FactorToInfer factor,
                     
                     if ( prior_output_filename.compare("") != 0 ) {
                         std::cout << "Writing prior... ";
-                        result_stats.WritePriorDistribToFile(used_prior_distrib, prior_output_filename);
+                        result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
                         std::cout << "Done." << std::endl;
                     }
                     
@@ -365,7 +373,7 @@ int InferABC( FactorToInfer factor,
                 
                 
                 try {
-                    std::string tmp_summary_str = result_stats.GetSummaryPopSize();
+                    std::string tmp_summary_str = result_stats.GetSummaryPopSize(true);
                     
                     
                     std::cout << "Writing posterior... ";
@@ -378,7 +386,7 @@ int InferABC( FactorToInfer factor,
                     
                     if ( prior_output_filename.compare("") != 0 ) {
                         std::cout << "Writing prior... ";
-                        result_stats.WritePriorDistribToFile(used_prior_distrib, prior_output_filename);
+                        result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
                         std::cout << "Done." << std::endl;
                     }
                     
@@ -433,7 +441,7 @@ int InferABC( FactorToInfer factor,
                 
                 
                 try {
-                    std::string tmp_summary_str = result_stats.GetSummaryMutRate();
+                    std::string tmp_summary_str = result_stats.GetSummaryMutRate(true);
                     
                     std::cout << "Writing posterior... ";
                     result_stats.WriteMutRateDistribToFile(accepted_results_vector, posterior_output_filename);
@@ -445,7 +453,7 @@ int InferABC( FactorToInfer factor,
                     
                     if ( prior_output_filename.compare("") != 0 ) {
                         std::cout << "Writing prior... ";
-                        result_stats.WritePriorDistribToFile(used_prior_distrib, prior_output_filename);
+                        result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
                         std::cout << "Done." << std::endl;
                     }
                     
