@@ -97,11 +97,11 @@ int CMulator::EvolveToGeneration( int target_generation )
      //   std::cout << "Initializing local int distribution for alt N to max generation " << target_generation-1 << std::endl;
     //}
     
-    boost::random::uniform_int_distribution<int> local_int_distrib(1, target_generation-1);
+    //boost::random::uniform_int_distribution<int> local_int_distrib(1, target_generation-1);
     
-    if ( _alt_N > 0 && _alt_generation < 0) {
-        _alt_generation = local_int_distrib(_boost_gen);
-    }
+    //if ( _alt_N > 0 && _alt_generation < 0) {
+    //    _alt_generation = local_int_distrib(_boost_gen);
+    //}
     
     PerformChecksBeforeEvolution();
     
@@ -136,20 +136,22 @@ int CMulator::EvolveToGeneration( int target_generation )
         }
         */
         
+        /*
         if ( _alt_generation == _current_generation ) {
             _old_N = GetPopulationSize();
             SetPopulationSize(_alt_N);
             alt_popsize_flag = true;
-            /*
-            if (_debug_mode) {
-                std::cout << "Generation "
-                << _current_generation
-                << ": changed to alt popsize "
-                << _N << " instead of "
-                << _old_N << std::endl;
-            }
-             */
+            
+            //if (_debug_mode) {
+             //   std::cout << "Generation "
+             //   << _current_generation
+             //   << ": changed to alt popsize "
+              //  << _N << " instead of "
+             //   << _old_N << std::endl;
+           // }
+            
         }
+         */
         
         if ( alt_popsize_flag ) {
             SetPopulationSize(_old_N);

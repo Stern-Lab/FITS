@@ -18,6 +18,7 @@
 
 #include "clsCMulatorABC.h"
 
+/*
 std::vector<int> clsCMulatorABC::GetUniqueIndexSet( int num_items )
 {
     std::cout << "Generating " << num_items << " unique items..." << std::endl;
@@ -52,7 +53,7 @@ std::vector<int> clsCMulatorABC::GetUniqueIndexSet( int num_items )
     return return_vec;
     
 }
-
+*/
 
 // Calculate Median Absolute Deviation (MAD)
 // This is used for scaling frequencies

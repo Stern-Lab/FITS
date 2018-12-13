@@ -37,7 +37,7 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
+//#include <boost/random/uniform_int_distribution.hpp>
 
 
 #include "ZParams.h"
@@ -65,9 +65,9 @@ private:
 	int _N;		// current population size
 	int _N0; 	// founding population size
     
-    int _alt_N; // alternative population size to introduce noise to simulation
+    //int _alt_N; // alternative population size to introduce noise to simulation
     int _old_N; // the original value, to revert from altenative value
-    int _alt_generation; // if given, in this generation the popsize will alter; otherwise it would be random.
+    //int _alt_generation; // if given, in this generation the popsize will alter; otherwise it would be random.
     
 	int _num_generations;
 	int _num_alleles;

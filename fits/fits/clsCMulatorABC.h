@@ -102,7 +102,7 @@ public:
 
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );
     
-    std::vector<int> GetUniqueIndexSet( int num_items );
+    //std::vector<int> GetUniqueIndexSet( int num_items );
 
     std::size_t GetTotalRunningTimeSec() { return _total_running_time_sec; }
     

@@ -159,8 +159,8 @@ void CMulator::InitBasicVariables( ZParams zparams )
             _use_observed_data = true;
         }
         
-        _alt_N = zparams.GetInt( PARAM_ALT_POPULATION_SIZE, 0 );
-        _alt_generation = zparams.GetInt( PARAM_ALT_GENERATION, -1 );
+        //_alt_N = zparams.GetInt( PARAM_ALT_POPULATION_SIZE, 0 );
+        //_alt_generation = zparams.GetInt( PARAM_ALT_GENERATION, -1 );
         
         _repeats = zparams.GetInt( PARAM_SIM_REPEATS, 1 );
         

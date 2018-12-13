@@ -80,8 +80,8 @@ namespace fits_constants {
     const std::string PARAM_MIN_LOG_POPSIZE = "_Nlog_min";
     const std::string PARAM_MAX_LOG_POPSIZE = "_Nlog_max";
     
-    const std::string PARAM_ALT_POPULATION_SIZE = "_alt_N";
-    const std::string PARAM_ALT_GENERATION = "_alt_generation";
+    //const std::string PARAM_ALT_POPULATION_SIZE = "_alt_N";
+    //const std::string PARAM_ALT_GENERATION = "_alt_generation";
     
     const std::string PARAM_BOTTLENECK_SIZE = "_bottleneck_size";
     const std::string PARAM_BOTTLENECK_INTERVAL = "_bottleneck_interval";
