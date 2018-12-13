@@ -41,11 +41,10 @@ enum FactorToInfer {
 
 namespace fits_constants {
     
-    
-    
     /* GENERAL */
     const std::string current_version_str = "1.1.2";
-    const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05;
+    const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
+    const std::string FILE_FIELD_DELIMITER = "\t";
     
     /* COMMAND LINE ARGUMANTS */
     const std::string ARG_INFER_FITNESS = "-fitness";
@@ -92,10 +91,12 @@ namespace fits_constants {
     /* Number of generations */
     const std::string PARAM_NUM_GENERATIONS = "_num_generations";
     
+    /*
     const std::string PARAM_MIN_FIXED_INT_GENERATION = "_min_fixed_generation_interval";
     const std::string PARAM_MAX_FIXED_INT_GENERATION = "_max_fixed_generation_interval";
     const std::string PARAM_MIN_INT_GENERATION = "_min_generation_interval";
     const std::string PARAM_MAX_INT_GENERATION = "_max_generation_interval";
+     */
     
     const std::string PARAM_NUM_ALLELES = "_num_alleles";
     
@@ -116,7 +117,7 @@ namespace fits_constants {
     const std::string PARAM_ALLELE_MAX_FITNESS = "_allele_max_fitness";
     const std::string PARAM_ALLELE_MIN_FITNESS = "_allele_min_fitness";
     
-    const std::string PARAM_SIM_ID = "_name_of_run";
+    //const std::string PARAM_SIM_ID = "_name_of_run";
     const std::string PARAM_SIM_REPEATS = "_num_repeats";
     
     const std::string PARAM_MANUAL_SEED = "_manual_seed";

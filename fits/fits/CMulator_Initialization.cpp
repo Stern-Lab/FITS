@@ -198,7 +198,7 @@ void CMulator::InitBasicVariables( ZParams zparams )
     //_epsilon_float_compare = zparams.GetFloat( PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
     _epsilon_float_compare = zparams.GetDouble( PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
     
-    _name_of_run = zparams.GetString( PARAM_SIM_ID, std::string("SimX") );
+    //_name_of_run = zparams.GetString( PARAM_SIM_ID, std::string("SimX") );
     
     _logistic_growth = ( zparams.GetInt( PARAM_LOGISTIC_GROWTH, PARAM_DEFAULT_VAL_INT ) > 0 );
     _logistic_growth_K = zparams.GetInt( PARAM_LOGISTIC_GROWTH_K, PARAM_DEFAULT_VAL_INT );
@@ -333,6 +333,7 @@ void CMulator::InitPopulationSizeInference( ZParams zparams )
 
 }
 
+/*
 void CMulator::InitGenerationInference( ZParams zparams )
 {
     // either
@@ -348,7 +349,8 @@ void CMulator::InitGenerationInference( ZParams zparams )
         zparams.GetInt(tmp_max_str);
     }
 }
-
+*/
+ 
 void CMulator::WarnAgainstDeprecatedParameters(ZParams zparams)
 {
     std::string msg =  "Warning - deprecated parameter detected - ";
@@ -456,13 +458,14 @@ void CMulator::InitMemberVariables( ZParams zparams )
         _available_popsize_range = false;
     }
     
+    /*
     try {
         InitGenerationInference(zparams);
     }
     catch (...) {
         _available_generation_range = false;
     }
-    
+    */
     
     try {
         InitFitnessValues(zparams);

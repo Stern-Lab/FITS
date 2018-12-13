@@ -105,7 +105,7 @@ void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const
             outfile << "allele0";
             
             for (auto i = 1; i < prior_distrib[0].size(); i++) {
-                outfile << "\t" << "allele" << i;
+                outfile << fits_constants::FILE_FIELD_DELIMITER << "allele" << i;
             }
             outfile << std::endl;
             break;
@@ -124,7 +124,7 @@ void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const
         
         for ( auto current_val : current_vec ) {
             
-            outfile << current_val << "\t";
+            outfile << current_val << fits_constants::FILE_FIELD_DELIMITER;
         }
         outfile << std::endl;
     }

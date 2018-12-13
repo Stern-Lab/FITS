@@ -66,7 +66,7 @@ void test_range()
     for ( auto vec : res_vec ) {
         for ( auto val : vec ) {
             
-            std::cout << val << "\t";
+            std::cout << val << fits_constants::FILE_FIELD_DELIMITER;
         }
         std::cout << std::endl;
     }
@@ -122,7 +122,7 @@ void test_actualdata( std::string filename )
     
     std::cout << std::endl;
     for ( auto val : vec ) {
-        std::cout << val << "\t";
+        std::cout << val << fits_constants::FILE_FIELD_DELIMITER;
     }
     std::cout << std::endl;
     

@@ -78,7 +78,7 @@ private:
 	int _generation_shift;
     
     // 2017-02-26 changed _uid to _name_of_run
-	std::string _name_of_run;
+	// std::string _name_of_run;
     
 	//bool _no_init_freqs_as_parameters; // init freqs will be taken later
 	bool _logistic_growth;
@@ -170,7 +170,7 @@ private:
     
     void InitFitnessValues( ZParams zparams );
     void InitFitnessInference( ZParams zparams );
-    void InitGenerationInference( ZParams zparams );
+    // void InitGenerationInference( ZParams zparams );
     
     std::vector<FLOAT_TYPE> Freqs2Binomial2Freqs( const std::vector<FLOAT_TYPE> &freqs_vec, int popsize );
     
@@ -310,7 +310,7 @@ public:
     
 	// to be used only when the object is still uninitialized (default ctor used)
     
-	void SetSimUID( std::string new_name_of_run );
+	//void SetSimUID( std::string new_name_of_run );
 	int GetPopulationSize() const;
 	void SetPopulationSize( int N );
     
@@ -326,7 +326,7 @@ public:
 	
 	int GetGenerationShift() const;
 	
-	std::string GetSimUID() const;
+	//std::string GetSimUID() const;
 
 	bool GetSkipStochasticStep() const;
 	
@@ -376,7 +376,7 @@ public:
     
 	/* Output Functions */
     std::string GetAllOutputAsTextForR( bool header = true ) const;
-    std::string GetAllOutputAsText( bool header = true, std::string delimiter = "\t" ) const;
+    std::string GetAllOutputAsText( bool header = true, std::string delimiter = fits_constants::FILE_FIELD_DELIMITER ) const;
     
     MATRIX_TYPE GetAllOutputAsMatrix() const;
     MATRIX_TYPE GetAllOutputAsMatrix( std::vector<int> actual_generations ) const;
@@ -391,7 +391,7 @@ public:
 	/* Reset */
 	// delete simulated data, set current generation to 0.
 	void Reset_Soft();
-	void Reset_Soft( std::string new_name_of_run );
+	//void Reset_Soft( std::string new_name_of_run );
 	/* END Reset */	
 	
 };

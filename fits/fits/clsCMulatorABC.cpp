@@ -514,7 +514,7 @@ std::string clsCMulatorABC::GetPriorFloatAsString()
         
         for ( auto current_val : current_vec ) {
             
-            tmp_str += std::to_string(current_val) + "\t";
+            tmp_str += std::to_string(current_val) + fits_constants::FILE_FIELD_DELIMITER;
         }
         tmp_str = tmp_str + "\n";
     }

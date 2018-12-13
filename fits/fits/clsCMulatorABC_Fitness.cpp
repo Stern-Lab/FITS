@@ -85,7 +85,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
             
             for ( auto current_fitness_val : current_fitness_vector ) {
                 
-                std::cout << current_fitness_val << "\t";
+                std::cout << current_fitness_val << fits_constants::FILE_FIELD_DELIMITER;
             }
             
             std::cout << std::endl;

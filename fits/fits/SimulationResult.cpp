@@ -58,7 +58,7 @@ _is_multi_position(false)
 
 SimulationResult::SimulationResult(const CMulator& sim_object)
 : pos(-1),
-sim_id(sim_object.GetSimUID()),
+//sim_id(sim_object.GetSimUID()),
 distance_from_actual(-1.0f),
 distance_metric(""),
 fitness_values(sim_object.GetAlleleFitnessValues()),
@@ -75,7 +75,7 @@ _is_multi_position(false)
 
 SimulationResult::SimulationResult(const CMulator& sim_object, std::vector<int> actual_gens)
 : pos(-1),
-sim_id(sim_object.GetSimUID()),
+//sim_id(sim_object.GetSimUID()),
 distance_from_actual(-1.0f),
 distance_metric(""),
 fitness_values(sim_object.GetAlleleFitnessValues()),

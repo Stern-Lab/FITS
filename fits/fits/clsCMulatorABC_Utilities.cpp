@@ -41,7 +41,7 @@ void clsCMulatorABC::WriteSimDataToFile( std::string filename, SimulationResult 
     for ( auto gen=0; gen<tmp_matrix.size1(); ++gen ) {
         for ( auto allele=0; allele<tmp_matrix.size2(); ++allele ) {
             
-            outfile << std::to_string( tmp_matrix(gen,allele) ) << "\t";
+            outfile << std::to_string( tmp_matrix(gen,allele) ) << fits_constants::FILE_FIELD_DELIMITER;
         }
         outfile << std::endl;
     }

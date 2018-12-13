@@ -26,7 +26,7 @@ std::string ResultsStats::GetFitnessDistrib(const std::vector<SimulationResult>&
     //ss << "sim_id" << "\t" << "distance";
     ss << "distance";
     for (auto i = 0; i < result_vector[0].fitness_values.size(); i++) {
-        ss << "\t" << "allele" << i;
+        ss << fits_constants::FILE_FIELD_DELIMITER << "allele" << i;
     }
     ss << std::endl;
     
@@ -42,7 +42,7 @@ std::string ResultsStats::GetFitnessDistrib(const std::vector<SimulationResult>&
         ss << boost::format("%-10.3d") % tmp_entry.distance_from_actual;
         
         for ( auto tmpval : tmp_entry.fitness_values ) {
-            ss << "\t" << tmpval;
+            ss << fits_constants::FILE_FIELD_DELIMITER << tmpval;
         }
         
         ss << std::endl;
@@ -61,9 +61,9 @@ void ResultsStats::WriteFitnessDistribToFile(const std::vector<SimulationResult>
     }
     
     // header
-    outfile << "sim_id" << "\t" << "distance";
+    outfile << "sim_id" << fits_constants::FILE_FIELD_DELIMITER << "distance";
     for (auto i = 0; i < result_vector[0].fitness_values.size(); i++) {
-        outfile << "\t" << "allele" << i;
+        outfile << fits_constants::FILE_FIELD_DELIMITER << "allele" << i;
     }
     outfile << std::endl;
     
@@ -81,10 +81,10 @@ void ResultsStats::WriteFitnessDistribToFile(const std::vector<SimulationResult>
         
         
         //outfile << tmp_entry.sim_id << "\t" << tmp_entry.distance_from_actual;
-        outfile << tmp_entry.sim_id << "\t" << boost::format("%-10.3d") % tmp_entry.distance_from_actual;
+        outfile << tmp_entry.sim_id << fits_constants::FILE_FIELD_DELIMITER << boost::format("%-10.3d") % tmp_entry.distance_from_actual;
         
         for ( auto tmpval : tmp_entry.fitness_values ) {
-            outfile << "\t" << tmpval;
+            outfile << fits_constants::FILE_FIELD_DELIMITER << tmpval;
         }
         
         outfile << std::endl;
@@ -99,11 +99,12 @@ std::string ResultsStats::GetMutrateDistrib(const std::vector<SimulationResult>&
     std::stringstream ss;
     
     // header
-    ss << "sim_id" << "\t" << "distance";
+    //ss << "sim_id" << fits_constants::FILE_FIELD_DELIMITER << "distance";
+    ss << fits_constants::FILE_FIELD_DELIMITER << "distance";
     
     for (auto i = 0; i < result_vector[0].fitness_values.size(); ++i) {
         for (auto j = 0; j < result_vector[0].fitness_values.size(); ++j) {
-            ss << "\t" << "allele" << i << "_" << j;
+            ss << fits_constants::FILE_FIELD_DELIMITER << "allele" << i << "_" << j;
         }
     }
     ss << std::endl;
@@ -119,11 +120,12 @@ std::string ResultsStats::GetMutrateDistrib(const std::vector<SimulationResult>&
     
     for ( auto tmp_entry : result_vector ) {
         
-        ss << tmp_entry.sim_id << "\t" << tmp_entry.distance_from_actual;
+        // ss << tmp_entry.sim_id << "\t" << tmp_entry.distance_from_actual;
+        ss << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.distance_from_actual;
         
         for (auto row = 0; row < result_vector[0].mutation_rates.size1(); ++row) {
             for (auto col = 0; col < result_vector[0].mutation_rates.size2(); ++col) {
-                ss << "\t" << boost::format("%.3d") % tmp_entry.mutation_rates(row,col);
+                ss << fits_constants::FILE_FIELD_DELIMITER << boost::format("%.3d") % tmp_entry.mutation_rates(row,col);
             }
         }
         ss << std::endl;
@@ -142,11 +144,11 @@ void ResultsStats::WriteMutRateDistribToFile(const std::vector<SimulationResult>
     }
     
     // header
-    outfile << "sim_id" << "\t" << "distance";
+    outfile << "distance";
     
     for (auto i = 0; i < result_vector[0].fitness_values.size(); ++i) {
         for (auto j = 0; j < result_vector[0].fitness_values.size(); ++j) {
-            outfile << "\t" << "allele" << i << "_" << j;
+            outfile << fits_constants::FILE_FIELD_DELIMITER << "allele" << i << "_" << j;
         }
     }
     outfile << std::endl;
@@ -163,11 +165,11 @@ void ResultsStats::WriteMutRateDistribToFile(const std::vector<SimulationResult>
     
     for ( auto tmp_entry : result_vector ) {
         
-        outfile << tmp_entry.sim_id << "\t" << tmp_entry.distance_from_actual;
+        outfile << tmp_entry.distance_from_actual;
         
         for (auto row = 0; row < result_vector[0].mutation_rates.size1(); ++row) {
             for (auto col = 0; col < result_vector[0].mutation_rates.size2(); ++col) {
-                outfile << "\t" << boost::format("%.3d") % tmp_entry.mutation_rates(row,col);
+                outfile << fits_constants::FILE_FIELD_DELIMITER << boost::format("%.3d") % tmp_entry.mutation_rates(row,col);
             }
         }
         outfile << std::endl;
@@ -183,7 +185,7 @@ std::string ResultsStats::GetPopsizeDistrib(const std::vector<SimulationResult>&
     
     
     // header
-    ss << "sim_id" << "\t" << "distance" << "\t" << "N" << std::endl;
+    ss << "distance" << fits_constants::FILE_FIELD_DELIMITER << "N" << std::endl;
     
     
     // 2016-09-04 adding sanity check to report problem
@@ -195,8 +197,7 @@ std::string ResultsStats::GetPopsizeDistrib(const std::vector<SimulationResult>&
     }
     
     for ( auto tmp_entry : result_vector ) {
-        ss << tmp_entry.sim_id << "\t"
-        << tmp_entry.distance_from_actual << "\t"
+        ss << tmp_entry.distance_from_actual << fits_constants::FILE_FIELD_DELIMITER
         << boost::format("%e") % tmp_entry.N << std::endl;
     }
     
@@ -214,7 +215,7 @@ void ResultsStats::WritePopSizeDistribToFile(const std::vector<SimulationResult>
     }
     
     // header
-    outfile << "sim_id" << "\t" << "distance" << "\t" << "N" << std::endl;
+    outfile << "distance" << fits_constants::FILE_FIELD_DELIMITER << "N" << std::endl;
     
     
     // 2016-09-04 adding sanity check to report problem
@@ -227,8 +228,7 @@ void ResultsStats::WritePopSizeDistribToFile(const std::vector<SimulationResult>
     }
     
     for ( auto tmp_entry : result_vector ) {
-        outfile << tmp_entry.sim_id << "\t"
-                << tmp_entry.distance_from_actual << "\t"
+        outfile << tmp_entry.distance_from_actual << fits_constants::FILE_FIELD_DELIMITER
                 << boost::format("%e") % tmp_entry.N << std::endl;
     }
     
@@ -245,7 +245,7 @@ void ResultsStats::WriteGenerationsDistribToFile(const std::vector<SimulationRes
     }
     
     // header
-    outfile << "sim_id" << "\t" << "distance" << "\t" << "generation_interval" << std::endl;
+    outfile << "distance" << fits_constants::FILE_FIELD_DELIMITER << "generation_interval" << std::endl;
     
     
     // 2016-09-04 adding sanity check to report problem
@@ -258,8 +258,7 @@ void ResultsStats::WriteGenerationsDistribToFile(const std::vector<SimulationRes
     }
     
     for ( auto tmp_entry : result_vector ) {
-        outfile << tmp_entry.sim_id << "\t"
-        << tmp_entry.distance_from_actual << "\t"
+        outfile << tmp_entry.distance_from_actual << fits_constants::FILE_FIELD_DELIMITER
         << boost::format("%e") % tmp_entry.generation_interval << std::endl;
     }
     

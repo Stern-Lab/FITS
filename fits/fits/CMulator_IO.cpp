@@ -95,10 +95,10 @@ std::string CMulator::GetAllOutputAsText(bool header, std::string delimiter) con
 			for (auto myAllele=0; myAllele<_num_alleles; ++myAllele) {
             
                 if (_use_observed_data) {
-                    tmp_str += std::to_string( _observed_simulated_data( myGeneration, myAllele)) + "\t";
+                    tmp_str += std::to_string( _observed_simulated_data( myGeneration, myAllele)) + fits_constants::FILE_FIELD_DELIMITER;
                 }
                 else {
-                    tmp_str += std::to_string( _all_simulated_data( myGeneration, myAllele)) + "\t";
+                    tmp_str += std::to_string( _all_simulated_data( myGeneration, myAllele)) + fits_constants::FILE_FIELD_DELIMITER;
                 }
                 
 			}
@@ -124,7 +124,7 @@ std::string CMulator::GetAllOutputAsTextForR( bool header ) const
     
     // header
     if (header) {
-        tmp_str += "gen\tallele\tfreq\n";
+        tmp_str += "gen" + fits_constants::FILE_FIELD_DELIMITER + "allele" + fits_constants::FILE_FIELD_DELIMITER + "freq\n";
     }
     
     if (_current_generation>1) {
@@ -133,8 +133,8 @@ std::string CMulator::GetAllOutputAsTextForR( bool header ) const
             
             for (auto myAllele=0; myAllele<_num_alleles; ++myAllele) {
                 
-                tmp_str += std::to_string(myGeneration) + "\t";
-                tmp_str += std::to_string(myAllele) + "\t";
+                tmp_str += std::to_string(myGeneration) + fits_constants::FILE_FIELD_DELIMITER;
+                tmp_str += std::to_string(myAllele) + fits_constants::FILE_FIELD_DELIMITER;
                 
                 tmp_str += std::to_string( _all_simulated_data(myGeneration,myAllele) ) + "\n";
             }

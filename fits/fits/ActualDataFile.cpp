@@ -101,8 +101,8 @@ void ActualDataFile::LoadActualData( std::string filename )
         
         std::vector<std::string> line_fields;
         try {
-            boost::split(line_fields, tmp_line, boost::is_any_of("\t"));
-            
+            //boost::split(line_fields, tmp_line, boost::is_any_of("\t"));
+            boost::split(line_fields, tmp_line, boost::is_any_of( fits_constants::FILE_FIELD_DELIMITER ));
         }
         catch (std::exception& e) {
             std::cerr << "Error while parsing actual data file to columns. Line: " << std::endl << tmp_line << std::endl;

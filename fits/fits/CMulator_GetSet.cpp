@@ -48,18 +48,19 @@ void CMulator::SetNumOfGeneration(int generations)
     Reset_Soft();
 }
 
-
+/*
 std::string CMulator::GetSimUID() const
 {
     return _name_of_run;
 }
+*/
 
-
+/*
 void CMulator::SetSimUID( std::string new_sim_uid )
 {
     _name_of_run = new_sim_uid;
 }
-
+*/
 
 void CMulator::SetBottleneckSize( int size )
 {

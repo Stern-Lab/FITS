@@ -126,7 +126,7 @@ void ResultsStats::CalculateStatsMutation()
             prior_matrix(row,col).push_back( std::pow( 10, current_mutrate_vector[i] ) );
             
             if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-                std::cout << std::pow( 10, current_mutrate_vector[i] ) << "\t";
+                std::cout << std::pow( 10, current_mutrate_vector[i] ) << fits_constants::FILE_FIELD_DELIMITER;
             }
             
         }
