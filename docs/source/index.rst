@@ -17,6 +17,7 @@ Before you start
    requirements
    install
    introduction
+   zambezi
    
 Using FITS
 ^^^^^^^^^^
@@ -29,10 +30,3 @@ Using FITS
    use_cases
 
 
-
-Indices and tables
-^^^^^^^^^^^^^^^^^^
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
