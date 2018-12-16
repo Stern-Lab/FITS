@@ -44,7 +44,6 @@
 #include "CMulator.h"
 
 struct ActualDataEntry {
-    int pos;
     int gen;
     //int base;
     int allele;
@@ -56,13 +55,13 @@ struct ActualDataEntry {
     static constexpr FLOAT_TYPE EMPTY_FLOAT = -1.0f;
     
     ActualDataEntry()
-    : pos(EMPTY_INT), gen(EMPTY_INT), allele(EMPTY_INT), freq(EMPTY_FLOAT), ref(EMPTY_INT), read_count(EMPTY_INT) {}
+    : gen(EMPTY_INT), allele(EMPTY_INT), freq(EMPTY_FLOAT), ref(EMPTY_INT), read_count(EMPTY_INT) {}
     
     ActualDataEntry( int position, int generation, int allele_num, FLOAT_TYPE frequency, int reference=-1, int reads=1000 )
-    : pos(position), gen(generation), allele(allele_num), freq(frequency), ref(reference), read_count(reads) {}
+    : gen(generation), allele(allele_num), freq(frequency), ref(reference), read_count(reads) {}
     
     ActualDataEntry( const ActualDataEntry& original )
-    : pos(original.pos), gen(original.gen), allele(original.allele), freq(original.freq), ref(original.ref), read_count(original.read_count) {}
+    : gen(original.gen), allele(original.allele), freq(original.freq), ref(original.ref), read_count(original.read_count) {}
     
     const bool SameAllele( const ActualDataEntry& other ) { return allele==other.allele; }
     const bool SameGeneration( const ActualDataEntry &other ) { return gen==other.gen; }
@@ -76,14 +75,63 @@ struct ActualDataEntry {
     void swap(ActualDataEntry& other);
     
     
-    bool AllDataFilled() { return (pos > EMPTY_INT && gen > EMPTY_INT && allele > EMPTY_INT && freq > EMPTY_INT && ref > EMPTY_FLOAT && read_count > EMPTY_INT); }
+    bool AllDataFilled() { return (gen > EMPTY_INT && allele > EMPTY_INT && freq > EMPTY_INT && ref > EMPTY_FLOAT && read_count > EMPTY_INT); }
     
 };
 
+struct ActualDataPositionData {
+    
+    static const int NO_POSITION_SPECIFIED = -1;
+    
+    ActualDataPositionData();
+    ActualDataPositionData( const ActualDataPositionData& other );
+    
+    std::vector<ActualDataEntry> _actual_data;
+    
+    int _position;
+    int _wt_index;
+    int _num_alleles;
+    
+    // to avoid searching the vector each and every time
+    std::vector<int> _actual_generations;
+    std::vector<FLOAT_TYPE> _actual_frequencies;
+    std::vector<FLOAT_TYPE> _init_frequencies;
+    
+    void Clear();
+    
+    MATRIX_TYPE GetActualFreqsAsMatrix();
+    
+    int GetFirstGeneration();
+    int GetLastGeneration();
+    
+    int GetNumberOfAlleles();
+    int GetWTIndex();
+    
+    std::vector<int> GetActualGenerations( bool only_unique = true);
+    std::vector<FLOAT_TYPE> GetActualFrequencies();
+    std::vector<FLOAT_TYPE> GetInitFreqs();
+    
+    bool operator<( const ActualDataPositionData& other ) const;
+};
 
 class ActualDataFile {
     
     bool _is_initialized;
+    bool _multi_positions;
+    
+    std::vector<ActualDataPositionData> _position_data;
+    
+    static const int NO_POSITION_SPECIFIED = -1;
+    
+    // fields for actual data
+    const int ACTUAL_DATA_EMPTY_CELL = -1;
+    const int ACTUAL_DATA_COLUMN_GENERATION = 0;
+    const int ACTUAL_DATA_COLUMN_ALLELE = 1;
+    const int ACTUAL_DATA_COLUMN_FREQ = 2;
+    const int ACTUAL_DATA_COLUMN_POSITION = 3;
+    const int ACTUAL_DATA_MINIMAL_COLS = 3;
+    
+    void ValidateMultiPosition(int position);
     
 public:
     
@@ -92,36 +140,24 @@ public:
     
     void LoadActualData( std::string filename );
     
-    int GetNumberOfAlleles();
-    int GetWTIndex();
+    int GetNumberOfAlleles( int position = NO_POSITION_SPECIFIED );
+    int GetWTIndex( int position = NO_POSITION_SPECIFIED );
     
-    std::vector<int> GetActualGenerations(bool only_unique = true);
-    std::vector<FLOAT_TYPE> GetActualFrequencies();
-    MATRIX_TYPE GetActualFreqsAsMatrix();
+    MATRIX_TYPE GetActualFreqsAsMatrix( int position = NO_POSITION_SPECIFIED );
     
-    int GetFirstGeneration();
-    int GetLastGeneration();
+    int GetFirstGeneration( int position = NO_POSITION_SPECIFIED );
+    int GetLastGeneration( int position = NO_POSITION_SPECIFIED );
     
-    std::vector<FLOAT_TYPE> GetInitFreqs();
+    ActualDataPositionData GetFirstPosition();
+    ActualDataPositionData GetPosition( int position );
+    int GetNumberOfPositions();
+    std::vector<int> GetPositionNumbers();
+    
     
     //std::vector<FLOAT_TYPE> GetSDPerAllele();
-
-    // fields for actual data
-    const int ACTUAL_DATA_EMPTY_CELL = -1;
-    const int ACTUAL_DATA_COLUMN_GENERATION = 0;
-    const int ACTUAL_DATA_COLUMN_ALLELE = 1;
-    const int ACTUAL_DATA_COLUMN_FREQ = 2;
-    const int ACTUAL_DATA_COLUMNS = 3;
-
-private:
-    std::vector<ActualDataEntry> _actual_data;
-    
-    // to avoid searching the vector each and every
-    std::vector<int> _actual_generations;
-    std::vector<FLOAT_TYPE> _actual_frequencies;
-    std::vector<FLOAT_TYPE> _init_frequencies;
-    int _wt_index;
-    int _num_alleles;
+    std::vector<int> GetActualGenerations( bool only_unique = true, int position = NO_POSITION_SPECIFIED );
+    std::vector<FLOAT_TYPE> GetActualFrequencies( int position = NO_POSITION_SPECIFIED );
+    std::vector<FLOAT_TYPE> GetInitFreqs( int position = NO_POSITION_SPECIFIED );
 };
 
 #endif /* ActualDataFile_hpp */

@@ -21,7 +21,6 @@
 
 void ActualDataEntry::swap(ActualDataEntry& other)
 {
-    std::swap(pos, other.pos);
     std::swap(gen, other.gen);
     std::swap(allele, other.allele);
     std::swap(freq, other.freq);
@@ -33,15 +32,22 @@ void ActualDataEntry::swap(ActualDataEntry& other)
 // used for sorting only
 bool ActualDataEntry::operator<( const ActualDataEntry& other ) const
 {
+    // first, sort by position
+    //if (pos < other.pos) {
+     //   return true;
+   // }
+    //if (pos > other.pos) {
+     //   return false;
+    //}
+    
     if (gen < other.gen) {
         return true;
     }
-    
     if (gen > other.gen) {
         return false;
     }
     
-    // we reached here, so gen == other.gen
+    // same position, same generation - sort by allele
     return allele < other.allele;
 }
 

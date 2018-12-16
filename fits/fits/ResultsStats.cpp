@@ -18,11 +18,13 @@
 
 #include "ResultsStats.hpp"
 
-ResultsStats::ResultsStats(ZParams zparams)
+// ResultsStats::ResultsStats(ZParams zparams)
+ResultsStats::ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB &prior_distrib, const std::vector<SimulationResult>& result_vector )
 :
+_is_multi_position(false),
 _running_time_sec(0),
-_num_results(0),
-_num_alleles(0),
+_num_results( result_vector.size() ),
+_num_alleles( zparams.GetInt(fits_constants::PARAM_NUM_ALLELES, 0) ),
 _num_generations(0),
 allele_mean_fitness(_num_alleles),
 allele_sd_fitness(_num_alleles),
@@ -48,9 +50,11 @@ _single_mutrate_inferred(false),
 _single_mutrate_used(false),
 _first_generation(0),
 _zparams(zparams),
-levenes_pval(_num_alleles, -1.0f)
+levenes_pval(_num_alleles, -1.0f),
+_prior_type(prior_type),
+_prior_distrib(prior_distrib),
+_result_vector(result_vector)
 {
-    _prior_distrib = "";
     _distance_metric = _zparams.GetString( fits_constants::PARAM_DISTANCE, fits_constants::PARAM_DISTANCE_L1 );
 }
 
@@ -76,7 +80,7 @@ std::string ResultsStats::GetPrintCommonHeaderStr()
     return tmp_str;
 }
 
-void ResultsStats::WritePriorDistribToFile( const std::vector<std::vector<FLOAT_TYPE>>& prior_distrib, std::string filename )
+void ResultsStats::WritePriorDistribToFile( const PRIOR_DISTRIB& prior_distrib, std::string filename )
 {
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
     
@@ -108,6 +112,7 @@ void ResultsStats::WritePriorDistribToFile( const std::vector<std::vector<FLOAT_
     outfile.close();
 }
 
+/*
 void ResultsStats::WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename )
 {
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
@@ -139,6 +144,7 @@ void ResultsStats::WritePriorDistribToFile( const std::vector<std::vector<int>>&
     
     outfile.close();
 }
+*/
 
 // Leven'es test for two groups
 // Used to test whether the prior is different than the posterior
@@ -253,6 +259,8 @@ std::string ResultsStats::GetSummaryHeader()
     
     ss << "Simulation results used for calculations: " << _num_results << std::endl;
     
+    ss << "Alleles: " << _num_alleles << std::endl;
+    
     if ( _running_time_sec > 0 ) {
         auto running_minutes = _running_time_sec / 60;
         auto running_seconds = _running_time_sec % 60;
@@ -264,7 +272,7 @@ std::string ResultsStats::GetSummaryHeader()
         ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
     }
     
-    ss << "=====================" << std::endl;
+    ss << "---------------------" << std::endl;
     
     return ss.str();
 }
@@ -299,4 +307,22 @@ int ResultsStats::GetMedian( std::vector<int> vec )
     //std::cout << " median value=" << vec[median_idx] << std::endl;
     
     return vec[median_idx];
+}
+
+std::vector<FLOAT_TYPE> ResultsStats::DownsampleVector( const std::vector<FLOAT_TYPE> &vec, std::size_t sample_size )
+{
+    boost::mt19937 rnd_gen;
+    unsigned int rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    boost::random::uniform_real_distribution<std::size_t> uniform_distrib( 0, vec.size() );
+    rnd_gen.seed(rnd_seed);
+    
+    std::vector<FLOAT_TYPE> result_vec;
+    
+    for ( std::size_t current_item=0; current_item<sample_size; ++current_item ) {
+        
+        auto tmp_idx = uniform_distrib(rnd_gen);
+        result_vec.push_back( vec[tmp_idx] );
+    }
+    
+    return result_vec;
 }

@@ -413,6 +413,10 @@ int CMulator::GetRepeats() const
 
 void CMulator::SetPopulationSize( int N )
 {
+    if ( !IsValid_PopulationSize(N) ) {
+        throw "Invalid population size: " + std::to_string(N);
+    }
+    
     _N = N;
     _available_popsize = true;
 }

@@ -92,8 +92,14 @@ class ResultsStats {
     
     std::string GetSummaryHeader();
     
+    bool _is_multi_position;
+    
+    PRIOR_DISTRIB _prior_distrib;
+    PriorDistributionType _prior_type;
+    std::vector<SimulationResult> _result_vector;
+    
 public:
-    ResultsStats(ZParams zparams);
+    ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB &prior_distrib, const std::vector<SimulationResult>& result_vector );
     
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );
     int GetMedian( std::vector<int> vec );
@@ -103,8 +109,13 @@ public:
 
     void SetResultsCount( std::size_t count );
     
-    std::string _prior_distrib;
-    void SetPriorDistrib( std::string prior ) { _prior_distrib=prior; }
+    void SetMultiPosition( bool is_multi_position ) { _is_multi_position = is_multi_position; }
+    bool GetMultiPosition() { return _is_multi_position; }
+    
+    //std::string _prior_type_str;
+    
+    void SetPriorType( PriorDistributionType prior_type ) { _prior_type = prior_type; }
+    void SetPriorDistrib( PRIOR_DISTRIB prior_distrib ) { _prior_distrib = prior_distrib; }
     
     bool _single_mutrate_inferred;
     void SetSingleMutrateInferred( bool is_single_inferred ) { _single_mutrate_inferred=is_single_inferred; }
@@ -117,10 +128,17 @@ public:
     // These will calculate and store in internal variables
     // will later be private
 
+    /*
     void CalculateStatsFitness(const std::vector<SimulationResult>& result_vector);
     void CalculateStatsPopulationSize(const std::vector<SimulationResult>& result_vector);
     void CalculateStatsMutation(const std::vector<SimulationResult>& result_vector);
     void CalculateStatsGenerations(const std::vector<SimulationResult>& result_vector);
+     */
+    
+    void CalculateStatsFitness();
+    void CalculateStatsPopulationSize();
+    void CalculateStatsMutation();
+    void CalculateStatsGenerations();
      
     std::string GetSummaryFitness();
     std::string GetSummaryPopSize();
@@ -225,9 +243,9 @@ public:
     void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     void WriteGenerationsDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     
-    void WritePriorDistribToFile( const std::vector<std::vector<FLOAT_TYPE>>& prior_distrib, std::string filename );
+    void WritePriorDistribToFile( const PRIOR_DISTRIB& prior_distrib, std::string filename );
     
-    void WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename );
+    // void WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename );
     
     std::vector<FLOAT_TYPE> GetMinFitnessVec() { return allele_min_fitness; }
     std::vector<FLOAT_TYPE> GetMaxFitnessVec() { return allele_max_fitness; }
@@ -237,6 +255,7 @@ public:
     
 private: // here for init-order - require the public vars to be initialize
     
+    std::vector<FLOAT_TYPE> DownsampleVector( const std::vector<FLOAT_TYPE> &vec, std::size_t sample_size );
     std::string GetPrintCommonHeaderStr();
     std::vector<FLOAT_TYPE> _allele_Nu; // for allele i u=f(wt->i)
     ZParams _zparams;

@@ -19,19 +19,18 @@
 #include "ResultsStats.hpp"
 
 
-void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& result_vector)
+void ResultsStats::CalculateStatsFitness()
 {
-    auto wt_allele = result_vector[0].wt_index;
-    _num_alleles = result_vector[0].fitness_values.size();
+    auto wt_allele = _result_vector[0].wt_index;
+    _num_alleles = _result_vector[0].fitness_values.size();
     
-    _num_results = result_vector.size();
+    _num_results = _result_vector.size();
     
     _allele_Nu.resize(_num_alleles, 0.0f);
     levenes_pval.resize(_num_alleles, -1.0f);
     
     MATRIX_TYPE posterior_matrix( _num_results, _num_alleles );
-    
-    
+    MATRIX_TYPE prior_matrix( _num_results, _num_alleles );
     
     boost::accumulators::accumulator_set<
     FLOAT_TYPE,
@@ -78,13 +77,13 @@ void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& re
     for (auto current_allele = 0; current_allele<_num_alleles; ++current_allele) {
         
         if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-            std::cout << "Calculating Nu. N=" << result_vector[0].N <<
-            "; u=" << result_vector[0].mutation_rates(result_vector[0].wt_index, current_allele) << std::endl;
+            std::cout << "Calculating Nu. N=" << _result_vector[0].N <<
+            "; u=" << _result_vector[0].mutation_rates(_result_vector[0].wt_index, current_allele) << std::endl;
         }
         
         _allele_Nu[current_allele] =
-            result_vector[0].N *
-                result_vector[0].mutation_rates(result_vector[0].wt_index, current_allele);
+            _result_vector[0].N *
+                _result_vector[0].mutation_rates(_result_vector[0].wt_index, current_allele);
     }
     
     
@@ -93,13 +92,13 @@ void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& re
     
     for (auto current_sim_index=0; current_sim_index<_num_results; ++current_sim_index ) {
         
-        auto current_sim_data = result_vector[current_sim_index];
+        auto current_sim_data = _result_vector[current_sim_index];
         
         acc_distance(current_sim_data.distance_from_actual);
         
         for (auto current_allele = 0; current_allele<current_sim_data.fitness_values.size(); current_allele++) {
          
-            allele_fitness_storage[current_allele].push_back( result_vector[current_sim_index].fitness_values[current_allele] );
+            allele_fitness_storage[current_allele].push_back( _result_vector[current_sim_index].fitness_values[current_allele] );
             
             auto tmpval = current_sim_data.fitness_values[current_allele];
             
@@ -177,19 +176,19 @@ void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& re
          else if (lethal_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
          allele_category[current_allele] = AlleleCategory::Possible_lethal;
          */
-        deleterious_percent[current_allele] = deleterious_counter[current_allele] * 100 / result_vector.size();
+        deleterious_percent[current_allele] = deleterious_counter[current_allele] * 100 / _result_vector.size();
         if (deleterious_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Deleterious;
         else if (deleterious_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Possible_deleterious;
         
-        neutral_percent[current_allele] = neutral_counter[current_allele] * 100 / result_vector.size();
+        neutral_percent[current_allele] = neutral_counter[current_allele] * 100 / _result_vector.size();
         if (neutral_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Neutral;
         else if (neutral_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Possible_neutral;
         
-        advantageous_percent[current_allele] = advantageous_counter[current_allele] * 100 / result_vector.size();
+        advantageous_percent[current_allele] = advantageous_counter[current_allele] * 100 / _result_vector.size();
         if (advantageous_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Adventageous;
         else if (advantageous_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
@@ -219,20 +218,26 @@ void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& re
         }
     }
     
-    auto num_prior_samples = _zparams.GetInt(fits_constants::PARAM_SIM_REPEATS);
+    // auto num_prior_samples = _zparams.GetInt(fits_constants::PARAM_SIM_REPEATS);
     
     for ( auto current_allele=0; current_allele<_num_alleles; ++current_allele ) {
         
+        if ( current_allele == wt_allele ) {
+            levenes_pval[current_allele] = -1.0f;
+            continue;
+        }
         // generate prior
+        /*
         auto current_allele_min_fitness = fitness_limits_matrix(0, current_allele);
         auto current_allele_max_fitness = fitness_limits_matrix(1, current_allele);
         
         if ( current_allele_min_fitness == current_allele_max_fitness ) {
-            // std::cout << "skipping allele " << current_allele << std::endl;
+            std::cout << "skipping allele " << current_allele << std::endl;
             continue;
         }
         std::vector<FLOAT_TYPE> min_fitness_vec( num_prior_samples, current_allele_min_fitness );
         std::vector<FLOAT_TYPE> max_fitness_vec( num_prior_samples, current_allele_max_fitness );
+        
         
         
         PriorDistributionType prior_type = PriorDistributionType::UNDEFINED;
@@ -253,11 +258,19 @@ void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& re
             throw "ResultStats: prior not defined correctly";
         }
         
+        
         PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, PriorDistributionType::FITNESS_COMPOSITE);
         
         auto prior_vec = sampler.SamplePrior(1)[0];
         
         //std::cout << "prior size=" << prior_vec.size() << std::endl;
+        */
+        
+        std::vector<FLOAT_TYPE> current_allele_prior_vec;
+        for ( auto prior_vec : _prior_distrib ) {
+            current_allele_prior_vec.push_back( prior_vec[current_allele] );
+            // std::cout << "pushed to prior vec: " << prior_vec[current_allele] << std::endl;
+        }
         
         boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_allele_posterior_col( posterior_matrix, current_allele );
         
@@ -268,8 +281,11 @@ void ResultsStats::CalculateStatsFitness(const std::vector<SimulationResult>& re
                    current_allele_posterior_col.cend(),
                   current_allele_posterior_vec.begin() );
         
+        //auto partial_allele_prior_vec = whole_allele_prior_vec;
+        //auto partial_allele_prior_vec = DownsampleVector( whole_allele_prior_vec, current_allele_posterior_vec.size() );
+        //std::cout << "size of partial prior vec: " << current_allele_prior_vec.size() << "  posterior vec: " << current_allele_posterior_vec.size() << std::endl;
         
-        auto levenes_p = LevenesTest2(current_allele_posterior_vec, prior_vec );
+        auto levenes_p = LevenesTest2( current_allele_posterior_vec, current_allele_prior_vec );
         
         levenes_pval[current_allele] = levenes_p;
     }
@@ -315,17 +331,9 @@ std::string ResultsStats::GetSummaryFitness()
 
     ss << std::endl;
     ss << "Full Report - Fitness" << std::endl;
-    ss << "=============================\n" << std::endl;
+    ss << "=============================" << std::endl;
     ss << GetSummaryHeader();
     
-    //ss << "FITS v"<< fits_constants::current_version_str << std::endl;
-    
-    //auto current_time_raw = std::chrono::system_clock::now();
-    //auto current_time = std::chrono::system_clock::to_time_t(current_time_raw);
-    //auto current_time_final = *std::localtime(&current_time);
-    //ss << std::put_time(&current_time_final, "%F %T") << std::endl;
-    
-    //ss << "====================" << std::endl;
     
     auto tmp_size = _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1);
     ss << "Population size (N) is " << tmp_size;
@@ -368,13 +376,13 @@ std::string ResultsStats::GetSummaryFitness()
     ss << "Prior used: " << tmp_str << std::endl;
     
     if ( !bad_alleles_vec.empty() ) {
-        ss << " WARNING: inference may be unreliable (Nu<1) for alleles (*): ";
+        ss << "** WARNING: inference may be unreliable (Nu<1) for alleles (*): ";
         
         for ( auto allele_num : bad_alleles_vec ) {
             ss << allele_num << " ";
         }
         
-        ss << std::endl << std::endl;
+        ss << " **" << std::endl << std::endl;
     }
     
     if ( _rejection_threshold > 0.0f ) {
@@ -382,7 +390,7 @@ std::string ResultsStats::GetSummaryFitness()
     }
     
     
-    ss << "====================" << std::endl;
+    ss << "--------------------" << std::endl;
     
     ss << boost::format("%-10s") % "allele";
     ss << boost::format("%-10s") % "median";

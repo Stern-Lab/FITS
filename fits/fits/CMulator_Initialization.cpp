@@ -146,7 +146,6 @@ void CMulator::InitMutationInferenceVariables( ZParams zparams )
 
 void CMulator::InitBasicVariables( ZParams zparams )
 {
-    /* Mandatory Parameters - No Defaults */
     
     try {
         if ( zparams.GetInt( "Debug", 0 ) > 0 ) {
@@ -154,19 +153,11 @@ void CMulator::InitBasicVariables( ZParams zparams )
         }
         
         _N = zparams.GetInt(PARAM_POPULATION_SIZE, -1);
-        if ( !IsValid_PopulationSize(_N)  ) {
-            
-            // only complain about invalid/missing population size, if we need it
-            if ( zparams.GetString( PARAM_INFERENCE_ARG, PARAM_INFERENCE_ARG_EMPTY ) != PARAM_INFERENCE_ARG_POPSIZE ) {
-                throw "Parameters: Missing or invalid N (must be positive).";
-            }
-        }
         
         _sample_size = zparams.GetInt( PARAM_SAMPLE_SIZE, PARAM_SAMPLE_SIZE_DEFAULT );
         if ( _sample_size > 0 ) {
             _use_observed_data = true;
         }
-        
         
         _alt_N = zparams.GetInt( PARAM_ALT_POPULATION_SIZE, 0 );
         _alt_generation = zparams.GetInt( PARAM_ALT_GENERATION, -1 );
@@ -175,7 +166,6 @@ void CMulator::InitBasicVariables( ZParams zparams )
         
         _N0 = _N;
         
-        // _num_alleles = Parameters::getInt( PARAM_NUM_ALLELES, PARAM_DEFAULT_VAL_INT );
         _num_alleles = zparams.GetInt(PARAM_NUM_ALLELES);
         
         if (  !IsValid_NumAlleles(_num_alleles) ) {
@@ -184,10 +174,6 @@ void CMulator::InitBasicVariables( ZParams zparams )
         
         // not required for inference but we do need it for simulation
         _num_generations = zparams.GetInt(PARAM_NUM_GENERATIONS, 0);
-        
-        
-        //_sample_size = Parameters::getInt( PARAM_SAMPLE_SIZE, PARAM_DEFAULT_VAL_INT );
-        //_sample_size = zparams.GetInt( PARAM_SAMPLE_SIZE, PARAM_DEFAULT_VAL_INT );
         
         _bottleneck_interval = zparams.GetInt( PARAM_BOTTLENECK_INTERVAL, PARAM_DEFAULT_VAL_INT );
         

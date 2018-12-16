@@ -18,7 +18,7 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::size_t num_simulations )
+std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
 {
     // initialize sim object
     CMulator local_sim_object(_zparams);
@@ -38,13 +38,13 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
     }
     
     // set initial frequencies from actual data
-    auto init_freq_vec = _actual_data_file.GetInitFreqs();
+    auto init_freq_vec = _actual_data_position.GetInitFreqs();
     for (auto i = 0; i < init_freq_vec.size(); ++i) {
         local_sim_object.SetAlleleInitFreq(i, init_freq_vec[i]);
     }
     
-    auto first_generation = _actual_data_file.GetFirstGeneration();
-    auto last_generation = _actual_data_file.GetLastGeneration();
+    auto first_generation = _actual_data_position.GetFirstGeneration();
+    auto last_generation = _actual_data_position.GetLastGeneration();
     auto num_generations = last_generation - first_generation + 1;
     local_sim_object.SetGenerationShift(first_generation);
     local_sim_object.SetNumOfGeneration(num_generations);
@@ -54,24 +54,25 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
     auto wt_allele_idx = static_cast<unsigned int>(std::distance(init_freq_vec.begin(), wt_allele_it));
     local_sim_object.SetWTAllele(wt_allele_idx, 0.0f, 2.0f);
     
-    auto min_matrix = local_sim_object.GetMinMutationRateMatrix();
-    auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
+    //auto min_matrix = local_sim_object.GetMinMutationRateMatrix();
+    //auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
     
-    PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM);
+    //PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM);
     
-    auto mutrate_vector_list = sampler.SamplePrior( num_simulations );
+    
+    //std::vector< std::vector<FLOAT_TYPE> >  mutrate_vector_list;
     
     
     std::vector<SimulationResult> tmp_res_vector;
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-        std::cout << "Prior archive size : " << _float_prior_archive.size() << std::endl;
+        std::cout << "Prior distrib size : " << _global_prior.size() << std::endl;
     }
     
     // simulation for each set of parameters
-    for (auto current_mutrate_idx=0; current_mutrate_idx<mutrate_vector_list.size(); ++current_mutrate_idx ) {
+    for (auto current_mutrate_idx=0; current_mutrate_idx<prior_distrib.size(); ++current_mutrate_idx ) {
         
-        auto current_mutrate_vector = mutrate_vector_list[current_mutrate_idx];
+        auto current_mutrate_vector = prior_distrib[current_mutrate_idx];
         
         local_sim_object.Reset_Soft();
         
@@ -127,13 +128,13 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( std::si
         
         local_sim_object.EvolveAllGenerations();
         
-        _float_prior_archive.push_back( current_mutrate_vector);
+        //_float_prior_archive.push_back( current_mutrate_vector);
         
         
         // SimulationResult sim_result(local_sim_object);
         
         // keep only the generations we need to conserve memory
-        auto tmp_actual_generations = _actual_data_file.GetActualGenerations();
+        auto tmp_actual_generations = _actual_data_position.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
         
         //tmp_res_vector.push_back(std::move(sim_result));

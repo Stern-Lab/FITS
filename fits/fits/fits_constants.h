@@ -30,12 +30,13 @@
 #define FLOAT_TYPE double
 #define MATRIX_TYPE boost::numeric::ublas::matrix<FLOAT_TYPE>
 #define INT_MATRIX boost::numeric::ublas::matrix<int>
+#define PRIOR_DISTRIB std::vector< std::vector<FLOAT_TYPE> >
 
 namespace fits_constants {
     
     
     /* GENERAL */
-    const std::string current_version_str = "1.1";
+    const std::string current_version_str = "1.1.1";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05;
     
     /* COMMAND LINE ARGUMANTS */
@@ -115,8 +116,8 @@ namespace fits_constants {
     const std::string PARAM_LOGISTIC_GROWTH = "_logistic_growth";
     const std::string PARAM_LOGISTIC_GROWTH_K = "_logistic_growth_K";
     const std::string PARAM_LOGISTIC_GROWTH_r = "_logistic_growth_r";
-    const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MIN = 0.0;
-    const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MAX = 2.0;
+    const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MIN = 0.0f;
+    const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MAX = 2.0f;
     
     const std::string PARAM_EPSILON_FLOAT_COMPARE = "_epsilon_float_compare";
     

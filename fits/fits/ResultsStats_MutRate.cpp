@@ -18,13 +18,13 @@
 
 #include "ResultsStats.hpp"
 
-void ResultsStats::CalculateStatsMutation(const std::vector<SimulationResult>& result_vector)
+void ResultsStats::CalculateStatsMutation()
 {
     CMulator local_sim(_zparams);
     
-    _num_alleles = result_vector[0].fitness_values.size();
+    _num_alleles = _result_vector[0].fitness_values.size();
     
-    _num_results = result_vector.size();
+    _num_results = _result_vector.size();
     
     boost::accumulators::accumulator_set<
     FLOAT_TYPE,
@@ -53,7 +53,7 @@ void ResultsStats::CalculateStatsMutation(const std::vector<SimulationResult>& r
     normalized_median_mutation_rates.resize(_num_alleles, _num_alleles);
     levenes_pval_matrix.resize(_num_alleles,_num_alleles);
     
-    for ( auto sim_result : result_vector ) {
+    for ( auto sim_result : _result_vector ) {
         
         acc_distance(sim_result.distance_from_actual);
         
@@ -107,16 +107,17 @@ void ResultsStats::CalculateStatsMutation(const std::vector<SimulationResult>& r
     PriorSampler<int> sampler( min_prior_mutation_rates,
                               max_prior_mutation_rates,
                               PriorDistributionType::UNIFORM);
-    std::cout << "min rates: " << min_mutation_rates << std::endl;
-    std::cout << "max rates: " << max_mutation_rates << std::endl;
-    auto mutrate_vector_list = sampler.SamplePrior( _num_results );
+    //std::cout << "min rates: " << min_mutation_rates << std::endl;
+    //std::cout << "max rates: " << max_mutation_rates << std::endl;
+    // auto mutrate_vector_list = sampler.SamplePrior( _num_results );
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
         std::cout << "building prior" << std::endl;
     }
     
     
-    for (auto current_mutrate_vector : mutrate_vector_list) {
+    // for (auto current_mutrate_vector : mutrate_vector_list) {
+    for ( auto current_mutrate_vector : _prior_distrib ) {
         for ( auto i=0; i<current_mutrate_vector.size(); ++i ) {
             
             auto row = i / _num_alleles;
@@ -177,14 +178,13 @@ std::string ResultsStats::GetSummaryMutRate()
      //   ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
     //}
     
-    
+
     ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1) << std::endl;
-    ss << "Distance metric: " << _distance_metric << std::endl << std::endl;
+    ss << "Distance metric: " << _distance_metric << std::endl;
     
     if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
-        ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")";
+        ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")" << std::endl;
     }
-    ss << std::endl;
     
     if ( _single_mutrate_inferred ) {
         ss << "Inferred a single mutation rate." << std::endl;
@@ -192,12 +192,14 @@ std::string ResultsStats::GetSummaryMutRate()
     
     ss << "====================" << std::endl;
     
+    
     // first header row - "to"
     ss << boost::format("%-12s") % "";
     for (auto col=0; col<_num_alleles; ++col ) {
         ss << boost::format("%-48s") % ("to " + std::to_string(col));
     }
     ss << std::endl;
+    
     
     // second header row
     ss << boost::format("%-12s") % "";
