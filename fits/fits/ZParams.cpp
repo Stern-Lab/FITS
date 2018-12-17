@@ -56,23 +56,52 @@ void ZParams::ReadParameters( const std::string filename, bool ReadOnly = false 
     }
     
     
-    std::regex rx{"(^[^#]\\S+)\\s(\\S+)"}; // (name) (value) pairs, ignore comments with #
+    std::regex parameter_regex{"(^\\S+)\\s(\\S+)"}; // (name) (value) pairs, ignore comments with #
+    std::regex comment_regex{"^[#]"}; // (name) (value) pairs, ignore comments with #
     std::string line;
     
+    std::size_t line_count = 0;
+    std::size_t parameter_count = 0;
+    
     while(getline(f, line)) {
+        
+        ++line_count;
+        
         // match regex
         std::smatch matches; // matched strings go here
-        if (std::regex_search(line , matches, rx)) {
+        
+        // empty line
+        if ( line.empty() ) {
+            continue;
+        }
+        
+        // a comment is found
+        if ( std::regex_search(line , matches, comment_regex) ) {
+            continue;
+        }
+        
+        // parameter line
+        if ( std::regex_search(line , matches, parameter_regex) ) {
             // 0 is the whole line
             std::string param_name = matches[1];
             std::string param_val_str = matches[2];
             // std::cout << "name: " << param_name << " val: " << param_val_str << std::endl;
             AddParameter(param_name, param_val_str);
+            ++parameter_count;
+            continue;
         }
+        
+        std::string err_msg = "ZParams: error while reading file " + filename + ": the following line (" +  std::to_string(line_count) + ") is not a valid parameter or comment:\n" + line + "\n";
+        throw err_msg.c_str();
     }
     
     if (f.bad()) {
         std::string err_msg = "ZParams: error while reading file " + filename + "\n";
+        throw err_msg.c_str();
+    }
+    
+    if ( parameter_count == 0 ) {
+        std::string err_msg = "ZParams: error while reading file " + filename + " - No valid parameters found.\n";
         throw err_msg.c_str();
     }
     

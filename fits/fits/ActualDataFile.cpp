@@ -81,20 +81,41 @@ void ActualDataFile::LoadActualData( std::string filename )
     std::ifstream infile(filename);
     
     if (!infile.is_open()) {
-        std::cerr << "error while opening actual data file: " << filename << std::endl;
-        throw "error while opening actual data file";
+        std::cerr << "error while opening data file: " << filename << std::endl;
+        throw "error while opening data file";
     }
     
     std::string tmp_line;
     bool is_first_line = true;
     int current_position = -1;
+    std::size_t expected_num_columns = 0;
+    std::size_t current_line_num = 0;
     
     ActualDataPositionData tmp_position_data;
     
     // todo: check if newline needs to be normalized
     while (std::getline(infile, tmp_line)) {
         
+        ++current_line_num;
+        
         if (is_first_line) {
+            
+            // keep the number of columns - make sure rest of file contains same number of columns
+            std::vector<std::string> line_fields;
+            try {
+                boost::split(line_fields, tmp_line, boost::is_any_of( fits_constants::FILE_FIELD_DELIMITER ));
+                
+                expected_num_columns = line_fields.size();
+            }
+            catch (...) {
+                throw "Error while parsing data file to columns. Header line:\n" + tmp_line + "\n";
+            }
+            
+            if ( line_fields.size() < ACTUAL_DATA_MINIMAL_COLS ) {
+                throw "Not enough columns in data file.";
+            }
+            
+            
             is_first_line = false;
             continue;
         }
@@ -104,26 +125,15 @@ void ActualDataFile::LoadActualData( std::string filename )
             //boost::split(line_fields, tmp_line, boost::is_any_of("\t"));
             boost::split(line_fields, tmp_line, boost::is_any_of( fits_constants::FILE_FIELD_DELIMITER ));
         }
-        catch (std::exception& e) {
-            std::cerr << "Error while parsing actual data file to columns. Line: " << std::endl << tmp_line << std::endl;
-            throw e;
-        }
         catch (...) {
-            std::cerr << "Unknown error while parsing actual data file to columns. Line: " << std::endl << tmp_line << std::endl;
-            std::cerr << "NOT TERMINATING" << std::endl;
+            throw "Error while parsing data file to columns. Line from file:\n" + tmp_line + "\n";
         }
         
         
-        if (line_fields.size() <=1) {
-            std::cerr << "skipping line" << std::endl;
-            continue;
+        if ( line_fields.size() < ACTUAL_DATA_MINIMAL_COLS || line_fields.size() != expected_num_columns ) {
+            std::cerr << "\nError while reading data file (line " << std::to_string(current_line_num)  << "): line contains " << line_fields.size() << " columns, expected " << expected_num_columns << "." << std::endl;
+            throw "Line in data file contains inconsistent number of columns.";
         }
-        
-        if (line_fields.size() < ACTUAL_DATA_MINIMAL_COLS) {
-            std::cerr << "incompatible actual data file with " << line_fields.size() << " columns, expected " << ACTUAL_DATA_MINIMAL_COLS << std::endl;
-            throw "incompatible actual data file.";
-        }
-        
         
         ActualDataEntry tmp_data_entry;
         
@@ -133,8 +143,8 @@ void ActualDataFile::LoadActualData( std::string filename )
             boost::trim(line_fields[ACTUAL_DATA_COLUMN_FREQ]);
         }
         catch (...) {
-            std::cerr << "Error while parsing actual data file (trim)." << std::endl;
-            throw "Error while pasring actual data file (trim).";
+            std::cerr << "\nError while parsing data file (trim)." << std::endl;
+            throw "Error while pasring data file (trim).";
         }
         
         try {
@@ -145,8 +155,8 @@ void ActualDataFile::LoadActualData( std::string filename )
             tmp_data_entry.read_count = -1;
         }
         catch (...) {
-            std::cerr << "Error while parsing actual data file (cast):" << std::endl << tmp_line << std::endl;
-            throw "Error while pasring actual data file (cast).";
+            std::cerr << "\nError while parsing data file (cast):" << std::endl << tmp_line << std::endl;
+            throw "Error while pasring file (cast).";
         }
         
         
@@ -165,8 +175,8 @@ void ActualDataFile::LoadActualData( std::string filename )
                 throw "Error while loading data: " + std::string(str);
             }
             catch (...) {
-                std::cerr << "Error while parsing actual data file - position column (cast). Data is: " << line_fields[ACTUAL_DATA_COLUMN_POSITION] << std::endl;
-                throw "Error while pasring actual data file - position column (cast). Data is:" + line_fields[ACTUAL_DATA_COLUMN_POSITION];
+                std::cerr << "Error while parsing data file - position column (cast). Data is: " << line_fields[ACTUAL_DATA_COLUMN_POSITION] << std::endl;
+                throw "Error while pasring data file - position column (cast). Data is:" + line_fields[ACTUAL_DATA_COLUMN_POSITION];
             }
         }
         
@@ -188,8 +198,8 @@ void ActualDataFile::LoadActualData( std::string filename )
             tmp_position_data._actual_data.push_back( tmp_data_entry );
         }
         catch (...) {
-            std::cerr << "Error while adding actual data entry" << std::endl;
-            throw "Error while adding actual data entry";
+            std::cerr << "Error while adding data entry" << std::endl;
+            throw "Error while adding data entry";
         }
     }
     
@@ -203,15 +213,15 @@ void ActualDataFile::LoadActualData( std::string filename )
         _position_data.push_back(tmp_position_data);
     }
     catch (...) {
-        std::cerr << "Error while sorting actual data." << std::endl;
-        throw "Error while sorting actual data.";
+        std::cerr << "Error while sorting data." << std::endl;
+        throw "Error while sorting data.";
     }
     
     infile.close();
     
     // finished going through file - have we read any data?
     if ( !_is_initialized ) {
-        throw "actual data file appears to be empty.";
+        throw "Data file appears to be empty.";
     }
     
     // do sorting and some consistency checks for all positions
@@ -230,7 +240,7 @@ void ActualDataFile::LoadActualData( std::string filename )
             auto current_num_alleles = current_position_data.GetNumberOfAlleles();
             
             if ( global_num_alleles != current_num_alleles ) {
-                std::cerr << "Inconsistent number of alleles found in actual data file (" << global_num_alleles << " vs. " << current_num_alleles << ")" << std::endl;
+                std::cerr << "Inconsistent number of alleles found in data file (" << global_num_alleles << " vs. " << current_num_alleles << ")" << std::endl;
                 throw "Inconsistent number of alleles found in data file";
             }
         }

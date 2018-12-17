@@ -102,20 +102,31 @@ void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const
     // print title according to the prior type
     switch (factor_to_infer) {
         case Fitness: {
-            outfile << "allele0";
             
-            for (auto i = 1; i < prior_distrib[0].size(); i++) {
-                outfile << fits_constants::FILE_FIELD_DELIMITER << "allele" << i;
+            for (auto i = 0; i < prior_distrib[0].size(); ++i) {
+                outfile << "allele" << i << fits_constants::FILE_FIELD_DELIMITER;
             }
             outfile << std::endl;
             break;
         }
             
         case MutationRate: {
+            
+            auto num_alleles = prior_distrib[0].size() / 2;
+            
+            for (auto i = 0; i < prior_distrib[0].size(); ++i) {
+                auto from_allele = i / num_alleles;
+                auto to_allele = i % num_alleles;
+                    
+                outfile << "allele" << from_allele << "_" << to_allele << fits_constants::FILE_FIELD_DELIMITER;
+            }
+            outfile << std::endl;
             break;
         }
             
         case PopulationSize: {
+            
+            outfile << "N" << std::endl;
             break;
         }
     }

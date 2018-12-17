@@ -52,7 +52,7 @@ int InferABC( FactorToInfer factor,
              std::string prior_output_filename )
 {
     std::cout << "Parameter file: " << param_filename << std::endl;
-    std::cout << "Actual data file: " << actual_data_filename << std::endl;
+    std::cout << "Data file: " << actual_data_filename << std::endl;
     std::cout << "Posterior distribution file: " << posterior_output_filename << std::endl;
     std::cout << "Summary file: " << summary_output_filename << std::endl;
     
@@ -86,7 +86,7 @@ int InferABC( FactorToInfer factor,
     
     
     ActualDataFile actual_data_file;
-    std::cout << "Reading actual data... ";
+    std::cout << "Reading data file... ";
     try {
         actual_data_file.LoadActualData(actual_data_filename);
         
@@ -101,19 +101,19 @@ int InferABC( FactorToInfer factor,
         
     }
     catch (std::string str) {
-        std::cerr << "Exception while loading actual data: " << str << std::endl;
+        std::cerr << "Exception while loading data: " << str << std::endl;
         return 1;
     }
     catch (const char* str) {
-        std::cerr << "Exception while loading actual data: " << str << std::endl;
+        std::cerr << "Exception while loading data: " << str << std::endl;
         return 1;
     }
     catch (std::exception& e) {
-        std::cerr << "Exception while loading actual data: " << e.what() << std::endl;
+        std::cerr << "Exception while loading data: " << e.what() << std::endl;
         return 1;
     }
     catch (...) {
-        std::cerr << "Unknown exception while loading actual data." << std::endl;
+        std::cerr << "Unknown exception while loading data." << std::endl;
         return 1;
     }
     
