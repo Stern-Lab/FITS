@@ -426,10 +426,14 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
          */
         if ( _allele_Nu[current_allele] >= 1.0 &&
             levenes_pval[current_allele] < fits_constants::LEVENES_SIGNIFICANCE ) {
-            ss << boost::format("%-10d") % current_allele;
+            //ss << boost::format("%-10d") % current_allele;
+            ss << boost::format("%.2e") % current_allele;
+            
         }
         else {
-            ss << boost::format("*%-9d") % current_allele;
+            // ss << boost::format("*%-9d") % current_allele;
+            ss << boost::format("*%.2e") % current_allele;
+            
             //Nu_flag = true;
         }
         
@@ -449,7 +453,9 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
             ss << boost::format("%-10s") % "N/A";
         }
         else {
-            ss << boost::format("%-10.3d") % levenes_pval[current_allele];
+            //ss << boost::format("%-10.3d") % levenes_pval[current_allele];
+            ss << boost::format("%.2e") % levenes_pval[current_allele];
+            
         }
         
         ss << std::endl;

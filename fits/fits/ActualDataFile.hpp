@@ -44,6 +44,7 @@
 #include "CMulator.h"
 
 struct ActualDataEntry {
+    int pos;
     int gen;
     //int base;
     int allele;
@@ -55,13 +56,13 @@ struct ActualDataEntry {
     static constexpr FLOAT_TYPE EMPTY_FLOAT = -1.0f;
     
     ActualDataEntry()
-    : gen(EMPTY_INT), allele(EMPTY_INT), freq(EMPTY_FLOAT), ref(EMPTY_INT), read_count(EMPTY_INT) {}
+    : pos(EMPTY_INT), gen(EMPTY_INT), allele(EMPTY_INT), freq(EMPTY_FLOAT), ref(EMPTY_INT), read_count(EMPTY_INT) {}
     
     ActualDataEntry( int position, int generation, int allele_num, FLOAT_TYPE frequency, int reference=-1, int reads=1000 )
-    : gen(generation), allele(allele_num), freq(frequency), ref(reference), read_count(reads) {}
+    : pos(position), gen(generation), allele(allele_num), freq(frequency), ref(reference), read_count(reads) {}
     
     ActualDataEntry( const ActualDataEntry& original )
-    : gen(original.gen), allele(original.allele), freq(original.freq), ref(original.ref), read_count(original.read_count) {}
+    : pos(original.pos), gen(original.gen), allele(original.allele), freq(original.freq), ref(original.ref), read_count(original.read_count) {}
     
     const bool SameAllele( const ActualDataEntry& other ) { return allele==other.allele; }
     const bool SameGeneration( const ActualDataEntry &other ) { return gen==other.gen; }
@@ -75,9 +76,10 @@ struct ActualDataEntry {
     void swap(ActualDataEntry& other);
     
     
-    bool AllDataFilled() { return (gen > EMPTY_INT && allele > EMPTY_INT && freq > EMPTY_INT && ref > EMPTY_FLOAT && read_count > EMPTY_INT); }
+    bool AllDataFilled() { return ( pos > EMPTY_INT && gen > EMPTY_INT && allele > EMPTY_INT && freq > EMPTY_INT && ref > EMPTY_FLOAT && read_count > EMPTY_INT); }
     
 };
+
 
 struct ActualDataPositionData {
     
@@ -132,6 +134,8 @@ class ActualDataFile {
     const int ACTUAL_DATA_MINIMAL_COLS = 3;
     
     void ValidateMultiPosition(int position);
+    
+    std::vector<ActualDataEntry> DataFileToEntries( std::string filename );
     
 public:
     

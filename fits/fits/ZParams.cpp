@@ -172,9 +172,24 @@ void ZParams::AddParameter( const std::string paramName, const bool value )
 
 unsigned int ZParams::GetUnsignedInt(const std::string paramName) const
 {
-    std::string retreived_str = GetString(paramName);
+    std::string retreived_str;
+    try {
+        retreived_str = GetString(paramName);
+    }
+    catch (...) {
+        std::string tmp_str = "Error while retreiving parameter " + paramName;
+        throw tmp_str;
+    }
     
-    auto tmp_value = boost::lexical_cast<unsigned int>(retreived_str);
+    unsigned int tmp_value = 0;
+    try {
+        // WarnIfDecimal( paramName, retreived_str );
+        tmp_value = boost::lexical_cast<unsigned int>(retreived_str);
+    }
+    catch (...) {
+        std::string tmp_str = "Error while converting parameter " + paramName + " to unsigned int (" + retreived_str + ")";
+        throw tmp_str;
+    }
     
     return tmp_value;
 }
@@ -197,15 +212,24 @@ unsigned int ZParams::GetUnsignedInt(const std::string paramName, const unsigned
 
 int ZParams::GetInt(const std::string paramName) const
 {
-    std::string retreived_str = GetString(paramName);
-    
-    std::size_t decimal_pos = retreived_str.find(".");
-    if ( decimal_pos != std::string::npos ) {
-        std::cerr << "Warning: parameter is treated as integer, but found to be float ("
-        << paramName << "=" << retreived_str << std::endl;
+    std::string retreived_str;
+    try {
+        retreived_str = GetString(paramName);
+    }
+    catch (...) {
+        std::string tmp_str = "Error while retreiving parameter " + paramName;
+        throw tmp_str;
     }
     
-    auto tmp_value = boost::lexical_cast<int>(retreived_str);
+    int tmp_value = 0;
+    try {
+        // WarnIfDecimal( paramName, retreived_str );
+        tmp_value = boost::lexical_cast<int>(retreived_str);
+    }
+    catch (...) {
+        std::string tmp_str = "Error: parameter " + paramName + " is not an integer (" + retreived_str + ")";
+        throw tmp_str;
+    }
     
     return tmp_value;
 }
@@ -228,15 +252,24 @@ int ZParams::GetInt(const std::string paramName, const int defaultValue) const
 
 unsigned long ZParams::GetUnsignedLong(const std::string paramName) const
 {
-    std::string retreived_str = GetString(paramName);
-    
-    std::size_t decimal_pos = retreived_str.find(".");
-    if ( decimal_pos != std::string::npos ) {
-        std::cerr << "Warning: parameter is treated as integer, but found to be float ("
-        << paramName << "=" << retreived_str << std::endl;
+    std::string retreived_str;
+    try {
+        retreived_str = GetString(paramName);
+    }
+    catch (...) {
+        std::string tmp_str = "Error while retreiving parameter " + paramName;
+        throw tmp_str;
     }
     
-    auto tmp_value = boost::lexical_cast<unsigned long>(retreived_str);;
+    unsigned long tmp_value = 0;
+    try {
+        WarnIfDecimal( paramName, retreived_str );
+        tmp_value = boost::lexical_cast<unsigned long>(retreived_str);
+    }
+    catch (...) {
+        std::string tmp_str = "Error: parameter " + paramName + " is not an unsigned long integer (" + retreived_str + ")";
+        throw tmp_str;
+    }
     
     return tmp_value;
 }
@@ -278,7 +311,7 @@ std::string ZParams::GetString(const std::string paramName) const
 {
     
     if (!_is_initialized) {
-        std::string err_msg = "ZParams uninitialized. Error while attempting to get ";
+        std::string err_msg = "No parameters were loaded. Error while attempting to get ";
         err_msg += paramName;
         throw err_msg.c_str();
     }
@@ -290,7 +323,7 @@ std::string ZParams::GetString(const std::string paramName) const
         retreived_value = _param_map.at(paramName);
     }
     catch (...) {
-        std::string err_msg = "ZParams: Error while attempting to get ";
+        std::string err_msg = "Error while attempting to get parameter ";
         err_msg += paramName;
         throw err_msg.c_str();
     }
@@ -315,9 +348,24 @@ std::string ZParams::GetString(const std::string paramName, const std::string de
 
 float ZParams::GetFloat(const std::string paramName) const
 {
-    std::string retreived_str = GetString(paramName);
+    std::string retreived_str;
+    try {
+        retreived_str = GetString(paramName);
+    }
+    catch (...) {
+        std::string tmp_str = "Error while retreiving parameter " + paramName;
+        throw tmp_str;
+    }
     
-    auto tmp_value = boost::lexical_cast<float>(retreived_str);
+    float tmp_value = 0;
+    try {
+        // WarnIfInteger( paramName, retreived_str );
+        tmp_value = boost::lexical_cast<float>(retreived_str);
+    }
+    catch (...) {
+        std::string tmp_str = "Error: parameter " + paramName + " is not a float decimal number (" + retreived_str + ")";
+        throw tmp_str;
+    }
     
     return tmp_value;
 }
@@ -340,9 +388,24 @@ float ZParams::GetFloat(const std::string paramName, const float defaultValue) c
 
 double ZParams::GetDouble(const std::string paramName) const
 {
-    std::string retreived_str = GetString(paramName);
+    std::string retreived_str;
+    try {
+        retreived_str = GetString(paramName);
+    }
+    catch (...) {
+        std::string tmp_str = "Error while retreiving parameter " + paramName;
+        throw tmp_str;
+    }
     
-    auto tmp_value = boost::lexical_cast<double>(retreived_str);
+    double tmp_value = 0;
+    try {
+        // WarnIfInteger( paramName, retreived_str );
+        tmp_value = boost::lexical_cast<double>(retreived_str);
+    }
+    catch (...) {
+        std::string tmp_str = "Error: parameter " + paramName + " is not a double decimal number (" + retreived_str + ")";
+        throw tmp_str;
+    }
     
     return tmp_value;
 }
@@ -378,4 +441,24 @@ std::string ZParams::GetAllParameters() const
 bool ZParams::IsEmpty() const
 {
     return _param_map.empty();
+}
+
+void ZParams::WarnIfDecimal( std::string param_name, std::string param_val ) const
+{
+    std::size_t decimal_pos = param_val.find(".");
+    
+    if ( decimal_pos != std::string::npos ) {
+        std::cerr << "Warning: parameter is treated as integer, but found to be float ("
+        << param_name << " = " << param_val << ")" << std::endl;
+    }
+}
+
+void ZParams::WarnIfInteger( std::string param_name, std::string param_val ) const
+{
+    std::size_t decimal_pos = param_val.find(".");
+    
+    if ( decimal_pos == std::string::npos ) {
+        std::cerr << "Warning: parameter is treated as float, but found to be integer ("
+        << param_name << " = " << param_val << ")" << std::endl;
+    }
 }

@@ -239,7 +239,7 @@ public:
     void WriteFitnessDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     void WriteMutRateDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
-    void WriteGenerationsDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
+    // void WriteGenerationsDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     
     void WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distrib, std::string filename );
     

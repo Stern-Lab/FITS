@@ -93,5 +93,8 @@ private:
     bool _is_initialized;
     bool _read_only; // won't accept updates
     
+    void WarnIfDecimal( std::string param_name, std::string param_val ) const;
+    void WarnIfInteger( std::string param_name, std::string param_val ) const;
+    
 };
 #endif /* ZParams_h */

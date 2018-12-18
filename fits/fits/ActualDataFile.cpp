@@ -74,10 +74,10 @@ void ActualDataFile::ValidateMultiPosition(int position)
     }
 }
 
-void ActualDataFile::LoadActualData( std::string filename )
+
+
+std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string filename )
 {
-    _position_data.clear();
-    
     std::ifstream infile(filename);
     
     if (!infile.is_open()) {
@@ -85,16 +85,15 @@ void ActualDataFile::LoadActualData( std::string filename )
         throw "error while opening data file";
     }
     
+    std::vector<ActualDataEntry> raw_entries_vec;
+    
     std::string tmp_line;
     bool is_first_line = true;
-    int current_position = -1;
     std::size_t expected_num_columns = 0;
     std::size_t current_line_num = 0;
     
-    ActualDataPositionData tmp_position_data;
     
-    // todo: check if newline needs to be normalized
-    while (std::getline(infile, tmp_line)) {
+    while ( std::getline(infile, tmp_line) ) {
         
         ++current_line_num;
         
@@ -131,20 +130,21 @@ void ActualDataFile::LoadActualData( std::string filename )
         
         
         if ( line_fields.size() < ACTUAL_DATA_MINIMAL_COLS || line_fields.size() != expected_num_columns ) {
-            std::cerr << "\nError while reading data file (line " << std::to_string(current_line_num)  << "): line contains " << line_fields.size() << " columns, expected " << expected_num_columns << "." << std::endl;
-            throw "Line in data file contains inconsistent number of columns.";
+            std::string tmp_str = "Error while reading data file (line " + std::to_string(current_line_num) +
+            "): line contains " + std::to_string(line_fields.size())  + " columns, expected " + std::to_string(expected_num_columns) + ".\n";
+            
+            throw tmp_str;
         }
         
         ActualDataEntry tmp_data_entry;
-        
         try {
             boost::trim(line_fields[ACTUAL_DATA_COLUMN_GENERATION]);
             boost::trim(line_fields[ACTUAL_DATA_COLUMN_ALLELE]);
             boost::trim(line_fields[ACTUAL_DATA_COLUMN_FREQ]);
         }
         catch (...) {
-            std::cerr << "\nError while parsing data file (trim)." << std::endl;
-            throw "Error while pasring data file (trim).";
+            std::string tmp_str = "Error while parsing data file while trimming (line " + std::to_string(current_line_num) + ")";
+            throw tmp_str;
         }
         
         try {
@@ -155,74 +155,88 @@ void ActualDataFile::LoadActualData( std::string filename )
             tmp_data_entry.read_count = -1;
         }
         catch (...) {
-            std::cerr << "\nError while parsing data file (cast):" << std::endl << tmp_line << std::endl;
-            throw "Error while pasring file (cast).";
+            std::string tmp_str = "Error while parsing data file while casting (line " + std::to_string(current_line_num) + ")";
+            throw tmp_str;
         }
-        
         
         // assuming position column exists
         int tmp_pos = -1;
         if (line_fields.size() > ACTUAL_DATA_MINIMAL_COLS) {
+            
             try {
                 tmp_pos = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_POSITION]);
                 if (tmp_pos < 0) {
-                    throw "Generation number cannot be negative: " + std::to_string(tmp_pos);
+                    std::string tmp_str = "Position number cannot be negative (line " + std::to_string(current_line_num) + "): " + std::to_string(tmp_pos);
+                    throw tmp_str;
                 }
-                
-                
-            }
-            catch ( const char* str ) {
-                throw "Error while loading data: " + std::string(str);
+                tmp_data_entry.pos = tmp_pos;
             }
             catch (...) {
-                std::cerr << "Error while parsing data file - position column (cast). Data is: " << line_fields[ACTUAL_DATA_COLUMN_POSITION] << std::endl;
-                throw "Error while pasring data file - position column (cast). Data is:" + line_fields[ACTUAL_DATA_COLUMN_POSITION];
+                std::string tmp_str = "Error while loading data, while processing position (line " + std::to_string(current_line_num) + " column " + std::to_string(ACTUAL_DATA_COLUMN_POSITION) + ").";
+                throw tmp_str;
             }
         }
         
-        try {
-            // have we started a new position?
-            if ( (current_position != tmp_pos) && (current_position>0) ) {
-                
-                if ( !tmp_position_data._actual_data.empty() ) {
-                    _is_initialized = true;
-                }
-                std::sort(tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end());
-                tmp_position_data._position = current_position;
-                _position_data.push_back(tmp_position_data);
-                _multi_positions = true;
-                
-                tmp_position_data.Clear();
-            }
-            current_position = tmp_pos;
-            tmp_position_data._actual_data.push_back( tmp_data_entry );
-        }
-        catch (...) {
-            std::cerr << "Error while adding data entry" << std::endl;
-            throw "Error while adding data entry";
-        }
-    }
-    
-    try {
-        if ( !tmp_position_data._actual_data.empty() ) {
-            _is_initialized = true;
-        }
-        
-        std::sort(tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end());
-        tmp_position_data._position = current_position;
-        _position_data.push_back(tmp_position_data);
-    }
-    catch (...) {
-        std::cerr << "Error while sorting data." << std::endl;
-        throw "Error while sorting data.";
+        raw_entries_vec.push_back( tmp_data_entry );
     }
     
     infile.close();
+    
+    return raw_entries_vec;
+}
+
+
+// Load all data file
+// Because data may not be properly sorted by the user, we first need to load all data
+// and then divide it into positions (if applicable)
+void ActualDataFile::LoadActualData( std::string filename )
+{
+    _position_data.clear();
+    
+    // not catching any exceptions from here, should be transparent that I use helper functions
+    auto all_data_entries_vec = DataFileToEntries( filename );
+    
+    std::sort( all_data_entries_vec.begin(), all_data_entries_vec.end() );
+    
+    
+    int current_position = -1;
+    ActualDataPositionData tmp_position_data;
+    for ( auto current_entry : all_data_entries_vec ) {
+        
+        // new position
+        if ( current_entry.pos != current_position && current_position > 0 ) {
+            
+            // I like to make sure it's all sorted
+            std::sort( tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end() );
+            
+            _position_data.push_back( tmp_position_data );
+            
+            // after copying into the position vector, clear the tmp object
+            tmp_position_data.Clear();
+            
+            // if we identified additional position, we have multi-position data
+            _multi_positions = true;
+        }
+        
+        // store data in current position (may be the only one)
+        tmp_position_data._position = current_entry.pos;
+        current_position = current_entry.pos;
+        tmp_position_data._actual_data.push_back( current_entry );
+        
+        // at least one data entry is stored
+        _is_initialized = true;
+    
+    } // iterating all entries
+    
+    // add the final (or only) position
+    std::sort( tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end() );
+    _position_data.push_back( tmp_position_data );
     
     // finished going through file - have we read any data?
     if ( !_is_initialized ) {
         throw "Data file appears to be empty.";
     }
+    
     
     // do sorting and some consistency checks for all positions
     if ( _multi_positions ) {
@@ -240,10 +254,10 @@ void ActualDataFile::LoadActualData( std::string filename )
             auto current_num_alleles = current_position_data.GetNumberOfAlleles();
             
             if ( global_num_alleles != current_num_alleles ) {
-                std::cerr << "Inconsistent number of alleles found in data file (" << global_num_alleles << " vs. " << current_num_alleles << ")" << std::endl;
-                throw "Inconsistent number of alleles found in data file";
+                std::string tmp_str = "Inconsistent number of alleles found in data file (" + std::to_string(global_num_alleles) + " vs. " + std::to_string(current_num_alleles) + ")";
+                throw tmp_str;
             }
-        }
+        } // iterating through positions
     }
     
 }

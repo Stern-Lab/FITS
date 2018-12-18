@@ -613,8 +613,10 @@ bool IsInferenceRun( std::string first_argument )
             || first_argument.compare( fits_constants::ARG_INFER_POPSIZE ) == 0 );
 }
 
+
 int main(int argc, char* argv[])
 {
+    
     if (argc <= 1) {
         print_welcome();
         print_syntaxes(argv[0]);

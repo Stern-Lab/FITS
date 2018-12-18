@@ -183,6 +183,10 @@ void CMulator::InitBasicVariables( ZParams zparams )
         std::cerr << "Exception while reading parameters: " << exp_txt << std::endl;
         throw "Can't continue initializtion.";
     }
+    catch (const std::string exp_txt) {
+        std::cerr << "Exception while reading parameters: " << exp_txt << std::endl;
+        throw "Can't continue initializtion.";
+    }
     catch (std::exception& exp) {
         std::cerr << "Exception while reading parameters: " << exp.what() << std::endl;
         throw "Can't continue initializtion.";
@@ -198,14 +202,11 @@ void CMulator::InitBasicVariables( ZParams zparams )
     //_epsilon_float_compare = zparams.GetFloat( PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
     _epsilon_float_compare = zparams.GetDouble( PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
     
-    //_name_of_run = zparams.GetString( PARAM_SIM_ID, std::string("SimX") );
     
     _logistic_growth = ( zparams.GetInt( PARAM_LOGISTIC_GROWTH, PARAM_DEFAULT_VAL_INT ) > 0 );
     _logistic_growth_K = zparams.GetInt( PARAM_LOGISTIC_GROWTH_K, PARAM_DEFAULT_VAL_INT );
     _logistic_growth_r = zparams.GetFloat( PARAM_LOGISTIC_GROWTH_r, PARAM_DEFAULT_VAL_FLOAT );
     _logistic_growth_t = 0;
-    
-    //_skip_stochastic_step = ( zparams.GetInt(PARAM_SKIP_STOCHASTIC_STEP, PARAM_SKIP_STOCHASTIC_STEP_DEFAULT) > 0);
     
     // seed already initialized, replace only if manual seed is given
     auto original_seed = _time_for_seeding;

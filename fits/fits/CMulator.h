@@ -225,14 +225,16 @@ public:
         if (!_available_fitness_range) std::cerr << "fitness range not available" << std::endl;
         return _available_mutrate && _available_popsize && _available_essential && _available_fitness_range;
     }
-    bool IsAbleToInferGeneration() const {
+    /*
+     bool IsAbleToInferGeneration() const {
         if (!_available_mutrate) std::cerr << "mutrate not available" << std::endl;
         if (!_available_popsize) std::cerr << "popsize not available" << std::endl;
         if (!_available_fitness) std::cerr << "fitness not available" << std::endl;
         if (!_available_essential) std::cerr << "essential not available" << std::endl;
         if (!_available_generation_range) std::cerr << "generation range not available" << std::endl;
         return _available_mutrate && _available_fitness && _available_popsize && _available_essential && _available_generation_range;
-    }
+    }*/
+    
     bool IsAbleToInferPopulationSize() const {
         if (!_available_mutrate) std::cerr << "mutrate not available" << std::endl;
         if (!_available_fitness) std::cerr << "fitness not available" << std::endl;

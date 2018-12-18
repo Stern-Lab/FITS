@@ -116,6 +116,11 @@ private:
         _distrib_matrix(39,0) = 0.001;   _distrib_matrix(39,1) = 1.95f;
     }
     
+    void LoadDistribMatrix( std::string filename )
+    {
+        throw "PriorSampler LoadDistribMatrix unimplemented.";
+    }
+    
 public:
     PriorSampler() :
     _min_vector(0),
@@ -127,6 +132,18 @@ public:
         _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
         _rnd_gen.seed(_rnd_seed);
         InitializeDistribMatrix();
+    }
+    
+    PriorSampler( std::string filename ) :
+    _min_vector(0),
+    _max_vector(0),
+    _distrib_matrix(1,1),
+    _distrib_type(PriorDistributionType::CUSTOM_FILE),
+    _log_normal_mu(0), _log_normal_sigma(0), _log_normal_lethal(0)
+    {
+        _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+        _rnd_gen.seed(_rnd_seed);
+        LoadDistribMatrix();
     }
     
     PriorSampler( std::vector<C> min_values, std::vector<C> max_values, PriorDistributionType distrib_type ) :
