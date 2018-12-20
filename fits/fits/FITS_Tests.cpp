@@ -74,45 +74,6 @@ void test_range()
     
 }
 
-void TestActualData()
-{
-    std::string single_pos_filename = "/Users/talzinger/Nobackup/Test/Test20181203/actual_data_test1.txt";
-    std::string multi_pos_filename = "/Users/talzinger/Nobackup/Test/Test20181203/actual_data_test2.txt";
-    
-    ActualDataFile data_file;
-    
-    
-    try {
-        //data_file.LoadActualData(single_pos_filename);
-        data_file.LoadActualData(multi_pos_filename);
-        
-        //auto data_matrix = data_file.GetActualFreqsAsMatrix(6);
-        //std::cout << data_matrix << std::endl;
-        
-        auto vec = data_file.GetPositionNumbers();
-        for ( auto val : vec ) {
-            
-            std::cout << "position " << val << std::endl;
-            
-            //auto vec2 = data_file.GetActualGenerations(true, val);
-            auto val2 = data_file.GetNumberOfAlleles(val);
-            std::cout << val2 << " ";
-            //for (auto val2 : vec2) {
-            //    std::cout << val2 << " ";
-            //}
-            
-        }
-        std::cout << std::endl;
-    }
-    catch (const char* str) {
-        std::cerr << "Error const char*: " << str << std::endl;
-    }
-    catch (const std::string str) {
-        std::cerr << "Error str: " << str << std::endl;
-    }
-    
-}
-
 void test_actualdata( std::string filename )
 {
     ActualDataFile datafile;

@@ -162,15 +162,11 @@ void CMulator::InitBasicVariables( ZParams zparams )
         //_alt_N = zparams.GetInt( PARAM_ALT_POPULATION_SIZE, 0 );
         //_alt_generation = zparams.GetInt( PARAM_ALT_GENERATION, -1 );
         
-        _repeats = zparams.GetInt( PARAM_SIM_REPEATS, 1 );
+        _repeats = zparams.GetInt( PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
         
         _N0 = _N;
         
         _num_alleles = zparams.GetInt(PARAM_NUM_ALLELES);
-        
-        if (  !IsValid_NumAlleles(_num_alleles) ) {
-            throw "Parameters: Missing or invalid number of alleles (must be >=2)";
-        }
         
         // not required for inference but we do need it for simulation
         _num_generations = zparams.GetInt(PARAM_NUM_GENERATIONS, 0);
@@ -310,18 +306,21 @@ void CMulator::InitFitnessInference( ZParams zparams )
         std::string current_allele_min_fitness = PARAM_ALLELE_MIN_FITNESS + std::to_string(current_allele_num);
         std::string current_allele_max_fitness = PARAM_ALLELE_MAX_FITNESS + std::to_string(current_allele_num);
         
-        _allele_min_fitness[current_allele_num] = zparams.GetFloat(current_allele_min_fitness, -1.0);
+        _allele_min_fitness[current_allele_num] = zparams.GetFloat(current_allele_min_fitness, fits_constants::ALLELE_FITNESS_DEFAULT_MIN );
+        /*
         if ( _allele_min_fitness[current_allele_num] < 0.0 ) {
             //std::cerr << "Missing minimum fitness value for allele " << current_allele_num << std::endl;
             throw "Missing minimum fitness value for allele " + std::to_string(current_allele_num);
         }
+        */
         
-        
-        _allele_max_fitness[current_allele_num] = zparams.GetFloat(current_allele_max_fitness, -1.0);
+        _allele_max_fitness[current_allele_num] = zparams.GetFloat(current_allele_max_fitness, fits_constants::ALLELE_FITNESS_DEFAULT_MAX );
+        /*
         if ( _allele_max_fitness[current_allele_num] < 0.0 ) {
             //std::cerr << "Missing maximum fitness value for allele " << current_allele_num << std::endl;
             throw "Missing maximum fitness value for allele " + std::to_string(current_allele_num);
         }
+         */
         
     }
 }
@@ -329,9 +328,11 @@ void CMulator::InitFitnessInference( ZParams zparams )
 
 void CMulator::InitPopulationSizeInference( ZParams zparams )
 {
-    _Nlog_min = zparams.GetInt("_Nlog_min");
-    _Nlog_max = zparams.GetInt("_Nlog_max");
-
+    //_Nlog_min = zparams.GetInt("_Nlog_min");
+    //_Nlog_max = zparams.GetInt("_Nlog_max");
+    
+    _Nlog_min = zparams.GetInt( fits_constants::PARAM_MIN_LOG_POPSIZE );
+    _Nlog_max = zparams.GetInt( fits_constants::PARAM_MAX_LOG_POPSIZE );
 }
 
 /*

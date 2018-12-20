@@ -152,7 +152,7 @@ clsCMulatorABC::CoverageSingleDatasetFitness( std::size_t dataset_idx, std::size
     
     // process
     for ( auto current_scaled_sim=start_idx; current_scaled_sim<end_idx; ++current_scaled_sim ) {
-        
+
         for ( auto current_allele=0; current_allele<local_fitness_underestimate_count_vec.size(); ++current_allele ) {
             if ( _simulation_result_vector[current_scaled_sim].fitness_values[current_allele] <
                 _simulation_result_vector[dataset_idx].fitness_values[current_allele] ) {

@@ -144,7 +144,9 @@ public:
     
     void LoadActualData( std::string filename );
     
-    int GetNumberOfAlleles( int position = NO_POSITION_SPECIFIED );
+    //Cannot be different between positions
+    int GetNumberOfAlleles();
+    //int GetNumberOfAlleles( int position = NO_POSITION_SPECIFIED );
     int GetWTIndex( int position = NO_POSITION_SPECIFIED );
     
     MATRIX_TYPE GetActualFreqsAsMatrix( int position = NO_POSITION_SPECIFIED );

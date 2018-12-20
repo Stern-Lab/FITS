@@ -64,7 +64,8 @@ int InferABC( FactorToInfer factor,
     ZParams my_zparams;
     std::cout << "Reading parameters... ";
     try {
-        my_zparams.ReadParameters(param_filename, true);
+        // setting read-only to false, so we could add missing parameters
+        my_zparams.ReadParameters(param_filename, false);
         std::cout << "Done." << std::endl;
     }
     catch (std::exception& e) {
@@ -84,7 +85,7 @@ int InferABC( FactorToInfer factor,
         return 1;
     }
     
-    
+    bool is_multi_position = false;
     ActualDataFile actual_data_file;
     std::cout << "Reading data file... ";
     try {
@@ -94,6 +95,7 @@ int InferABC( FactorToInfer factor,
         
         if (positions_detected>1) {
             std::cout << "Done - Multiple positions detected (" << positions_detected << ")." << std::endl;
+            is_multi_position = true;
         }
         else {
             std::cout << "Done." << std::endl << std::endl;
@@ -117,21 +119,51 @@ int InferABC( FactorToInfer factor,
         return 1;
     }
     
+    // Filling missing parameters from actual data
+    try {
+    if ( !my_zparams.IsParameterFound( fits_constants::PARAM_NUM_ALLELES ) ) {
+        auto tmp_num_alleles = std::to_string( actual_data_file.GetNumberOfAlleles() );
+        my_zparams.AddParameter( fits_constants::PARAM_NUM_ALLELES, tmp_num_alleles );
+
+        std::cout << "Autodetected alleles: " << tmp_num_alleles << std::endl;
+    }
+    }
+    catch (std::string str) {
+        std::cerr << "Exception while filling out allele number. data: " << str << std::endl;
+        return 1;
+    }
+    catch (const char* str) {
+std::cerr << "Exception while filling out allele number. data: " << str << std::endl;
+        return 1;
+    }
+    catch (std::exception& e) {
+        std::cerr << "Exception while filling out allele number. data: " << e.what() << std::endl;
+        return 1;
+    }
+    catch (...) {
+        std::cerr << "Unknown exception while filling out allele number." << std::endl;
+        return 1;
+    }
     
-    std::cout << "Running simulations:" << std::endl;
+    
+    std::cout << std::endl << "Running simulations:" << std::endl;
     FLOAT_TYPE tmp_rejection_threshold = -1.0f;
     std::size_t running_time_sec = 0;
-    std::vector<SimulationResult> accepted_results_vector(0);
+    std::vector<SimulationResult> accepted_results_vector;
+    std::vector<SimulationResult> results_from_all_positions;
+    
     PRIOR_DISTRIB used_prior_distrib;
     std::size_t results_to_accept = 0;
-    PriorDistributionType prior_type;
+    PriorDistributionType prior_type = UNDEFINED;
+    
     std::vector<FLOAT_TYPE> multi_pos_distance_vec;
     
     try {
         
-        auto positions_detected = actual_data_file.GetNumberOfPositions();
+        //auto positions_detected = actual_data_file.GetNumberOfPositions();
         
-        if (positions_detected>1) {
+        //if ( positions_detected>1 ) {
+        if ( is_multi_position ) {
             
             // multiple positions
             
@@ -153,6 +185,7 @@ int InferABC( FactorToInfer factor,
                 
                 
                 // we want to use the prior generated for this position - for all of the rest
+                
                 if ( global_prior.empty() ) {
                     global_prior = abc_object_sim.GetPriorFloat();
                     used_prior_distrib = abc_object_sim.GetPriorFloat();
@@ -182,34 +215,88 @@ int InferABC( FactorToInfer factor,
                 /*  Store results  */
                 /* --------------- */
                 std::cout << "Aggregating multi-polsition data... ";
-                auto tmp_accepted_results_vec = abc_object_sim.GetResultsVector(false);
+                auto position_results_vec = abc_object_sim.GetResultsVector(false);
                 
                 // add distances - make sure data is consistent
                 if ( accepted_results_vector.empty() ) {
-                    for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
-                        tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
-                        accepted_results_vector.push_back( tmp_accepted_results_vec[result_idx] );
+                    
+                    accepted_results_vector.resize( global_prior.size() );
+                    // std::cout << "accepted results initialized to size " << accepted_results_vector.size() << std::endl;
+                    // std::cout << "position results vector size " << position_results_vec.size() << std::endl;
+                    
+                    //for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
+                    for ( auto current_result : position_results_vec ) {
+                        
+                        auto result_idx = current_result.prior_sample_index;
+                        //std::cout << "prior sample index:" << result_idx << std::endl;
+                        
+                        current_result.SetMultiPosition(true);
+                        current_result.pos = current_position_num;
+                        current_result.sum_distance = current_result.distance_from_actual;
+                        //std::cout << accepted_results_vector[result_idx].sum_distance;
+                        accepted_results_vector[result_idx] = current_result;
+                        
+                        //tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
+                        //tmp_accepted_results_vec[result_idx].pos = current_position_num;
+                        //tmp_accepted_results_vec[result_idx].sum_distance = tmp_accepted_results_vec[result_idx].distance_from_actual;
+                        
+                        //accepted_results_vector.push_back( tmp_accepted_results_vec[result_idx] );
+                        // accepted_results_vector[result_idx] = tmp_accepted_results_vec[result_idx];
+                        
+                        
+                        results_from_all_positions.push_back( current_result );
                     }
                 }
                 else {
-                    for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
+                    //for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
+                    // std::cout << "position results vector size " << position_results_vec.size() << std::endl;
+                    
+                    for ( auto current_result : position_results_vec ) {
+                        
+                        auto result_idx = current_result.prior_sample_index;
+                        //std::cout << "prior sample index:" << result_idx << std::endl;
                         
                         // test consistency
-                        //std::cout << "\ncorrent stored fitness: ";
-                        //for ( auto val : accepted_results_vector[result_idx].fitness_values ) std::cout << val << ",";
-                        //std::cout << "\tdistance=" << accepted_results_vector[result_idx].distance_from_actual << std::endl;
-                        //std::cout << "addings to fitness: ";
-                        //for ( auto val : accepted_results_vector[result_idx].fitness_values ) std::cout << val << ",";
+                        // std::cout << "\n prior idx " << result_idx << " stored: ";
+                        // for ( auto val : accepted_results_vector[result_idx].fitness_values ) std::cout << val << ",";
+                        // std::cout << " with distance=" << accepted_results_vector[result_idx].sum_distance << " adding " << current_result.distance_from_actual << std::endl;
+                        // std::cout << " for fitness: ";
+                        // for ( auto val : current_result.fitness_values ) std::cout << val << ",";
                         
-                        accepted_results_vector[result_idx].distance_from_actual += tmp_accepted_results_vec[result_idx].distance_from_actual;
+                        current_result.SetMultiPosition(true);
+                        current_result.pos = current_position_num;
+                        accepted_results_vector[result_idx].sum_distance += current_result.distance_from_actual;
                         
-                        //std::cout << "\tdistance=" << accepted_results_vector[result_idx].distance_from_actual << std::endl;
+                        results_from_all_positions.push_back( current_result );
+                        
+                        //tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
+                        //tmp_accepted_results_vec[result_idx].pos = current_position_num;
+                        
+                        //accepted_results_vector[result_idx].sum_distance = accepted_results_vector[result_idx].sum_distance + tmp_accepted_results_vec[result_idx].distance_from_actual;
+                        
+                        // std::cout << "\t new distance=" << accepted_results_vector[result_idx].sum_distance << std::endl;
                     }
                 }
                 std::cout << "Done." << std::endl;
             }
             
-            std::cout << "Finished running simulations." << std::endl;
+            std::cout << "Finished running simulations." << std::endl << std::endl;
+            
+            std::cout << "Testing prior coverage... ";
+            std::vector<std::size_t> prior_idx_vec;
+            for ( auto current_result : accepted_results_vector ) {
+                prior_idx_vec.push_back( current_result.prior_sample_index );
+            }
+            std::sort( prior_idx_vec.begin(), prior_idx_vec.end() );
+            std::cout << "found " << prior_idx_vec.size() << " samples, ";
+            for ( auto current_idx = 0; current_idx < prior_idx_vec.size(); ++current_idx ) {
+                if ( current_idx != prior_idx_vec[current_idx] ) {
+                    std::cout << "problem at idx " << current_idx << " value " << prior_idx_vec[current_idx] << std::endl;
+                    throw "prior not complete";
+                }
+                
+            }
+            std::cout << "all values found. Done." << std::endl;
             
             std::cout << "Sorting data from multiple positions... ";
             std::nth_element(accepted_results_vector.begin(),
@@ -217,6 +304,9 @@ int InferABC( FactorToInfer factor,
                              accepted_results_vector.end());
             
             accepted_results_vector.erase( accepted_results_vector.begin() + results_to_accept, accepted_results_vector.end() );
+            
+            std::sort( accepted_results_vector.begin(), accepted_results_vector.end() );
+            
             std::cout << "Done." << std::endl;
         }
         else {
@@ -242,6 +332,23 @@ int InferABC( FactorToInfer factor,
             running_time_sec += abc_object_sim.GetRunningTimeSec();
             tmp_rejection_threshold = abc_object_sim.GetRejectionThreshold();
             
+            std::cout << "Testing prior coverage... ";
+            auto tmp_all_results_vec = abc_object_sim.GetResultsVector(false);
+            std::vector<std::size_t> prior_idx_vec;
+            for ( auto current_result : tmp_all_results_vec ) {
+                prior_idx_vec.push_back( current_result.prior_sample_index );
+            }
+            std::sort( prior_idx_vec.begin(), prior_idx_vec.end() );
+            std::cout << "found " << prior_idx_vec.size() << " samples, ";
+            for ( auto current_idx = 0; current_idx < prior_idx_vec.size(); ++current_idx ) {
+                if ( current_idx != prior_idx_vec[current_idx] ) {
+                    std::cout << "problem at idx " << current_idx << " value " << prior_idx_vec[current_idx] << std::endl;
+                    throw "prior not complete";
+                }
+                
+            }
+            std::cout << "all values found. Done." << std::endl;
+            
             /* --------------- */
             /*  Store results  */
             /* --------------- */
@@ -250,6 +357,9 @@ int InferABC( FactorToInfer factor,
             for ( auto tmp_result : tmp_accepted_results_vec ) {
                 accepted_results_vector.push_back(tmp_result);
             }
+            
+            std::sort( accepted_results_vector.begin(), accepted_results_vector.end() );
+            
             used_prior_distrib = abc_object_sim.GetPriorFloat();
             std::cout << "Done." << std::endl;
             
@@ -308,8 +418,13 @@ int InferABC( FactorToInfer factor,
                 try {
                     std::string tmp_summary_str = result_stats.GetSummaryFitness(true);
                     
+                    //void ResultsStats::WriteMultiPositionPosterior( FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
+
+                    
                     std::cout << "Writing posterior... ";
-                    result_stats.WriteFitnessDistribToFile(accepted_results_vector, posterior_output_filename);
+                    //result_stats.WriteFitnessDistribToFile(accepted_results_vector, posterior_output_filename);
+                    result_stats.WritePosterior( is_multi_position, FactorToInfer::Fitness, accepted_results_vector, results_from_all_positions, posterior_output_filename );
+                    
                     std::cout << "Done." << std::endl;
                 
                     std::cout << "Writing summary... ";
@@ -377,7 +492,9 @@ int InferABC( FactorToInfer factor,
                     
                     
                     std::cout << "Writing posterior... ";
-                    result_stats.WritePopSizeDistribToFile(accepted_results_vector, posterior_output_filename);
+                    result_stats.WritePosterior( is_multi_position, FactorToInfer::PopulationSize, accepted_results_vector, results_from_all_positions, posterior_output_filename );
+                    
+                    //result_stats.WritePopSizeDistribToFile(accepted_results_vector, posterior_output_filename);
                     std::cout << "Done." << std::endl;
                 
                     std::cout << "Writing summary... ";
@@ -444,7 +561,9 @@ int InferABC( FactorToInfer factor,
                     std::string tmp_summary_str = result_stats.GetSummaryMutRate(true);
                     
                     std::cout << "Writing posterior... ";
-                    result_stats.WriteMutRateDistribToFile(accepted_results_vector, posterior_output_filename);
+                    // result_stats.WriteMutRateDistribToFile(accepted_results_vector, posterior_output_filename);
+                    result_stats.WritePosterior( is_multi_position, FactorToInfer::MutationRate, accepted_results_vector, results_from_all_positions, posterior_output_filename );
+                    
                     std::cout << "Done." << std::endl;
                     
                     std::cout << "Writing summary... ";

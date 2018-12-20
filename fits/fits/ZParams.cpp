@@ -173,6 +173,9 @@ void ZParams::AddParameter( const std::string paramName, const bool value )
 unsigned int ZParams::GetUnsignedInt(const std::string paramName) const
 {
     std::string retreived_str;
+    retreived_str = GetString(paramName);
+    
+    /*
     try {
         retreived_str = GetString(paramName);
     }
@@ -180,6 +183,7 @@ unsigned int ZParams::GetUnsignedInt(const std::string paramName) const
         std::string tmp_str = "Error while retreiving parameter " + paramName;
         throw tmp_str;
     }
+    */
     
     unsigned int tmp_value = 0;
     try {
@@ -213,6 +217,10 @@ unsigned int ZParams::GetUnsignedInt(const std::string paramName, const unsigned
 int ZParams::GetInt(const std::string paramName) const
 {
     std::string retreived_str;
+    
+    retreived_str = GetString(paramName);
+    
+    /*
     try {
         retreived_str = GetString(paramName);
     }
@@ -220,6 +228,7 @@ int ZParams::GetInt(const std::string paramName) const
         std::string tmp_str = "Error while retreiving parameter " + paramName;
         throw tmp_str;
     }
+    */
     
     int tmp_value = 0;
     try {
@@ -253,6 +262,10 @@ int ZParams::GetInt(const std::string paramName, const int defaultValue) const
 unsigned long ZParams::GetUnsignedLong(const std::string paramName) const
 {
     std::string retreived_str;
+    
+    retreived_str = GetString(paramName);
+    
+    /*
     try {
         retreived_str = GetString(paramName);
     }
@@ -260,6 +273,8 @@ unsigned long ZParams::GetUnsignedLong(const std::string paramName) const
         std::string tmp_str = "Error while retreiving parameter " + paramName;
         throw tmp_str;
     }
+    */
+    
     
     unsigned long tmp_value = 0;
     try {
@@ -323,9 +338,8 @@ std::string ZParams::GetString(const std::string paramName) const
         retreived_value = _param_map.at(paramName);
     }
     catch (...) {
-        std::string err_msg = "Error while attempting to get parameter ";
-        err_msg += paramName;
-        throw err_msg.c_str();
+        std::string err_msg = "Error while attempting to get parameter " + paramName;
+        throw err_msg;
     }
     
     return retreived_value;
@@ -349,6 +363,11 @@ std::string ZParams::GetString(const std::string paramName, const std::string de
 float ZParams::GetFloat(const std::string paramName) const
 {
     std::string retreived_str;
+    
+    // no need to catch the excetion if we're throwing an exact one as a result
+    retreived_str = GetString(paramName);
+    
+    /*
     try {
         retreived_str = GetString(paramName);
     }
@@ -356,6 +375,7 @@ float ZParams::GetFloat(const std::string paramName) const
         std::string tmp_str = "Error while retreiving parameter " + paramName;
         throw tmp_str;
     }
+    */
     
     float tmp_value = 0;
     try {
@@ -389,6 +409,10 @@ float ZParams::GetFloat(const std::string paramName, const float defaultValue) c
 double ZParams::GetDouble(const std::string paramName) const
 {
     std::string retreived_str;
+    
+    retreived_str = GetString(paramName);
+    
+    /*
     try {
         retreived_str = GetString(paramName);
     }
@@ -396,6 +420,7 @@ double ZParams::GetDouble(const std::string paramName) const
         std::string tmp_str = "Error while retreiving parameter " + paramName;
         throw tmp_str;
     }
+    */
     
     double tmp_value = 0;
     try {
@@ -461,4 +486,16 @@ void ZParams::WarnIfInteger( std::string param_name, std::string param_val ) con
         std::cerr << "Warning: parameter is treated as float, but found to be integer ("
         << param_name << " = " << param_val << ")" << std::endl;
     }
+}
+
+bool ZParams::IsParameterFound( const std::string paramName )
+{
+    try {
+        std::string dummy_str = GetString( paramName );
+    }
+    catch (...) {
+        return false;
+    }
+    
+    return true;
 }

@@ -31,7 +31,8 @@ _simulation_result_vector(),
 //_float_prior_archive(),
 _global_prior(),
 _use_rejection_threshold(true),
-_factor_to_infer(factor_to_infer)
+_factor_to_infer(factor_to_infer),
+_simulation_speed(0.0f)
 {
     ResetRejectionThreshold();
     
@@ -65,6 +66,8 @@ _factor_to_infer(factor_to_infer)
     
     // Create prior distribution
     CMulator local_sim_object(_zparams);
+    local_sim_object.SetWTAllele( _actual_data_position.GetWTIndex() );
+    
     switch (_factor_to_infer) {
         case Fitness: {
             auto tmp_prior = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
@@ -151,13 +154,14 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         std::vector<SimulationResult> tmp_result_vector;
         
         
-        PRIOR_DISTRIB prior_subset;
+        //PRIOR_DISTRIB prior_subset;
         //prior_subset.resize(repeats_in_batch);
         
         if ( current_repeat > _global_prior.size() ) {
             throw "Error: current repeat is larger than prior size: " + std::to_string(current_repeat) + " " + std::to_string(_global_prior.size());
         }
         
+        /*
         if ( current_repeat + repeats_in_batch > _global_prior.size() ) {
             
             for ( auto itr = _global_prior.begin() + current_repeat;
@@ -175,35 +179,41 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
             }
             // std::copy( _global_prior.begin() + current_repeat, _global_prior.begin() + current_repeat + repeats_in_batch, prior_subset.begin() );
         }
-        current_repeat += repeats_in_batch;
+         */
         
         
-        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-            std::cout << " copied " << prior_subset.size() << " entries out of " << _global_prior.size() << std::endl;
-            
-            for ( auto current_vec : prior_subset ) {
-                std::cout << std::endl << "prior batch pos " << current_repeat << ": ";
-                for ( auto current_val : current_vec ) {
-                    std::cout << current_val << ", ";
-                }
-            }
-            std::cout << std::endl;
-        }
         
         
         auto start = std::chrono::high_resolution_clock::now();
         
+        auto start_idx = current_repeat;
+        auto end_idx = current_repeat + repeats_in_batch;
+        
+        if ( end_idx > _global_prior.size() ) {
+            end_idx = _global_prior.size();
+        }
+        
+        
+        //std::cout << std::endl << "\tPrior start_index =" << start_idx << ", end_index=" << end_idx << std::endl;
+        
+        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
+            
+        }
+        
         switch (_factor_to_infer) {
             case Fitness: {
-                tmp_result_vector = RunFitnessInferenceBatch(prior_subset);
+                // tmp_result_vector = RunFitnessInferenceBatch(prior_subset, current_repeat, current_repeat+repeats_in_batch);
+                tmp_result_vector = RunFitnessInferenceBatch( _global_prior, start_idx, end_idx );
                 break;
             }
             case PopulationSize: {
-                tmp_result_vector = RunPopulationSizeInferenceBatch(prior_subset);
+                //tmp_result_vector = RunPopulationSizeInferenceBatch(prior_subset);
+                tmp_result_vector = RunPopulationSizeInferenceBatch( _global_prior, start_idx, end_idx );
                 break;
             }
             case MutationRate: {
-                tmp_result_vector = RunMutationInferenceBatch(prior_subset);
+                //tmp_result_vector = RunMutationInferenceBatch(prior_subset);
+                tmp_result_vector = RunMutationInferenceBatch( _global_prior, start_idx, end_idx );
                 break;
             }
                 
@@ -216,7 +226,7 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         //for ( auto &&tmp_result : tmp_result_vector ) {
         //    _simulation_result_vector.push_back(std::move(tmp_result));
         //}
-        for ( auto &tmp_result : tmp_result_vector ) {
+        for ( auto tmp_result : tmp_result_vector ) {
             _simulation_result_vector.push_back(tmp_result);
         }
         // std::cout << " Done." << std::endl;
@@ -228,6 +238,7 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         auto calculated_speed = static_cast<double>(sim_count) / static_cast<double>(elapsed_ms.count());
         calculated_speed *= 1000; // 1/milisecond to 1/second
         rate_stats(calculated_speed);
+        _simulation_speed = calculated_speed;
         
         // estimate time for completion in seconds
         if (completion_eta_str.empty()) {
@@ -249,9 +260,11 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         << " repeats (rate of "
         << std::round(calculated_speed)
         << "sim/sec) - ETA is "
-        //<< std::put_time(&completion_ETA_tm, "%c")
+        //std::put_time(&completion_ETA_tm, "%c")
         << completion_eta_str
         << std::endl;
+        
+        current_repeat += repeats_in_batch;
         
     } // while (remaining_repeats > 0)
     
@@ -532,3 +545,16 @@ void clsCMulatorABC::SetPriorFloat( PRIOR_DISTRIB given_prior )
     _use_stored_prior = true;
 }
 
+
+void clsCMulatorABC::VerifyIndece( const PRIOR_DISTRIB &prior_distrib, std::size_t start_idx, std::size_t end_idx )
+{
+    if ( start_idx > end_idx ) {
+        throw "clsCMulatorABC: start index of prior is bigger than the end (" + std::to_string(start_idx) + "," + std::to_string(end_idx) + ")";
+    }
+    if ( start_idx > prior_distrib.size() ) {
+        throw "clsCMulatorABC: start index of prior is bigger prior size (" + std::to_string(start_idx) + "," + std::to_string(prior_distrib.size()) + ")";
+    }
+    if ( end_idx > prior_distrib.size() ) {
+        throw "clsCMulatorABC: end index of prior is bigger than prior size (" + std::to_string(end_idx) + "," + std::to_string(prior_distrib.size()) + ")";
+    }
+}

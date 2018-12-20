@@ -18,8 +18,12 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
+
+//std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
+std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib, std::size_t start_idx, std::size_t end_idx )
 {
+    VerifyIndece( prior_distrib, start_idx, end_idx );
+    
     // initialize sim object
     CMulator local_sim_object(_zparams);
     
@@ -70,9 +74,10 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
     }
     
     // simulation for each set of parameters
-    for (auto current_mutrate_idx=0; current_mutrate_idx<prior_distrib.size(); ++current_mutrate_idx ) {
+    //for (auto current_mutrate_idx=0; current_mutrate_idx<prior_distrib.size(); ++current_mutrate_idx ) {
+    for (auto current_prior_sample_idx=start_idx; current_prior_sample_idx<end_idx; ++current_prior_sample_idx ) {
         
-        auto current_mutrate_vector = prior_distrib[current_mutrate_idx];
+        auto current_mutrate_vector = prior_distrib[current_prior_sample_idx];
         
         local_sim_object.Reset_Soft();
         
@@ -136,6 +141,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
         // keep only the generations we need to conserve memory
         auto tmp_actual_generations = _actual_data_position.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
+        
+        sim_result.prior_sample_index = current_prior_sample_idx;
         
         //tmp_res_vector.push_back(std::move(sim_result));
         tmp_res_vector.push_back(sim_result);

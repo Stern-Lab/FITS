@@ -91,6 +91,9 @@ std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_
 
 int CMulator::EvolveToGeneration( int target_generation )
 {
+    if (  !IsValid_NumAlleles(_num_alleles) ) {
+        throw "Parameters: Missing or invalid number of alleles (must be >=2)";
+    }
     
     // this distribution is unique - it takes a closed range [inclusive]
     //if ( _debug_mode ) {

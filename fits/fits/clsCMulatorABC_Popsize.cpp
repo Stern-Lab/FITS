@@ -18,8 +18,11 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
+// std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
+std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB &prior_distrib, std::size_t start_idx, std::size_t end_idx )
 {
+    VerifyIndece( prior_distrib, start_idx, end_idx );
+    
     // initialization
     CMulator local_sim_object(_zparams);
     
@@ -66,10 +69,15 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( c
     std::vector<SimulationResult> tmp_res_vector;
     
     // simulation for each set of parameters
-    for (auto current_popsize : prior_distrib) {
+    //for (auto current_popsize : prior_distrib) {
+    for ( auto current_prior_sample_idx=start_idx; current_prior_sample_idx<end_idx; ++current_prior_sample_idx ) {
         
         local_sim_object.Reset_Soft();
-        local_sim_object.SetPopulationSize( std::pow( 10, current_popsize[0]) );
+        //local_sim_object.SetPopulationSize( std::pow( 10, current_popsize[0]) );
+        
+        auto current_popsize_log10 = prior_distrib[current_prior_sample_idx][0];
+        
+        local_sim_object.SetPopulationSize( std::pow( 10, current_popsize_log10 ) );
         local_sim_object.EvolveAllGenerations();
         
         // 2018-12-03
@@ -81,6 +89,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( c
         // keep only the generations we need to conserve memory
         auto tmp_actual_generations = _actual_data_position.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
+        
+        sim_result.prior_sample_index = current_prior_sample_idx;
         
         //tmp_res_vector.push_back(std::move(sim_result));
         tmp_res_vector.push_back(sim_result);

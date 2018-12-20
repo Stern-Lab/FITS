@@ -42,7 +42,7 @@ enum FactorToInfer {
 namespace fits_constants {
     
     /* GENERAL */
-    const std::string current_version_str = "1.1.3";
+    const std::string current_version_str = "1.1.4";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
     const std::string FILE_FIELD_DELIMITER = "\t";
     
@@ -119,6 +119,7 @@ namespace fits_constants {
     
     //const std::string PARAM_SIM_ID = "_name_of_run";
     const std::string PARAM_SIM_REPEATS = "_num_repeats";
+    const int PARAM_SIM_REPEATS_DEFAULT = 100000;
     
     const std::string PARAM_MANUAL_SEED = "_manual_seed";
     
@@ -127,6 +128,7 @@ namespace fits_constants {
     const std::string PARAM_LOGISTIC_GROWTH_r = "_logistic_growth_r";
     const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MIN = 0.0f;
     const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MAX = 2.0f;
+    const FLOAT_TYPE ALLELE_FITNESS_WT = 1.0f;
     
     const std::string PARAM_EPSILON_FLOAT_COMPARE = "_epsilon_float_compare";
     

@@ -138,10 +138,15 @@ int ActualDataFile::GetLastGeneration( int position )
 }
 
 
-int ActualDataFile::GetNumberOfAlleles( int position )
+int ActualDataFile::GetNumberOfAlleles()
 {
-    ValidateMultiPosition(position);
+    return _position_data[0].GetNumberOfAlleles();
     
+    // cannot be different between positions
+    
+    /*
+    ValidateMultiPosition(position);
+     
     if ( !_multi_positions) {
         return _position_data[0].GetNumberOfAlleles();
     }
@@ -150,6 +155,7 @@ int ActualDataFile::GetNumberOfAlleles( int position )
     auto tmp_val = position_object.GetNumberOfAlleles();
     
     return tmp_val;
+     */
 }
 
 

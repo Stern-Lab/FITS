@@ -19,8 +19,11 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
+std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PRIOR_DISTRIB &prior_distrib, std::size_t start_idx, std::size_t end_idx  )
 {
+    
+    VerifyIndece( prior_distrib, start_idx, end_idx );
+    
     // initialization
     CMulator local_sim_object(_zparams);
     
@@ -50,6 +53,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     
     
     // composite is the default for fitness
+    /*
     auto tmp_prior = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
                                          fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
     
@@ -68,7 +72,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     else {
         std::cerr << "Unkown prior distribution: " << tmp_prior << ". Setting to uniform as default." << std::endl;
     }
-
+     */
     //auto min_fitness_vec = local_sim_object.GetAlleleMinFitnessValues();
     //auto max_fitness_vec = local_sim_object.GetAlleleMaxFitnessValues();
     
@@ -99,10 +103,12 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     
     
     // simulation for each set of parameters
-    for (auto current_fitness_vector : prior_distrib) {
+    //for (auto current_fitness_vector : prior_distrib) {
+    for ( auto current_prior_sample_idx=start_idx; current_prior_sample_idx<end_idx; ++current_prior_sample_idx ) {
 
         local_sim_object.Reset_Soft();
-        local_sim_object.SetFitnessValues(current_fitness_vector);
+        //local_sim_object.SetFitnessValues( current_fitness_vector );
+        local_sim_object.SetFitnessValues( prior_distrib[current_prior_sample_idx] );
         local_sim_object.EvolveAllGenerations();
         
         //_float_prior_archive.push_back( current_fitness_vector );
@@ -110,6 +116,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
         // keep only the generations we need, to conserve memory 2017-04-02
         auto tmp_actual_generations = _actual_data_position.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
+        
+        sim_result.prior_sample_index = current_prior_sample_idx;
         
         tmp_res_vector.push_back(sim_result);
         //tmp_res_vector.push_back(std::move(sim_result));

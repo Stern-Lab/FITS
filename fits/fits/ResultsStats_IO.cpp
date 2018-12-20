@@ -260,3 +260,132 @@ void ResultsStats::WriteStringToFile( std::string filename, std::string str )
     outfile.close();
 }
 
+
+void ResultsStats::WritePosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
+//void ResultsStats::WriteMultiPositionPosterior( FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
+{
+    
+    if ( accepted_results_vec.empty() ) {
+        throw "Error in WriteMultiPositionPosterior: accepted results vector is empty.";
+    }
+    
+    if ( all_results_vec.empty() && is_multi_position ) {
+        throw "Error in WriteMultiPositionPosterior: all-results vector is empty.";
+    }
+    
+    std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
+    
+    if (!outfile.is_open()) {
+        throw "Error in WriteMultiPositionPosterior: unable to open file " + filename;
+    }
+    
+    // header
+    
+    outfile << "position" << fits_constants::FILE_FIELD_DELIMITER << "distance";
+    switch (factor) {
+        case Fitness: {
+            for (auto i = 0; i < accepted_results_vec[0].fitness_values.size(); ++i) {
+                outfile << fits_constants::FILE_FIELD_DELIMITER << "allele" << i;
+            }
+            break;
+        }
+            
+        case MutationRate: {
+            for (auto i = 0; i < accepted_results_vec[0].fitness_values.size(); ++i) {
+                for (auto j = 0; j < accepted_results_vec[0].fitness_values.size(); ++j) {
+                    outfile << fits_constants::FILE_FIELD_DELIMITER << "allele" << i << "_" << j;
+                }
+            }
+            break;
+        }
+            
+        case PopulationSize: {
+            outfile << fits_constants::FILE_FIELD_DELIMITER << "N";
+            break;
+        }
+    }
+    outfile << std::endl;
+    
+    
+    // in any case accepted results will be the accepted results..
+    for ( auto tmp_entry : accepted_results_vec ) {
+        
+        // position of -1 to mark the "total" or "global" position
+        outfile << "-1" << fits_constants::FILE_FIELD_DELIMITER;
+        
+        if ( is_multi_position ) {
+            // note this is the sum of distances
+            outfile << tmp_entry.sum_distance;
+        }
+        else {
+            outfile << tmp_entry.distance_from_actual;
+        }
+        
+        
+        switch (factor) {
+            case Fitness: {
+                for ( auto tmpval : tmp_entry.fitness_values ) {
+                    outfile << fits_constants::FILE_FIELD_DELIMITER << tmpval;
+                }
+                break;
+            }
+                
+            case MutationRate: {
+                for (auto row = 0; row < tmp_entry.mutation_rates.size1(); ++row) {
+                    for (auto col = 0; col < tmp_entry.mutation_rates.size2(); ++col) {
+                        outfile << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.mutation_rates(row,col);
+                    }
+                }
+                break;
+            }
+                
+            case PopulationSize: {
+                outfile << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.N << std::endl;
+                break;
+            }
+        }
+        outfile << std::endl;
+    } // end of accepted results
+    
+    
+    // only single position, we're done writing
+    if ( !is_multi_position ) {
+        outfile.close();
+        return;
+    }
+    
+    
+    // now write per-position data
+    for ( auto tmp_entry : all_results_vec ) {
+        
+        outfile << tmp_entry.pos << fits_constants::FILE_FIELD_DELIMITER;
+        
+        outfile << tmp_entry.distance_from_actual;
+        
+        switch (factor) {
+            case Fitness: {
+                for ( auto tmpval : tmp_entry.fitness_values ) {
+                    outfile << fits_constants::FILE_FIELD_DELIMITER << tmpval;
+                }
+                break;
+            }
+                
+            case MutationRate: {
+                for (auto row = 0; row < tmp_entry.mutation_rates.size1(); ++row) {
+                    for (auto col = 0; col < tmp_entry.mutation_rates.size2(); ++col) {
+                        outfile << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.mutation_rates(row,col);
+                    }
+                }
+                break;
+            }
+                
+            case PopulationSize: {
+                outfile << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.N << std::endl;
+                break;
+            }
+        }
+        outfile << std::endl;
+    } // end of all results
+    
+    outfile.close();
+}

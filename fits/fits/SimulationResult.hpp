@@ -49,11 +49,11 @@ struct SimulationResult {
     int wt_index;
     std::string sim_id;
     FLOAT_TYPE distance_from_actual;
+    FLOAT_TYPE sum_distance;
     std::string distance_metric;
     std::vector<int> actual_generations;
 
     int generation_shift;
-    
     
     
     // in order to uniquely identify the sample from the prior used to simulate this result

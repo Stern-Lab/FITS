@@ -239,7 +239,8 @@ public:
     void WriteFitnessDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     void WriteMutRateDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
-    // void WriteGenerationsDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
+    
+    void WritePosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename );
     
     void WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distrib, std::string filename );
     
@@ -249,6 +250,7 @@ public:
     std::vector<FLOAT_TYPE> GetMaxFitnessVec() { return allele_max_fitness; }
     
     FLOAT_TYPE LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vector<FLOAT_TYPE> group2 );
+    
     
     
 private: // here for init-order - require the public vars to be initialize

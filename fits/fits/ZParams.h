@@ -66,6 +66,7 @@ public:
     void UpdateParameter( const std::string paramName, const std::string value );
     void UpdateParameter( const std::string paramName, const bool value );
     
+    bool IsParameterFound( const std::string paramName );
     
     /* Data Output */
     int GetInt(const std::string paramName, const int defaultValue) const;
