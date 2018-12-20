@@ -64,7 +64,7 @@ void ResultsStats::CalculateStatsPopulationSize()
     
     // levene's test for population size
     levenes_pval.resize(1, -1.0f);
-    PriorDistributionType prior_type = PriorDistributionType::UNIFORM;
+    // PriorDistributionType prior_type = PriorDistributionType::UNIFORM;
     
     std::vector<int> minN {_zparams.GetInt(fits_constants::PARAM_MIN_LOG_POPSIZE)};
     std::vector<int> maxN {_zparams.GetInt(fits_constants::PARAM_MAX_LOG_POPSIZE)};
@@ -149,22 +149,6 @@ std::string ResultsStats::GetSummaryPopSize( bool table_only )
         ss << "Population Size Report" << std::endl;
         ss << GetSummaryHeader();
     }
-    
-    
-    //ss << "FITS v"<< fits_constants::current_version_str << std::endl;
-    
-    //auto current_time_raw = std::chrono::system_clock::now();
-    //auto current_time = std::chrono::system_clock::to_time_t(current_time_raw);
-    //auto current_time_final = *std::localtime(&current_time);
-    //ss << std::put_time(&current_time_final, "%F %T") << std::endl;
-    
-    //std::cout << "Simulation results used for calculations: " << _num_results << std::endl;
-    
-    //ss << "=======================" << std::endl;
-    
-    //if ( _rejection_threshold > 0.0f ) {
-      //  ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
-    //}
     
     
     if (!table_only) {

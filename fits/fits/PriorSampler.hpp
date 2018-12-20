@@ -293,7 +293,8 @@ private:
                             auto tmp_min = fitness_composite_val_col(tmp_idx);
                             auto tmp_max = fitness_composite_val_col(tmp_idx+1);
                             
-                            if ( tmp_min == tmp_max ) {
+                            // it's important that we'll sample Lethals and Neutral as exactly 0 and 1 to provide informative inference
+                            if ( tmp_min == tmp_max || tmp_min == 0.0f || tmp_min == 1.0f ) {
                                 tmp_val = tmp_min;
                             }
                             else {
