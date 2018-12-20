@@ -66,11 +66,13 @@ _is_initialized(other._is_initialized)
 void ActualDataFile::ValidateMultiPosition(int position)
 {
     if ( position >= 0 && !_multi_positions ) {
-        throw "Only single position, but asked for position " + std::to_string(position);
+        std::string tmp_str = "Only single position, but asked for position " + std::to_string(position);
+        throw tmp_str;
     }
     
     if (_multi_positions && position < 0) {
-        throw "Multiple positions detected but non specified";
+        std::string tmp_str = "Multiple positions detected but non specified";
+        throw tmp_str;
     }
 }
 
@@ -81,8 +83,8 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
     std::ifstream infile(filename);
     
     if (!infile.is_open()) {
-        std::cerr << "error while opening data file: " << filename << std::endl;
-        throw "error while opening data file";
+        std::string tmp_str = "error while opening data file: " + filename;
+        throw tmp_str;
     }
     
     std::vector<ActualDataEntry> raw_entries_vec;
@@ -107,11 +109,13 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
                 expected_num_columns = line_fields.size();
             }
             catch (...) {
-                throw "Error while parsing data file to columns. Header line:\n" + tmp_line + "\n";
+                std::string tmp_str = "Error while parsing data file to columns. Header line:\n" + tmp_line;
+                throw tmp_str;
             }
             
             if ( line_fields.size() < ACTUAL_DATA_MINIMAL_COLS ) {
-                throw "Not enough columns in data file.";
+                std::string tmp_str = "Not enough columns in data file (" + std::to_string(line_fields.size()) + " instead of " + std::to_string(ACTUAL_DATA_MINIMAL_COLS) + ")";
+                throw tmp_str;
             }
             
             
@@ -147,17 +151,34 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
             throw tmp_str;
         }
         
+        
+        tmp_data_entry.ref = -1;
+        tmp_data_entry.read_count = -1;
         try {
             tmp_data_entry.gen = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_GENERATION]);
-            tmp_data_entry.allele = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_ALLELE]);
-            tmp_data_entry.freq = boost::lexical_cast<FLOAT_TYPE>(line_fields[ACTUAL_DATA_COLUMN_FREQ]);
-            tmp_data_entry.ref = -1;
-            tmp_data_entry.read_count = -1;
         }
         catch (...) {
-            std::string tmp_str = "Error while parsing data file while casting (line " + std::to_string(current_line_num) + ")";
+            std::string tmp_str = "Error while loading data: Generation column ("  + std::to_string(ACTUAL_DATA_COLUMN_GENERATION) + ") in line " + std::to_string(current_line_num) + " does not contain a valid value.";
             throw tmp_str;
         }
+        
+        try {
+            tmp_data_entry.allele = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_ALLELE]);
+        }
+        catch (...) {
+            std::string tmp_str = "Error while loading data: Allele column ("  + std::to_string(ACTUAL_DATA_COLUMN_GENERATION) + ") in line " + std::to_string(current_line_num) + " does not contain a valid value.";
+            throw tmp_str;
+        }
+        
+        try {
+            tmp_data_entry.freq = boost::lexical_cast<FLOAT_TYPE>(line_fields[ACTUAL_DATA_COLUMN_FREQ]);
+        }
+        catch (...) {
+            std::string tmp_str = "Error while loading data: Frequency column ("  + std::to_string(ACTUAL_DATA_COLUMN_FREQ) + ") in line " + std::to_string(current_line_num) + " does not contain a valid value.";
+            throw tmp_str;
+        }
+        
+        
         
         // assuming position column exists
         int tmp_pos = -1;
@@ -172,7 +193,7 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
                 tmp_data_entry.pos = tmp_pos;
             }
             catch (...) {
-                std::string tmp_str = "Error while loading data, while processing position (line " + std::to_string(current_line_num) + " column " + std::to_string(ACTUAL_DATA_COLUMN_POSITION) + ").";
+                std::string tmp_str = "Error while loading data: Position column ("  + std::to_string(ACTUAL_DATA_COLUMN_POSITION) + ") in line " + std::to_string(current_line_num) + " does not contain a valid value.";
                 throw tmp_str;
             }
         }
@@ -234,7 +255,8 @@ void ActualDataFile::LoadActualData( std::string filename )
     
     // finished going through file - have we read any data?
     if ( !_is_initialized ) {
-        throw "Data file appears to be empty.";
+        std::string tmp_str = "Data file appears to be empty.";
+        throw tmp_str;
     }
     
     

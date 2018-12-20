@@ -42,7 +42,7 @@ enum FactorToInfer {
 namespace fits_constants {
     
     /* GENERAL */
-    const std::string current_version_str = "1.1.5";
+    const std::string current_version_str = "1.1.6";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
     const std::string FILE_FIELD_DELIMITER = "\t";
     
@@ -163,7 +163,7 @@ namespace fits_constants {
     
     const std::string PARAM_PRIOR_DISTRIB_COMPOSITE = "fitness_composite";
     const std::string PARAM_PRIOR_DISTRIB_SMOOTHED_COMPOSITE = "smoothed_composite";
-    const std::string PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT = "log_normal";
+    const std::string PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT = "smoothed_composite";
     
     // composite prior for fitness inference
     // if one is manually chosen - all rest must be also

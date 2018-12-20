@@ -37,8 +37,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
     */
     
     if ( !local_sim_object.IsAbleToInferMutationRate() ) {
-        std::cerr << "Not enough parameters to infer mutation rate" << std::endl;
-        throw "Not enough parameters to infer mutation rate";
+        std::string tmp_str = "Not enough parameters to infer mutation rate";
+        throw tmp_str;
     }
     
     // set initial frequencies from actual data

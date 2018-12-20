@@ -163,6 +163,9 @@ void CMulator::InitBasicVariables( ZParams zparams )
         //_alt_generation = zparams.GetInt( PARAM_ALT_GENERATION, -1 );
         
         _repeats = zparams.GetInt( PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
+        if ( _repeats <= 0 ) {
+            throw "Error: Number of repoeats must be positive.";
+        }
         
         _N0 = _N;
         
@@ -220,7 +223,18 @@ void CMulator::InitGeneralInferenceVariables( ZParams zparams )
     _generation_shift = 0;
     //_fitness_increment = zparams.GetFloat( PARAM_ALLELE_FITNESS_INCRENEMT, PARAM_ALLELE_FITNESS_INCRENEMT_DEFAULT);
     
-    _acceptance_rate = zparams.GetFloat( PARAM_ACCEPTANCE_RATE, 0.0 );
+    _acceptance_rate = 0.0f;
+    try {
+        _acceptance_rate = zparams.GetFloat( PARAM_ACCEPTANCE_RATE );
+    }
+    catch (...) {
+        throw "Cannot find a valid acceptance (>0) rate in parameters file";
+    }
+    
+    if ( _acceptance_rate <= 0.0f ) {
+        throw "Cannot find a valid acceptance rate (>0) in parameters file";
+    }
+    
     //_top_percent_to_keep = zparams.GetFloat( PARAM_ACCEPTANCE_RATE, 0.0 ) * 100.0f;
     
     // 2017-01-15 can't allow this to happen that we don't have the percent.
@@ -261,6 +275,10 @@ void CMulator::InitInitialAlleleFreqs( ZParams zparams )
             throw "Missing initial frequency for allele " + std::to_string(current_allele_num);
         }
         
+        if ( _allele_init_freqs[current_allele_num] > 1.0f ) {
+            throw "Invalid frequency value (" + std::to_string( _allele_init_freqs[current_allele_num]  ) + " for allele " + std::to_string(current_allele_num);
+        }
+        
         sanity_allele_init_freq_sum += _allele_init_freqs[current_allele_num];
         
         //_sim_data[0][current_allele_num] = _allele_init_freqs[current_allele_num];
@@ -291,8 +309,9 @@ void CMulator::InitFitnessValues( ZParams zparams )
         
         if ( _allele_fitness[current_allele_num] < 0 ) {
             //std::cerr << "Missing fitness value for allele " << current_allele_num << std::endl;
-            throw "Missing fitness value for allele " + std::to_string(current_allele_num);
+            throw "Missing or invalid fitness value for allele " + std::to_string(current_allele_num);
         }
+
     }
     
 }
@@ -321,6 +340,14 @@ void CMulator::InitFitnessInference( ZParams zparams )
             throw "Missing maximum fitness value for allele " + std::to_string(current_allele_num);
         }
          */
+        
+        if ( _allele_max_fitness[current_allele_num] < _allele_min_fitness[current_allele_num] ) {
+            std::string tmp_str = "Error: maximum fitness for allele " + std::to_string(current_allele_num) +
+            " is smaller than its minimum (" + std::to_string( _allele_max_fitness[current_allele_num] ) +
+            "<" + std::to_string( _allele_min_fitness[current_allele_num] ) + ")";
+            
+            throw tmp_str;
+        }
         
     }
 }
@@ -378,6 +405,7 @@ void CMulator::WarnAgainstDeprecatedParameters(ZParams zparams)
 
 void CMulator::InitMemberVariables( ZParams zparams )
 {
+    /*
     _available_mutrate = true;
     _available_fitness = true;
     _available_popsize = true;
@@ -388,6 +416,18 @@ void CMulator::InitMemberVariables( ZParams zparams )
     _available_popsize_range = true;
     _available_init_freqs = true;
     _available_generation_range = true;
+    */
+    
+    _available_mutrate = false;
+    _available_fitness = false;
+    _available_popsize = false;
+    _available_essential = false;
+    _available_inference = false;
+    _available_fitness_range = false;
+    _available_mutrate_range = false;
+    _available_popsize_range = false;
+    _available_init_freqs = false;
+    _available_generation_range = false;
     
     // exception here will crash the simulator, this is sort of fine with me
     
@@ -420,6 +460,7 @@ void CMulator::InitMemberVariables( ZParams zparams )
     
     try {
         InitInitialAlleleFreqs(zparams);
+        _available_init_freqs = true;
     }
     catch (const char* txt) {
         std::cerr << txt << std::endl;

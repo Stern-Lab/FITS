@@ -36,15 +36,12 @@ _simulation_speed(0.0f)
 {
     ResetRejectionThreshold();
     
-    //_repeats = _zparams.GetInt( "_num_repeats" );
-    try {
-        _repeats = _zparams.GetInt( fits_constants::PARAM_SIM_REPEATS );
-    }
-    catch (...) {
-        throw "Error: Number of simulations not specified in parameters file.";
+    _repeats = _zparams.GetInt( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
+    if ( _repeats <= 0 ) {
+        throw "Error: Number of repoeats must be positive.";
     }
     
-    _num_alleles = _zparams.GetUnsignedInt( "_num_alleles", 0 );
+    _num_alleles = _zparams.GetUnsignedInt( fits_constants::PARAM_NUM_ALLELES, -1 );
     
     _sims_to_keep = _zparams.GetFloat( fits_constants::PARAM_ACCEPTANCE_RATE,
                                        fits_constants::ACCEPTANCE_RATE_DEFAULT ) * _repeats;
@@ -86,7 +83,9 @@ _simulation_speed(0.0f)
                 _prior_type = FITNESS_LOGNORMAL;
             }
             else {
-                std::cerr << "Unkown prior distribution: " << tmp_prior << ". Setting to uniform as default." << std::endl;
+                //std::cerr << "Unkown prior distribution: " << tmp_prior << ". Setting to uniform as default." << std::endl;
+                std::string tmp_str = "Error: unknown prior selected (" + tmp_prior + ")";
+                throw tmp_str;
             }
             
             
@@ -160,28 +159,6 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         if ( current_repeat > _global_prior.size() ) {
             throw "Error: current repeat is larger than prior size: " + std::to_string(current_repeat) + " " + std::to_string(_global_prior.size());
         }
-        
-        /*
-        if ( current_repeat + repeats_in_batch > _global_prior.size() ) {
-            
-            for ( auto itr = _global_prior.begin() + current_repeat;
-                 itr < _global_prior.end();
-                 ++itr ) {
-                prior_subset.push_back( *itr );
-            }
-            //std::copy( _global_prior.begin() + current_repeat, _global_prior.end(), prior_subset.begin() );
-        }
-        else {
-            for ( auto itr = _global_prior.begin() + current_repeat;
-                 itr < _global_prior.begin() + current_repeat + repeats_in_batch;
-                 ++itr ) {
-                prior_subset.push_back( *itr );
-            }
-            // std::copy( _global_prior.begin() + current_repeat, _global_prior.begin() + current_repeat + repeats_in_batch, prior_subset.begin() );
-        }
-         */
-        
-        
         
         
         auto start = std::chrono::high_resolution_clock::now();

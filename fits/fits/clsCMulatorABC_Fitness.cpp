@@ -28,8 +28,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     CMulator local_sim_object(_zparams);
     
     if ( !local_sim_object.IsAbleToInferFitness() ) {
-        std::cerr << "Not enough parameters to infer fitness" << std::endl;
-        throw "Not enough parameters to infer fitness";
+        std::string tmp_str = "Not enough parameters to infer fitness";
+        throw tmp_str;
     }
     
     // set initial frequencies from actual data
@@ -51,35 +51,6 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     }
     local_sim_object.SetWTAllele( _actual_data_position.GetWTIndex() );
     
-    
-    // composite is the default for fitness
-    /*
-    auto tmp_prior = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
-                                         fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
-    
-    if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) == 0 ) {
-        _prior_type = UNIFORM;
-    }
-    else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_COMPOSITE ) == 0 ) {
-        _prior_type = FITNESS_COMPOSITE;
-    }
-    else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_SMOOTHED_COMPOSITE ) == 0 ) {
-        _prior_type = SMOOTHED_COMPOSITE;
-    }
-    else if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_LOGNORMAL ) == 0 ) {
-        _prior_type = FITNESS_LOGNORMAL;
-    }
-    else {
-        std::cerr << "Unkown prior distribution: " << tmp_prior << ". Setting to uniform as default." << std::endl;
-    }
-     */
-    //auto min_fitness_vec = local_sim_object.GetAlleleMinFitnessValues();
-    //auto max_fitness_vec = local_sim_object.GetAlleleMaxFitnessValues();
-    
-    //PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
-
-    //auto fitness_vector_list = sampler.SamplePrior(num_simulations);
-
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
         std::cout << "BEGIN Debug: Prior distribution" << std::endl;

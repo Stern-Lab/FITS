@@ -69,19 +69,19 @@ int InferABC( FactorToInfer factor,
         std::cout << "Done." << std::endl;
     }
     catch (std::exception& e) {
-        std::cerr << "Exception while loading parameters: " << e.what() << std::endl;
+        std::cerr << std::endl << "Exception while loading parameters: " << e.what() << std::endl;
         return 1;
     }
     catch (std::string str_exp) {
-        std::cerr << "Exception while loading parameters: " << str_exp << std::endl;
+        std::cerr << std::endl << "Exception while loading parameters: " << str_exp << std::endl;
         return 1;
     }
     catch (const char* str_exp) {
-        std::cerr << "Exception while loading parameters: " << str_exp << std::endl;
+        std::cerr << std::endl << "Exception while loading parameters: " << str_exp << std::endl;
         return 1;
     }
     catch (...) {
-        std::cerr << "Unknown exception while loading parameters." << std::endl;
+        std::cerr << std::endl << "Unknown exception while loading parameters." << std::endl;
         return 1;
     }
     
@@ -103,19 +103,19 @@ int InferABC( FactorToInfer factor,
         
     }
     catch (std::string str) {
-        std::cerr << "Exception while loading data: " << str << std::endl;
+        std::cerr << std::endl << "Exception while loading data: " << str << std::endl;
         return 1;
     }
     catch (const char* str) {
-        std::cerr << "Exception while loading data: " << str << std::endl;
+        std::cerr << std::endl << "Exception while loading data: " << str << std::endl;
         return 1;
     }
     catch (std::exception& e) {
-        std::cerr << "Exception while loading data: " << e.what() << std::endl;
+        std::cerr << std::endl << "Exception while loading data: " << e.what() << std::endl;
         return 1;
     }
     catch (...) {
-        std::cerr << "Unknown exception while loading data." << std::endl;
+        std::cerr << std::endl << "Unknown exception while loading data." << std::endl;
         return 1;
     }
     
@@ -129,19 +129,19 @@ int InferABC( FactorToInfer factor,
     }
     }
     catch (std::string str) {
-        std::cerr << "Exception while filling out allele number. data: " << str << std::endl;
+        std::cerr << std::endl << "Exception while filling out allele number. data: " << str << std::endl;
         return 1;
     }
     catch (const char* str) {
-std::cerr << "Exception while filling out allele number. data: " << str << std::endl;
+std::cerr << std::endl << "Exception while filling out allele number. data: " << str << std::endl;
         return 1;
     }
     catch (std::exception& e) {
-        std::cerr << "Exception while filling out allele number. data: " << e.what() << std::endl;
+        std::cerr << std::endl << "Exception while filling out allele number. data: " << e.what() << std::endl;
         return 1;
     }
     catch (...) {
-        std::cerr << "Unknown exception while filling out allele number." << std::endl;
+        std::cerr << std::endl << "Unknown exception while filling out allele number." << std::endl;
         return 1;
     }
     
@@ -399,15 +399,15 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                     result_stats.CalculateStatsFitness();
                 }
                 catch (std::string str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (const char* str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (std::exception& e) {
-                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
                     return 1;
                 }
                 catch (...) {
@@ -441,15 +441,15 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                     std::cout << tmp_summary_str << std::endl;
                 }
                 catch (std::string str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (const char* str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (std::exception& e) {
-                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
                     return 1;
                 }
                 catch (...) {
@@ -470,15 +470,15 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                     result_stats.CalculateStatsPopulationSize();
                 }
                 catch (std::string str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (const char* str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (std::exception& e) {
-                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
                     return 1;
                 }
                 catch (...) {
@@ -511,15 +511,15 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                     std::cout << tmp_summary_str << std::endl;
                 }
                 catch (const char* str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (std::string str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (std::exception& e) {
-                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
                     return 1;
                 }
                 catch (...) {
@@ -541,15 +541,15 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                     result_stats.CalculateStatsMutation();
                 }
                 catch (std::string str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (const char* str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (std::exception& e) {
-                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
                     return 1;
                 }
                 catch (...) {
@@ -580,15 +580,15 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                     std::cout << tmp_summary_str << std::endl;
                 }
                 catch (const char* str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (std::string str) {
-                    std::cerr << "Exception caught: " << str << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
                     return 1;
                 }
                 catch (std::exception& e) {
-                    std::cerr << "Exception caught: " << e.what() << std::endl;
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
                     return 1;
                 }
                 catch (...) {
@@ -600,19 +600,19 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
         }
     }
     catch (const char* str) {
-        std::cerr << "Exception caught while attempting to report stats: " << str << std::endl;
+        std::cerr << std::endl << "Exception caught while attempting to report stats: " << str << std::endl;
         return 1;
     }
     catch (std::string str) {
-        std::cerr << "Exception caught while attempting to report stats: " << str << std::endl;
+        std::cerr << std::endl << "Exception caught while attempting to report stats: " << str << std::endl;
         return 1;
     }
     catch (std::exception& e) {
-        std::cerr << "Exception caught while attempting to report stats: " << e.what() << std::endl;
+        std::cerr << std::endl << "Exception caught while attempting to report stats: " << e.what() << std::endl;
         return 1;
     }
     catch (...) {
-        std::cerr << "Unknown exception while attempting to report stats." << std::endl;
+        std::cerr << std::endl << "Unknown exception while attempting to report stats." << std::endl;
         return 1;
     }
     
@@ -640,23 +640,20 @@ int RunSingleSimulation(std::string param_filename, std::string output_filename)
         // sim_object.InitializeFromParamFile(param_filename);
     }
     catch (const char* txt) {
-        std::cerr << "Exception caught while initializing simulator object:" << std::endl;
-        std::cerr << txt << std::endl;
+        std::cerr << std::endl << "Exception caught while initializing simulator object:" << std::endl << txt << std::endl;
         return 1;
     }
     catch (std::string txt) {
-        std::cerr << "Exception caught while initializing simulator object:" << std::endl;
-        std::cerr << txt << std::endl;
+        std::cerr << std::endl << "Exception caught while initializing simulator object:" << std::endl << txt << std::endl;
         return 1;
     }
     catch (std::exception& e) {
-        std::cerr << "Exception caught while initializing simulator object:" << std::endl;
-        std::cerr << e.what() << std::endl;
+        std::cerr << std::endl << "Exception caught while initializing simulator object:" << std::endl << e.what() << std::endl;
         return 1;
     }
     catch (...) {
-        std::cerr << "Unknown exception while initializing simulator object." << std::endl;
-        throw;
+        std::cerr << std::endl << "Unknown exception while initializing simulator object." << std::endl;
+        //throw;
         return 1;
     }
     
@@ -667,7 +664,7 @@ int RunSingleSimulation(std::string param_filename, std::string output_filename)
         sim_object.EvolveAllGenerations();
     }
     catch (const char* txt) {
-        std::cerr << "Exception: " << txt << std::endl;
+        std::cerr << std::endl << "Exception: " << txt << std::endl;
     }
     std::cout << "Done." << std::endl;
     
@@ -678,14 +675,14 @@ int RunSingleSimulation(std::string param_filename, std::string output_filename)
     // TODO: make this via parameter
     std::cout << sim_output << std::endl;
     
-    std::cout << std::endl;
+    // std::cout << std::endl;
     
     //std::cout << sim_object.GetAllOutputAsMatrix() << std::endl;
     
     std::ofstream outfile(output_filename, std::ofstream::out | std::ofstream::trunc);
     
     if (!outfile.is_open()) {
-        std::cerr << "unable to open file for writing: " << output_filename << std::endl;
+        std::cerr << std::endl << "unable to open file for writing: " << output_filename << std::endl;
         return 1;
     }
     std::cout << "Writing to file...";

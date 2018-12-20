@@ -52,7 +52,8 @@ ActualDataPositionData ActualDataFile::GetPosition( int position )
     
     // we actually got to the end of the vector, without finding the desired position
     if ( tmp_iterator == _position_data.end() ) {
-        throw "GetInitFreqs - position not found: " + std::to_string(position);
+        std::string tmp_str = "GetInitFreqs - position not found: " + std::to_string(position);
+        throw tmp_str;
     }
     
     return *tmp_iterator;
