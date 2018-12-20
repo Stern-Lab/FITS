@@ -416,7 +416,7 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                 
                 
                 try {
-                    std::string tmp_summary_str = result_stats.GetSummaryFitness(true);
+                    std::string tmp_summary_str = result_stats.GetSummaryFitness(false);
                     
                     //void ResultsStats::WriteMultiPositionPosterior( FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
 
@@ -488,7 +488,7 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                 
                 
                 try {
-                    std::string tmp_summary_str = result_stats.GetSummaryPopSize(true);
+                    std::string tmp_summary_str = result_stats.GetSummaryPopSize(false);
                     
                     
                     std::cout << "Writing posterior... ";
@@ -558,7 +558,7 @@ std::cerr << "Exception while filling out allele number. data: " << str << std::
                 
                 
                 try {
-                    std::string tmp_summary_str = result_stats.GetSummaryMutRate(true);
+                    std::string tmp_summary_str = result_stats.GetSummaryMutRate(false);
                     
                     std::cout << "Writing posterior... ";
                     // result_stats.WriteMutRateDistribToFile(accepted_results_vector, posterior_output_filename);

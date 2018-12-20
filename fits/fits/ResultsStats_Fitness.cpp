@@ -348,12 +348,14 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
         auto tmp_scaling_str = _zparams.GetString( fits_constants::PARAM_SCALING,
                                                   fits_constants::PARAM_SCALING_DEFAULT );
         
+        
         if ( tmp_scaling_str.compare(fits_constants::PARAM_SCALING_OFF) == 0 ) {
-            ss << "Data has not been scaled" << std::endl;
+            // ss << "Data has not been scaled" << std::endl;
         }
         else {
             ss << "Data was scaled using " << tmp_scaling_str << std::endl;
         }
+        
         
         if ( _single_mutrate_used ) {
             ss << "Used a single mutation rate." << std::endl;
