@@ -17,7 +17,6 @@ Before you start
    requirements
    install
    introduction
-   zambezi
    
 Using FITS
 ^^^^^^^^^^

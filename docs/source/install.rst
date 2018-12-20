@@ -1,6 +1,7 @@
 Compiling from source
 =====================
 
+The most recent version of FITS is available `here <https://github.com/SternLabTAU/FITS/releases/latest>`_.
 In order to compile, FITS requires the `Boost library 1.61 <https://sourceforge.net/projects/boost/files/boost/1.61.0/>`_ or 1.60 and a C++11 supporting compiler. We used GCC5.3 on Linux (Centos), Clang provided with Xcode9 on MacOS (High Sierra) and MinGW provided with Qt 5.9 on Windows 10 & 7.
 
 Compiling the command line interface
@@ -33,4 +34,4 @@ In order to compile the GUI, you will need (in addition to Boost) the Qt framewo
 
 #) Run FITS
 
-.. note:: If Qt is already installed on the system (e.g. through Anaconda) clashed may occur, leading to unexpected results. If possible, we recommend to remove the additional installations (e.g. by running _conda remove qt_)
+.. note:: If Qt is already installed on the system (e.g. through Anaconda) clashed may occur, leading to unexpected results. If possible, we recommend to remove the additional installations (e.g. by running ``conda remove qt``)
