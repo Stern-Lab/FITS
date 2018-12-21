@@ -62,6 +62,7 @@ void CMulator::SetSimUID( std::string new_sim_uid )
 }
 */
 
+/*
 void CMulator::SetBottleneckSize( int size )
 {
     if ( !IsValid_BottleneckSize(size) ) {
@@ -70,14 +71,14 @@ void CMulator::SetBottleneckSize( int size )
     
     _bottleneck_size = size;
 }
-
+*/
 
 int CMulator::GetBottleneckSize() const
 {
     return _bottleneck_size;
 }
 
-
+/*
 void CMulator::SetAlleleFitnessValue( int allele, FLOAT_TYPE fitness )
 {
     if ( !IsValid_Fitness(fitness) ) {
@@ -90,7 +91,7 @@ void CMulator::SetAlleleFitnessValue( int allele, FLOAT_TYPE fitness )
     
     _allele_fitness[allele] = fitness;
 }
-
+*/
 
 void CMulator::SetAlleleInitFreqs( std::vector<FLOAT_TYPE> freqs )
 {
@@ -206,7 +207,7 @@ FLOAT_TYPE CMulator::GetMutationRate( int from, int to ) const
     return _mutation_rates_matrix(from,to);
 }
 
-
+/*
 void CMulator::SetMutationRate( int from, int to, FLOAT_TYPE rate )
 {
     if ( from < 0 || from >= _num_alleles ) {
@@ -223,7 +224,7 @@ void CMulator::SetMutationRate( int from, int to, FLOAT_TYPE rate )
     
     _mutation_rates_matrix(from,to) = rate;
 }
-
+*/
 
 void CMulator::SetAlleleInitFreq( int allele, FLOAT_TYPE freq )
 {
@@ -268,7 +269,7 @@ void CMulator::SetAlleleMaxFitness( int allele, FLOAT_TYPE fitness )
     _allele_max_fitness[allele] = fitness;
 }
 
-
+/*
 void CMulator::SetBottleneckInterval( int interval )
 {
     if ( !IsValid_BottleneckInterval(interval) ) {
@@ -277,7 +278,7 @@ void CMulator::SetBottleneckInterval( int interval )
     
     _bottleneck_interval = interval;
 }
-
+*/
 
 int CMulator::GetBottleneckInterval() const
 {
@@ -300,7 +301,7 @@ int CMulator::GetGenerationShift() const
     return _generation_shift;
 }
 
-
+/*
 void CMulator::SetGenerationShift(int shift)
 {
     if ( shift < 0 ) {
@@ -309,7 +310,7 @@ void CMulator::SetGenerationShift(int shift)
     
     _generation_shift = shift;
 }
-
+*/
 
 int CMulator::GetAlleleNumber() const
 {

@@ -27,10 +27,14 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     // initialization
     CMulator local_sim_object(_zparams);
     
+    local_sim_object.AssertAbleToInferFitness();
+    
+    /*
     if ( !local_sim_object.IsAbleToInferFitness() ) {
         std::string tmp_str = "Not enough parameters to infer fitness";
         throw tmp_str;
     }
+    */
     
     // set initial frequencies from actual data
     auto init_freq_vec = _actual_data_position.GetInitFreqs();
@@ -41,8 +45,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     auto first_generation = _actual_data_position.GetFirstGeneration();
     auto last_generation = _actual_data_position.GetLastGeneration();
     auto num_generations = last_generation - first_generation + 1;
-    local_sim_object.SetGenerationShift(first_generation);
-    local_sim_object.SetNumOfGeneration(num_generations);
+    //local_sim_object.SetGenerationShift(first_generation);
+    //local_sim_object.SetNumOfGeneration(num_generations);
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
         std::cout << "first generation (shift) = " << first_generation << std::endl;

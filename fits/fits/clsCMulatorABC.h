@@ -99,6 +99,8 @@ private:
     // simulations/second
     double _simulation_speed;
     
+    // make sure each vector sums to 1
+    void NormalizePrior();
 public:
     
     //clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );

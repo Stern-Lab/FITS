@@ -85,18 +85,15 @@ void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
     
     if (!outfile.is_open()) {
-        std::cerr << "unable to open file for writing: " << filename << std::endl;
-        throw "unable to open file for writing: " + filename;
+        std::string tmp_str = "unable to open file for writing: " + filename;
+        throw tmp_str;
     }
     
 
     // 2016-09-04 adding sanity check to report problem
     if ( prior_distrib.empty() ) {
-        std::cerr << "Error in writing prior: result_vector is empty. Filename: " << filename << std::endl;
-        std::string my_err = "";
-        my_err = "Error in writing prior: result_vector is empty. Filename: ";
-        my_err += filename;
-        throw my_err.c_str();
+        std::string tmp_str = "Error in writing prior: result_vector is empty. Filename: " + filename;
+        throw tmp_str;
     }
  
     // print title according to the prior type

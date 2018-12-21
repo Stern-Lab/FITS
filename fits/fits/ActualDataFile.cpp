@@ -129,7 +129,8 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
             boost::split(line_fields, tmp_line, boost::is_any_of( fits_constants::FILE_FIELD_DELIMITER ));
         }
         catch (...) {
-            throw "Error while parsing data file to columns. Line from file:\n" + tmp_line + "\n";
+            std::string tmp_str = "Error while parsing data file to columns. Line from file:\n" + tmp_line;
+            throw tmp_str;
         }
         
         

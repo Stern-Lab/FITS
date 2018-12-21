@@ -113,10 +113,119 @@ _simulation_speed(0.0f)
             PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM );
             
             _global_prior = sampler.SamplePrior(_repeats);
+            
+            NormalizePrior();
             break;
         }
     }
     
+}
+
+
+void clsCMulatorABC::NormalizePrior()
+{
+    // auto tmp_prior = _global_prior;
+    
+    /*
+    for ( auto vec : _global_prior ) {
+        for ( auto val : vec ) {
+            std::cout << val << ", ";
+        }
+        std::cout << std::endl;
+    }
+    */
+    
+    for (auto current_prior_sample_idx=0; current_prior_sample_idx<_global_prior.size(); ++current_prior_sample_idx ) {
+        
+        auto current_mutrate_vector = _global_prior[current_prior_sample_idx];
+        
+        //std::coxut << "normalizing prior: alleles " << _num_alleles << std::endl;
+        MATRIX_TYPE tmp_mutrates_matrix( _num_alleles, _num_alleles );
+        
+        std::vector<FLOAT_TYPE> tmp_line_sum( tmp_mutrates_matrix.size1(), 0.0f );
+        
+        // if it were 0, then it would be overridden
+        auto current_single_mutation_rate = current_mutrate_vector[1];
+        
+        
+        // fill the matrix with values
+        for ( auto i=0; i<current_mutrate_vector.size(); ++i ) {
+            
+            auto row = i / _num_alleles;
+            auto col = i % _num_alleles;
+            
+            if ( _zparams.GetInt( fits_constants::PARAM_SINGLE_MUTATION_RATE, -1 ) > 0 ) {
+                
+                std::cout << "single mutation rate: " << std::pow( 10, current_single_mutation_rate ) << std::endl;
+                tmp_mutrates_matrix(row,col) = std::pow( 10, current_single_mutation_rate );
+            }
+            else {
+                tmp_mutrates_matrix(row,col) = std::pow( 10, current_mutrate_vector[i] );
+            }
+        }
+        
+        // normalize
+        for ( auto current_row=0; current_row<tmp_mutrates_matrix.size1(); ++current_row ) {
+            
+            boost::numeric::ublas::matrix_row<MATRIX_TYPE> current_mutrate_row( tmp_mutrates_matrix, current_row );
+            
+            auto sum_mutation_rates = sum(current_mutrate_row) - current_mutrate_row[current_row];
+            
+            // if the samples mutation rate sum up to a value smaller than 1
+            // then we need to make sure non-mutation event probability would
+            // complement to 1.0
+            if ( sum_mutation_rates < 1.0f ) {
+                //std::cout << "current mutation rate row: ";
+                //for ( auto val : current_mutrate_row ) std::cout << val << ", ";
+                //std::cout << std::endl;
+                
+                //std::cout << "Sum rates = " << sum_mutation_rates << std::endl;
+                
+                current_mutrate_row[current_row] = 1.0f - sum_mutation_rates;
+                
+                //std::cout << "normalized: ";
+                //for ( auto val : current_mutrate_row ) std::cout << val << ", ";
+                //std::cout << std::endl;
+            }
+            else {
+                // if the sampled mutation rates sum up to a value larger than 1,
+                // we'll normalize by the sum of values to reach sum of 1
+                //std::cout << "current mutation rate row: ";
+                //for ( auto val : current_mutrate_row ) std::cout << val << ", ";
+                //std::cout << std::endl;
+                
+                auto row_sum = sum(current_mutrate_row);
+                //std::cout << "Sum = " << row_sum << std::endl;
+                
+                current_mutrate_row = current_mutrate_row / row_sum;
+                
+                //std::cout << "normalized: ";
+                //for ( auto val : current_mutrate_row ) std::cout << val << ", ";
+                //std::cout << std::endl;
+            }
+            
+            // fill the vector back with the normalized values
+            for ( auto i=0; i<current_mutrate_vector.size(); ++i ) {
+                
+                auto row = i / _num_alleles;
+                auto col = i % _num_alleles;
+                
+                _global_prior[current_prior_sample_idx][i] = std::log10( tmp_mutrates_matrix(row, col) );
+            }
+            
+        }
+        
+    } // mutation rate
+    
+    /*
+    std::cout << "normalized: " << std::endl;
+    for ( auto vec : _global_prior ) {
+        for ( auto val : vec ) {
+            std::cout << val << ", ";
+        }
+        std::cout << std::endl;
+    }
+     */
 }
 
 
@@ -177,6 +286,7 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
             
         }
         
+        try {
         switch (_factor_to_infer) {
             case Fitness: {
                 // tmp_result_vector = RunFitnessInferenceBatch(prior_subset, current_repeat, current_repeat+repeats_in_batch);
@@ -193,7 +303,14 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
                 tmp_result_vector = RunMutationInferenceBatch( _global_prior, start_idx, end_idx );
                 break;
             }
-                
+        }
+        }
+        catch (std::string str) {
+            std::cerr << "Exeption while running inference batch: " << str << std::endl;
+            throw;
+        }
+        catch (...) {
+            std::cerr << "Unknown exeption while running inference batch. ";
         }
         auto end = std::chrono::high_resolution_clock::now();
         

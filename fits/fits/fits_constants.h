@@ -83,10 +83,12 @@ namespace fits_constants {
     //const std::string PARAM_ALT_GENERATION = "_alt_generation";
     
     const std::string PARAM_BOTTLENECK_SIZE = "_bottleneck_size";
-    const std::string PARAM_BOTTLENECK_INTERVAL = "_bottleneck_interval";
+    const std::string PARAM_BOTTLENECK_INTERVAL = "_bottleneck_interval"; // if size is defined, interval must be too
+    const int PARAM_BOTTLENECK_NOT_DEFINED = -1;
     
     const std::string PARAM_REJECTION_THRESHOLD = "_rejection_threshold";
     
+    const std::string PARAM_GENERATION_SHIFT = "_generation_shift";
     
     /* Number of generations */
     const std::string PARAM_NUM_GENERATIONS = "_num_generations";
@@ -99,6 +101,7 @@ namespace fits_constants {
      */
     
     const std::string PARAM_NUM_ALLELES = "_num_alleles";
+    const int PARAM_NUM_ALLELES_DEFAULT = -1;
     
     const std::string PARAM_ALLELE_INIT_FREQ = "_allele_init_freq";
     //const std::string PARAM_ALLELE_NO_INIT_FREQS = "_no_init_freqs_as_parameters"; // assume it will be provided later

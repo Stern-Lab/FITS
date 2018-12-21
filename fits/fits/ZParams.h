@@ -60,11 +60,11 @@ public:
     void AddParameter( const std::string paramName, const std::string value );
     void AddParameter( const std::string paramName, const bool value );
     
-    void UpdateParameter( const std::string paramName, const int value );
-    void UpdateParameter( const std::string paramName, const double value );
-    void UpdateParameter( const std::string paramName, const float value );
+    //void UpdateParameter( const std::string paramName, const int value );
+    //void UpdateParameter( const std::string paramName, const double value );
+    //void UpdateParameter( const std::string paramName, const float value );
     void UpdateParameter( const std::string paramName, const std::string value );
-    void UpdateParameter( const std::string paramName, const bool value );
+    //void UpdateParameter( const std::string paramName, const bool value );
     
     bool IsParameterFound( const std::string paramName );
     

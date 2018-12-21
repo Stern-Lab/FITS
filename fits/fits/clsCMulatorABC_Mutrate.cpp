@@ -24,6 +24,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
 {
     VerifyIndece( prior_distrib, start_idx, end_idx );
     
+    
     // initialize sim object
     CMulator local_sim_object(_zparams);
     
@@ -36,10 +37,13 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
     }
     */
     
+    local_sim_object.AssertAbleToInferMutationRate();
+    /*
     if ( !local_sim_object.IsAbleToInferMutationRate() ) {
         std::string tmp_str = "Not enough parameters to infer mutation rate";
         throw tmp_str;
     }
+    */
     
     // set initial frequencies from actual data
     auto init_freq_vec = _actual_data_position.GetInitFreqs();
@@ -50,8 +54,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
     auto first_generation = _actual_data_position.GetFirstGeneration();
     auto last_generation = _actual_data_position.GetLastGeneration();
     auto num_generations = last_generation - first_generation + 1;
-    local_sim_object.SetGenerationShift(first_generation);
-    local_sim_object.SetNumOfGeneration(num_generations);
+    //local_sim_object.SetGenerationShift(first_generation);
+    //local_sim_object.SetNumOfGeneration(num_generations);
     
     // identify wt
     auto wt_allele_it = std::max_element(init_freq_vec.begin(), init_freq_vec.end());
@@ -96,6 +100,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
             std::cout << "Single mutation rate:" << current_single_mutation_rate << std::endl;
         }
 
+        // we want to pass the mutation rates to the simulator object
+        // so the values need to be 10 by the power of the given samples value
         for ( auto i=0; i<current_mutrate_vector.size(); ++i ) {
             
             auto row = i / local_sim_object.GetAlleleNumber();
@@ -120,9 +126,10 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
         }
         
         // normalize
-        for ( auto row=0; row<tmp_mutrates_matrix.size1(); ++row ) {
-            tmp_mutrates_matrix(row,row) = 1.0f - tmp_line_sum[row];
-        }
+        
+        //for ( auto row=0; row<tmp_mutrates_matrix.size1(); ++row ) {
+            //tmp_mutrates_matrix(row,row) = 1.0f - tmp_line_sum[row];
+        //}
         
         if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
             std::cout << "Mutation matrix processing finished:" << std::endl;
