@@ -290,14 +290,15 @@ std::string ResultsStats::GetSummaryHeader()
     ss << "Alleles: " << _num_alleles << std::endl;
     
     if ( _running_time_sec > 0 ) {
-        auto running_minutes = _running_time_sec / 60;
-        auto running_seconds = _running_time_sec % 60;
+        auto running_hours = _running_time_sec / 360;
+        auto running_minutes = (_running_time_sec / 60) - (running_hours * 60);
+        auto running_seconds = _running_time_sec - (running_minutes * 60) - (running_hours * 360);
         
         ss << "Total running time "
-        << running_minutes
-        << ":"
-        << running_seconds
-        << " (minutes:seconds)" << std::endl;
+        << std::setfill('0') << std::setw(2) << running_hours << ":"
+        << std::setfill('0') << std::setw(2) << running_minutes << ":"
+        << std::setfill('0') << std::setw(2) << running_seconds
+        << " (hh:mm:ss)" << std::endl;
     }
     
     if ( _rejection_threshold > 0.0f ) {

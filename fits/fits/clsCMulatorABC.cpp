@@ -22,7 +22,7 @@
 clsCMulatorABC::clsCMulatorABC()
 {}
 
-clsCMulatorABC::clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, PRIOR_DISTRIB prior_distribution ) :
+clsCMulatorABC::clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distribution ) :
 _zparams(sim_params),
 _total_running_time_sec(0),
 _prior_type(PriorDistributionType::UNIFORM),
@@ -36,7 +36,6 @@ _simulation_speed(0.0f),
 _verbose_output(false)
 {
     ResetRejectionThreshold();
-    
     
     _verbose_output = ( sim_params.GetInt( fits_constants::PARAM_VERBOSE_SWITCH ) == fits_constants::PARAM_VERBOSE_SWITCH_ON );
     
@@ -98,14 +97,24 @@ _verbose_output(false)
             auto max_fitness_vec = local_sim_object.GetAlleleMaxFitnessValues();
             
             if ( prior_distribution.empty() ) {
-                std::cout << "Generating prior... " << std::flush;
+                
+                if (_verbose_output) {
+                    std::cout << "Sampling from prior... " << std::flush;
+                }
+                
                 PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
                 _global_prior = sampler.SamplePrior(_repeats);
-                std::cout << "done generating" << std::flush;
+                
+                if (_verbose_output) {
+                    std::cout << "Done." << std::endl;
+                }
             }
             else {
-                std::cout << "recycling prior" << std::flush;
                 _global_prior = prior_distribution;
+                
+                if (_verbose_output) {
+                    std::cout << "Reusing prior." << std::endl;
+                }
             }
             break;
         }
@@ -114,11 +123,23 @@ _verbose_output(false)
             std::vector<FLOAT_TYPE> maxN {_zparams.GetDouble(fits_constants::PARAM_MAX_LOG_POPSIZE)};
             
             if ( prior_distribution.empty() ) {
+                if (_verbose_output) {
+                    std::cout << "Sampling from prior... " << std::flush;
+                }
+                
                 PriorSampler<FLOAT_TYPE> sampler( minN, maxN, PriorDistributionType::UNIFORM );
                 _global_prior = sampler.SamplePrior(_repeats);
+                
+                if (_verbose_output) {
+                    std::cout << "Done." << std::endl;
+                }
             }
             else {
                 _global_prior = prior_distribution;
+                
+                if (_verbose_output) {
+                    std::cout << "Reusing prior." << std::endl;
+                }
             }
             break;
         }
@@ -127,20 +148,30 @@ _verbose_output(false)
             auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
             
             if ( prior_distribution.empty() ) {
+                
+                if (_verbose_output) {
+                    std::cout << "Sampling from prior... " << std::flush;
+                }
+                
                 PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM );
                 _global_prior = sampler.SamplePrior(_repeats);
+                NormalizePrior();
+                
+                if (_verbose_output) {
+                    std::cout << "Done." << std::endl;
+                }
             }
             else {
                 _global_prior = prior_distribution;
+                
+                if (_verbose_output) {
+                    std::cout << "Reusing prior." << std::endl;
+                }
             }
             
-            NormalizePrior();
             break;
         }
     }
-    
-    std::cout << "Done." << std::endl;
-    
 }
 
 
@@ -253,7 +284,7 @@ void clsCMulatorABC::NormalizePrior()
 
 void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_of_batches )
 {
-    std::cout << "init abc inference... " << std::flush;
+    
     _simulation_result_vector.clear();
     // _float_prior_archive.clear();
     // _int_prior_archive.clear();
@@ -274,7 +305,6 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     
     std::string completion_eta_str = "";
     
-    std::cout << "Done" << std::endl;
     
     if (_verbose_output) {
         std::cout << "Remaining " << remaining_repeats

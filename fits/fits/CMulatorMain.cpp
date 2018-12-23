@@ -219,12 +219,10 @@ int InferABC( FactorToInfer factor,
             // we want to use the prior generated for this position - for all of the rest
             
             //std::cout << "Prior " << std::endl;
-            //if ( global_prior.empty() ) {
-             //   std::cout << "gtting new ";
-              //  global_prior = abc_object_sim.GetPriorFloat();
-               // used_prior_distrib = abc_object_sim.GetPriorFloat();
-             //   std::cout << "done" << std::endl;
-            //}
+            if ( global_prior.empty() ) {
+                global_prior = abc_object_sim.GetPriorFloat();
+                used_prior_distrib = abc_object_sim.GetPriorFloat();
+            }
             //else {
             //    std::cout << "Setting prior" << std::endl;
             //    abc_object_sim.SetPriorFloat(global_prior);
@@ -342,7 +340,16 @@ int InferABC( FactorToInfer factor,
             auto completion_ETA_timet = std::chrono::system_clock::to_time_t(completion_ETA);
             auto completion_ETA_tm = *std::localtime(&completion_ETA_timet);
             
-            std::cout << " >> Estimated time for completion: " << std::put_time(&completion_ETA_tm, "%c") << std::endl << std::endl;
+            
+            int remaining_hour = seconds_remaining / 60 / 60;
+            int remaining_min = ( seconds_remaining / 60 ) - ( remaining_hour * 60 );
+            int remaining_sec = seconds_remaining - ( 60 * remaining_min ) - ( 360 * remaining_hour );
+            std::cout << " >> Remaining time for completion: "
+            << std::setfill('0') << std::setw(2) << remaining_hour << ":"
+            << std::setfill('0') << std::setw(2) << remaining_min << ":"
+            << std::setfill('0') << std::setw(2) << remaining_sec << " (hh:mm:ss) -> "
+            << std::put_time(&completion_ETA_tm, "%c") << std::endl << std::endl;
+            
             --remaining_positions;
         }
         
@@ -809,16 +816,16 @@ int RunSingleSimulation(std::string param_filename, std::string output_filename)
 void print_syntaxes(std::string exec_name)
 {
     // exec_name = "fits ";
-    std::cout << "\t" << exec_name << fits_constants::ARG_INFER_FITNESS
+    std::cout << "\t" << exec_name << " " << fits_constants::ARG_INFER_FITNESS
     << " <parameters_file> <data_file> <posterior_file> <summary_file> (optional: <prior_file>)" << std::endl << std::endl;
     
-    std::cout << "\t" << exec_name << fits_constants::ARG_INFER_MUTATION
+    std::cout << "\t" << exec_name << " " << fits_constants::ARG_INFER_MUTATION
     << " <parameters_file> <data_file> <posterior_file> <summary_file> (optional: <prior_file>)" << std::endl << std::endl;
     
-    std::cout << "\t" << exec_name << fits_constants::ARG_INFER_POPSIZE
+    std::cout << "\t" << exec_name << " " << fits_constants::ARG_INFER_POPSIZE
     << " <parameters_file> <data_file> <posterior_file> <summary_file> (optional: <prior_file>)" << std::endl << std::endl;
     
-    std::cout << "\t" << exec_name << "-simulate <parameters_file> <output_file>" << std::endl << std::endl;
+    std::cout << "\t" << exec_name << " " << "-simulate <parameters_file> <output_file>" << std::endl << std::endl;
 }
 
 

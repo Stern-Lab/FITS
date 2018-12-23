@@ -113,7 +113,7 @@ int CMulator::EvolveToGeneration( int target_generation )
     //FLOAT_TYPE currentSum = 0.0;
     
     // should we revert to original population size
-    bool alt_popsize_flag = false;
+    // bool alt_popsize_flag = false;
     
     //if ( _debug_mode ) {
     //    std::cout << "Starting evolution for loop" << std::endl;
@@ -153,20 +153,12 @@ int CMulator::EvolveToGeneration( int target_generation )
         }
          */
         
+        /*
         if ( alt_popsize_flag ) {
             SetPopulationSize(_old_N);
             alt_popsize_flag = false;
-            
-            /*
-            if (_debug_mode) {
-                std::cout << "Generation "
-                << _current_generation
-                << ": reverted popsize to "
-                << _N << std::endl;
-            }
-             */
         }
-        
+        */
         
         // normalize fitness
         

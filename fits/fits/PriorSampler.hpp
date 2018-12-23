@@ -74,7 +74,7 @@ private:
     
     void InitializeDistribMatrix() {
         _distrib_matrix(0,0) = 0.1f;     _distrib_matrix(0,1) = 0.00f;
-        _distrib_matrix(1,0) = 0.005f;   _distrib_matrix(1,1) = 0.05f;
+        _distrib_matrix(1,0) = 0.005f;   _distrib_matrix(1,1) = 0.00f + std::numeric_limits<FLOAT_TYPE>::epsilon(); // used to be 0.05
         _distrib_matrix(2,0) = 0.005f;   _distrib_matrix(2,1) = 0.10f;
         _distrib_matrix(3,0) = 0.01f;    _distrib_matrix(3,1) = 0.15f;
         _distrib_matrix(4,0) = 0.01f;    _distrib_matrix(4,1) = 0.20f;
@@ -95,7 +95,7 @@ private:
         _distrib_matrix(19,0) = 0.085f;  _distrib_matrix(19,1) = 0.95f;
         
         _distrib_matrix(20,0) = 0.1;     _distrib_matrix(20,1) = 1.00f;
-        _distrib_matrix(21,0) = 0.05;    _distrib_matrix(21,1) = 1.05f;
+        _distrib_matrix(21,0) = 0.05;    _distrib_matrix(21,1) = 1.00f + std::numeric_limits<FLOAT_TYPE>::epsilon(); // used to be 0.05
         _distrib_matrix(22,0) = 0.03;    _distrib_matrix(22,1) = 1.10f;
         _distrib_matrix(23,0) = 0.02;    _distrib_matrix(23,1) = 1.15f;
         _distrib_matrix(24,0) = 0.02;    _distrib_matrix(24,1) = 1.20f;
@@ -118,7 +118,8 @@ private:
     
     void LoadDistribMatrix( std::string filename )
     {
-        throw "PriorSampler LoadDistribMatrix unimplemented.";
+        std::string tmp_str = "PriorSampler LoadDistribMatrix unimplemented.";
+        throw tmp_str;
     }
     
 public:

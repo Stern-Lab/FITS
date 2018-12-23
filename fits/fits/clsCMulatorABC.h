@@ -108,7 +108,7 @@ public:
     
     //clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
     clsCMulatorABC();
-    clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, PRIOR_DISTRIB prior_distribution );
+    clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distribution );
 
     // simulations/second
     double GetSimulationSpeed() { return _simulation_speed; }
