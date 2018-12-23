@@ -101,11 +101,14 @@ private:
     
     // make sure each vector sums to 1
     void NormalizePrior();
+    
+    bool _verbose_output;
+    //bool verbose_output = ( my_zparams.GetInt( fits_constants::PARAM_VERBOSE_SWITCH ) == fits_constants::PARAM_VERBOSE_SWITCH_ON );
 public:
     
     //clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
     clsCMulatorABC();
-    clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position, FactorToInfer factor_to_infer );
+    clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, PRIOR_DISTRIB prior_distribution );
 
     // simulations/second
     double GetSimulationSpeed() { return _simulation_speed; }

@@ -24,6 +24,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <map>
 #include <regex>
 #include <boost/lexical_cast.hpp>
@@ -41,13 +42,13 @@ class ZParams {
 public:
     ZParams();
     ZParams( std::string filename, bool ReadOnly );
-    ZParams( const ZParams& other );
+    ZParams( const ZParams &other );
     
     
     /* Utility */
     void Clear();
-    bool IsEmpty() const;
-    std::string GetAllParameters() const;
+    bool IsEmpty() ;
+    std::string GetAllParameters() ;
     
     
     /* Data Input */
@@ -69,24 +70,24 @@ public:
     bool IsParameterFound( const std::string paramName );
     
     /* Data Output */
-    int GetInt(const std::string paramName, const int defaultValue) const;
-    float GetFloat(const std::string paramName, const float defaultValue) const;
-    double GetDouble(const std::string paramName, const double defaultValue) const;
-    std::string GetString(const std::string paramName, const std::string defaultValue) const;
+    int GetInt(const std::string paramName, const int defaultValue) ;
+    float GetFloat(const std::string paramName, const float defaultValue) ;
+    double GetDouble(const std::string paramName, const double defaultValue) ;
+    std::string GetString(const std::string paramName, const std::string defaultValue) ;
     
     // TODO: unsigned for int, others
     // Note that conversion from singned to unsigned is well defined, so this is actually unnecessary.
-    unsigned int GetUnsignedInt(const std::string paramName, const unsigned int defaultValue) const;
-    unsigned long GetUnsignedLong(const std::string paramName, const unsigned long defaultValue) const;
+    unsigned int GetUnsignedInt(const std::string paramName, const unsigned int defaultValue) ;
+    unsigned long GetUnsignedLong(const std::string paramName, const unsigned long defaultValue) ;
     
     
     /* These equivalent functions will throw exceptions instead of giving default values */
-    int GetInt(const std::string paramName) const;
-    unsigned int GetUnsignedInt(const std::string paramName) const;
-    unsigned long GetUnsignedLong(const std::string paramName) const;
-    float GetFloat(const std::string paramName) const;
-    double GetDouble(const std::string paramName) const;
-    std::string GetString(const std::string paramName) const;
+    int GetInt(const std::string paramName) ;
+    unsigned int GetUnsignedInt(const std::string paramName) ;
+    unsigned long GetUnsignedLong(const std::string paramName) ;
+    float GetFloat(const std::string paramName) ;
+    double GetDouble(const std::string paramName) ;
+    std::string GetString(const std::string paramName) ;
     
 private:
     
@@ -94,8 +95,9 @@ private:
     bool _is_initialized;
     bool _read_only; // won't accept updates
     
-    void WarnIfDecimal( std::string param_name, std::string param_val ) const;
-    void WarnIfInteger( std::string param_name, std::string param_val ) const;
+    void WarnIfDecimal( std::string param_name, std::string param_val ) ;
+    void WarnIfInteger( std::string param_name, std::string param_val ) ;
+    
     
 };
 #endif /* ZParams_h */

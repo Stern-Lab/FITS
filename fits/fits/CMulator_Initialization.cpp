@@ -579,11 +579,11 @@ void CMulator::InitMemberVariables( ZParams zparams )
     
 
     
-    /* Not Mandatory, General Parameters */
+    // Not Mandatory, General Parameters
     // I fear that it would cause lots of errors, we'll see
-    auto tmp_default_epsilon = 2.0f * std::numeric_limits<float>::epsilon();
+    // auto tmp_default_epsilon = 2.0f * std::numeric_limits<float>::epsilon();
     //_epsilon_float_compare = zparams.GetFloat( PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
-    _epsilon_float_compare = zparams.GetDouble( fits_constants::PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
+    // _epsilon_float_compare = zparams.GetDouble( fits_constants::PARAM_EPSILON_FLOAT_COMPARE, tmp_default_epsilon );
     
     
     // seed already initialized, replace only if manual seed is given
@@ -607,10 +607,9 @@ void CMulator::InitMemberVariables( ZParams zparams )
     }
     
     
-    /* Internal State */
+    // Internal State
     _current_generation = 0;
     
     _initialized_with_parameters = true;
 }
-
 

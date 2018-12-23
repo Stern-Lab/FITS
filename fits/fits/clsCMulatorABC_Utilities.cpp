@@ -23,8 +23,8 @@ void clsCMulatorABC::WriteStringToFile( std::string filename, std::string str )
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
     
     if (!outfile.is_open()) {
-        std::cerr << "unable to open file for writing: " << filename << std::endl;
-        throw "unable to open file for writing: " + filename;
+        std::string tmp_str = "unable to open file for writing: " + filename;
+        throw tmp_str;
     }
     
     outfile << str;

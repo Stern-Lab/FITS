@@ -18,6 +18,7 @@
 
 #include "ResultsStats.hpp"
 
+/*
 std::string ResultsStats::GetFitnessDistrib(const std::vector<SimulationResult>& result_vector)
 {
     std::stringstream ss;
@@ -51,7 +52,9 @@ std::string ResultsStats::GetFitnessDistrib(const std::vector<SimulationResult>&
     
     return ss.str();
 }
+*/
 
+/*
 void ResultsStats::WriteFitnessDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename)
 {
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
@@ -94,8 +97,9 @@ void ResultsStats::WriteFitnessDistribToFile(const std::vector<SimulationResult>
     
     outfile.close();
 }
+*/
 
-
+/*
 std::string ResultsStats::GetMutrateDistrib(const std::vector<SimulationResult>& result_vector)
 {
     std::stringstream ss;
@@ -139,7 +143,9 @@ std::string ResultsStats::GetMutrateDistrib(const std::vector<SimulationResult>&
     
     return ss.str();
 }
+*/
 
+/*
 void ResultsStats::WriteMutRateDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename)
 {
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
@@ -185,8 +191,9 @@ void ResultsStats::WriteMutRateDistribToFile(const std::vector<SimulationResult>
     
     outfile.close();
 }
+*/
 
-
+/*
 std::string ResultsStats::GetPopsizeDistrib(const std::vector<SimulationResult>& result_vector)
 {
     std::stringstream ss;
@@ -212,8 +219,9 @@ std::string ResultsStats::GetPopsizeDistrib(const std::vector<SimulationResult>&
     
     return ss.str();
 }
+*/
 
-
+/*
 void ResultsStats::WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename)
 {
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
@@ -244,6 +252,7 @@ void ResultsStats::WritePopSizeDistribToFile(const std::vector<SimulationResult>
     
     outfile.close();
 }
+*/
 
 
 void ResultsStats::WriteStringToFile( std::string filename, std::string str )
@@ -311,7 +320,7 @@ void ResultsStats::WritePosterior( bool is_multi_position, FactorToInfer factor,
     for ( auto tmp_entry : accepted_results_vec ) {
         
         // position of -1 to mark the "total" or "global" position
-        outfile << "-1" << fits_constants::FILE_FIELD_DELIMITER;
+        outfile << "N/A" << fits_constants::FILE_FIELD_DELIMITER;
         
         if ( is_multi_position ) {
             // note this is the sum of distances

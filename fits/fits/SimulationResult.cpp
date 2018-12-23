@@ -93,8 +93,8 @@ num_generations(sim_object.GetNumOfGenerations()),
 _is_multi_position(false)
 {
     if ( actual_generations.empty() ) {
-        std::cerr << "Actual Generation list is empty" << std::endl;
-        throw "Actual Generation list is empty";
+        std::string tmp_str = "Actual Generation list is empty";
+        throw tmp_str;
     }
     
     sim_data_matrix = sim_object.GetAllOutputAsMatrix( actual_generations );

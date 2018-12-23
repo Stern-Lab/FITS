@@ -22,13 +22,13 @@
 void CMulator::PerformChecksBeforeEvolution()
 {
     if (!_initialized_with_parameters) {
-        std::cerr << " EvolveToGeneration: object not initialized with parameters." << std::endl;
-        throw " EvolveToGeneration: object not initialized with parameters.";
+        std::string tmp_str = "EvolveToGeneration: object not initialized with parameters.";
+        throw tmp_str;
     }
     
     if ( _allele_init_freqs.empty() ) {
-        std::cerr << " EvolveToGeneration: initial frequencies not provided." << std::endl;
-        throw " EvolveToGeneration: initial frequencies not provided.";
+        std::string tmp_str = "EvolveToGeneration: initial frequencies not provided.";
+        throw tmp_str;
     }
     
     /*
@@ -39,14 +39,14 @@ void CMulator::PerformChecksBeforeEvolution()
     */
     
     if ( _all_simulated_data.size1() < 1 || _all_simulated_data.size2() < 1 ) {
-        std::cerr <<	" EvolveToGeneration: sim_data uninitialized." << std::endl;
-        throw " EvolveToGeneration: _all_simulated_data uninitialized.";
+        std::string tmp_str = "EvolveToGeneration: _all_simulated_data uninitialized.";
+        throw tmp_str;
     }
     
     if ( _allele_fitness.empty() ) {
         if ( _allele_max_fitness.empty() || _allele_min_fitness.empty() ) {
-            std::cerr <<	" EvolveToGeneration: fitness data empty but so are min or max." << std::endl;
-            throw " EvolveToGeneration: fitness data empty but so are min and max.";
+            std::string tmp_str = "EvolveToGeneration: fitness data empty but so are min and max.";
+            throw tmp_str;
         }
     }
 }
@@ -54,10 +54,9 @@ void CMulator::PerformChecksBeforeEvolution()
 std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_TYPE> &freqs_vec, int popsize )
 {
     if ( freqs_vec.size() != _num_alleles ) {
-        std::cerr << "Freqs2Binomial2Freqs: mismatch in size, freqs_vec is " <<
-        freqs_vec.size() << " while _num_alleles is " << _num_alleles << std::endl;
-        
-        throw "Freqs2Binomial2Freqs: size mismatch between vector of values to number of alleles.";
+        std::string tmp_str = "Freqs2Binomial2Freqs: mismatch in size, freqs_vec is " +
+        std::to_string(freqs_vec.size()) + " while _num_alleles is " + std::to_string( _num_alleles );
+        throw tmp_str;
     }
     
     auto currentSum = 0.0f;
@@ -65,7 +64,6 @@ std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_
     std::vector<FLOAT_TYPE> newvals(freqs_vec);
     
     // perform binomial sampling, keep in mind actually selected individuals may be !=N
-    
     for (auto allele_i = 0; allele_i<_num_alleles; ++allele_i) {
         
         auto currentP = freqs_vec[allele_i];
@@ -75,8 +73,6 @@ std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_
         newvals[allele_i] = static_cast<FLOAT_TYPE>(local_bin_distrib(_boost_gen));
     
         currentSum += newvals[allele_i];
-        
-        
     }
     
     // Normalize frequencies
@@ -92,7 +88,8 @@ std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_
 int CMulator::EvolveToGeneration( int target_generation )
 {
     if (  !IsValid_NumAlleles(_num_alleles) ) {
-        throw "Parameters: Missing or invalid number of alleles (must be >=2)";
+        std::string tmp_str = "Parameters: Missing or invalid number of alleles (must be >=2)";
+        throw tmp_str;
     }
     
     // this distribution is unique - it takes a closed range [inclusive]
@@ -312,7 +309,8 @@ int CMulator::EvolveToGeneration( int target_generation )
 int CMulator::EvolveAllGenerations()
 {
     if (!_initialized_with_parameters) {
-        throw " EvolveAllGenerations: object not initialized with parameters.";
+        std::string tmp_str = "EvolveAllGenerations: object not initialized with parameters.";
+        throw tmp_str;
     }
     
     return EvolveToGeneration(_num_generations);

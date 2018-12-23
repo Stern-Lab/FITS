@@ -63,11 +63,13 @@ void ResultsStats::CalculateStatsFitness()
     deleterious_counter.resize(_num_alleles, 0.0f);
     neutral_counter.resize(_num_alleles, 0.0f);
     advantageous_counter.resize(_num_alleles, 0.0f);
+    //unassigned_counter(_num_alleles, 0.0f);
     
     lethal_percent.resize(_num_alleles, 0.0f);
     deleterious_percent.resize(_num_alleles, 0.0f);
     neutral_percent.resize(_num_alleles, 0.0f);
     advantageous_percent.resize(_num_alleles, 0.0f);
+    unassigned_percent.resize(_num_alleles, 0.0f);
     
     allele_category.resize(_num_alleles, AlleleCategory::Undefined);
     
@@ -176,23 +178,25 @@ void ResultsStats::CalculateStatsFitness()
          else if (lethal_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
          allele_category[current_allele] = AlleleCategory::Possible_lethal;
          */
-        deleterious_percent[current_allele] = deleterious_counter[current_allele] * 100 / _result_vector.size();
+        deleterious_percent[current_allele] = deleterious_counter[current_allele] * 100.0f / static_cast<double>(_result_vector.size());
         if (deleterious_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Deleterious;
         else if (deleterious_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Possible_deleterious;
         
-        neutral_percent[current_allele] = neutral_counter[current_allele] * 100 / _result_vector.size();
+        neutral_percent[current_allele] = neutral_counter[current_allele] * 100.0f / static_cast<double>(_result_vector.size());
         if (neutral_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Neutral;
         else if (neutral_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Possible_neutral;
         
-        advantageous_percent[current_allele] = advantageous_counter[current_allele] * 100 / _result_vector.size();
+        advantageous_percent[current_allele] = advantageous_counter[current_allele] * 100.0f / static_cast<double>(_result_vector.size());
         if (advantageous_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Adventageous;
         else if (advantageous_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Possible_advantageous;
+        
+        //unassigned_percent[current_allele] = unassigned_counter[current_allele] * 100 / _result_vector.size();
         
         // last in order to override any fitness value assignments
         if (current_allele == wt_allele) {
@@ -331,8 +335,8 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
     */
 
     if ( !table_only ) {
-        ss << "Full Report - Fitness" << std::endl;
-        ss << "=============================" << std::endl;
+        ss << "Fitness Report" << std::endl;
+        ss << "===============" << std::endl;
         ss << GetSummaryHeader();
         
         
@@ -443,9 +447,9 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
         ss << boost::format("%-10.3d") % allele_mean_fitness[current_allele];
         ss << boost::format("%-10.3d") % allele_min_fitness[current_allele];
         ss << boost::format("%-10.3d") % allele_max_fitness[current_allele];
-        ss << boost::format("%-10s") % deleterious_percent[current_allele];
-        ss << boost::format("%-10s") % neutral_percent[current_allele];
-        ss << boost::format("%-10s") % advantageous_percent[current_allele];
+        ss << boost::format("%-10.3d") % deleterious_percent[current_allele];
+        ss << boost::format("%-10.3d") % neutral_percent[current_allele];
+        ss << boost::format("%-10.3d") % advantageous_percent[current_allele];
         ss << boost::format("%-10s") % AlleleCategory2String(allele_category[current_allele]);
         //ss << boost::format("%-10.3d") % _distance_min;
         //ss << boost::format("%-10.3d") % _distance_max;
@@ -462,8 +466,6 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
         
         ss << std::endl;
     }
-    
-    ss << std::endl;
     
     if ( !table_only ) {
         if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {

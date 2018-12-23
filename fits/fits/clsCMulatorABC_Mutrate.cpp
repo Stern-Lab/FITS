@@ -51,9 +51,9 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
         local_sim_object.SetAlleleInitFreq(i, init_freq_vec[i]);
     }
     
-    auto first_generation = _actual_data_position.GetFirstGeneration();
-    auto last_generation = _actual_data_position.GetLastGeneration();
-    auto num_generations = last_generation - first_generation + 1;
+    //auto first_generation = _actual_data_position.GetFirstGeneration();
+    // auto last_generation = _actual_data_position.GetLastGeneration();
+    // auto num_generations = last_generation - first_generation + 1;
     //local_sim_object.SetGenerationShift(first_generation);
     //local_sim_object.SetNumOfGeneration(num_generations);
     

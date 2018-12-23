@@ -1,20 +1,20 @@
 /*
-    FITS - Flexible Inference from Time-Series data
-    (c) 2016-2018 by Tal Zinger
-    tal.zinger@outlook.com
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ FITS - Flexible Inference from Time-Series data
+ (c) 2016-2018 by Tal Zinger
+ tal.zinger@outlook.com
+ 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include "clsCMulatorABC.h"
 #include "fits_constants.h"
@@ -22,7 +22,7 @@
 clsCMulatorABC::clsCMulatorABC()
 {}
 
-clsCMulatorABC::clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position, FactorToInfer factor_to_infer ) :
+clsCMulatorABC::clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, PRIOR_DISTRIB prior_distribution ) :
 _zparams(sim_params),
 _total_running_time_sec(0),
 _prior_type(PriorDistributionType::UNIFORM),
@@ -32,25 +32,30 @@ _simulation_result_vector(),
 _global_prior(),
 _use_rejection_threshold(true),
 _factor_to_infer(factor_to_infer),
-_simulation_speed(0.0f)
+_simulation_speed(0.0f),
+_verbose_output(false)
 {
     ResetRejectionThreshold();
     
+    
+    _verbose_output = ( sim_params.GetInt( fits_constants::PARAM_VERBOSE_SWITCH ) == fits_constants::PARAM_VERBOSE_SWITCH_ON );
+    
     _repeats = _zparams.GetInt( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
     if ( _repeats <= 0 ) {
-        throw "Error: Number of repoeats must be positive.";
+        std::string tmp_str = "Error: Number of repoeats must be positive.";
+        throw tmp_str;
     }
     
     _num_alleles = _zparams.GetUnsignedInt( fits_constants::PARAM_NUM_ALLELES, -1 );
     
     _sims_to_keep = _zparams.GetFloat( fits_constants::PARAM_ACCEPTANCE_RATE,
-                                       fits_constants::ACCEPTANCE_RATE_DEFAULT ) * _repeats;
+                                      fits_constants::ACCEPTANCE_RATE_DEFAULT ) * _repeats;
     
     _rejection_threshold = _zparams.GetFloat( fits_constants::PARAM_REJECTION_THRESHOLD,
                                              -1.0f );
     if ( _sims_to_keep == 0.0f ) {
         _sims_to_keep = _zparams.GetFloat( fits_constants::PARAM_ACCEPTANCE_LIMIT,
-                                        fits_constants::ACCEPTANCE_LIMIT_DEFAULT ) * _repeats;
+                                          fits_constants::ACCEPTANCE_LIMIT_DEFAULT ) * _repeats;
     }
     
     
@@ -92,32 +97,49 @@ _simulation_speed(0.0f)
             auto min_fitness_vec = local_sim_object.GetAlleleMinFitnessValues();
             auto max_fitness_vec = local_sim_object.GetAlleleMaxFitnessValues();
             
-            PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
-            
-            _global_prior = sampler.SamplePrior(_repeats);
+            if ( prior_distribution.empty() ) {
+                std::cout << "Generating prior... " << std::flush;
+                PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
+                _global_prior = sampler.SamplePrior(_repeats);
+                std::cout << "done generating" << std::flush;
+            }
+            else {
+                std::cout << "recycling prior" << std::flush;
+                _global_prior = prior_distribution;
+            }
             break;
         }
         case PopulationSize: {
             std::vector<FLOAT_TYPE> minN {_zparams.GetDouble(fits_constants::PARAM_MIN_LOG_POPSIZE)};
             std::vector<FLOAT_TYPE> maxN {_zparams.GetDouble(fits_constants::PARAM_MAX_LOG_POPSIZE)};
             
-            PriorSampler<FLOAT_TYPE> sampler( minN, maxN, PriorDistributionType::UNIFORM );
-            
-            _global_prior = sampler.SamplePrior(_repeats);
+            if ( prior_distribution.empty() ) {
+                PriorSampler<FLOAT_TYPE> sampler( minN, maxN, PriorDistributionType::UNIFORM );
+                _global_prior = sampler.SamplePrior(_repeats);
+            }
+            else {
+                _global_prior = prior_distribution;
+            }
             break;
         }
         case MutationRate: {
             auto min_matrix = local_sim_object.GetMinMutationRateMatrix();
             auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
             
-            PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM );
-            
-            _global_prior = sampler.SamplePrior(_repeats);
+            if ( prior_distribution.empty() ) {
+                PriorSampler<FLOAT_TYPE> sampler( min_matrix, max_matrix, PriorDistributionType::UNIFORM );
+                _global_prior = sampler.SamplePrior(_repeats);
+            }
+            else {
+                _global_prior = prior_distribution;
+            }
             
             NormalizePrior();
             break;
         }
     }
+    
+    std::cout << "Done." << std::endl;
     
 }
 
@@ -127,13 +149,13 @@ void clsCMulatorABC::NormalizePrior()
     // auto tmp_prior = _global_prior;
     
     /*
-    for ( auto vec : _global_prior ) {
-        for ( auto val : vec ) {
-            std::cout << val << ", ";
-        }
-        std::cout << std::endl;
-    }
-    */
+     for ( auto vec : _global_prior ) {
+     for ( auto val : vec ) {
+     std::cout << val << ", ";
+     }
+     std::cout << std::endl;
+     }
+     */
     
     for (auto current_prior_sample_idx=0; current_prior_sample_idx<_global_prior.size(); ++current_prior_sample_idx ) {
         
@@ -218,19 +240,20 @@ void clsCMulatorABC::NormalizePrior()
     } // mutation rate
     
     /*
-    std::cout << "normalized: " << std::endl;
-    for ( auto vec : _global_prior ) {
-        for ( auto val : vec ) {
-            std::cout << val << ", ";
-        }
-        std::cout << std::endl;
-    }
+     std::cout << "normalized: " << std::endl;
+     for ( auto vec : _global_prior ) {
+     for ( auto val : vec ) {
+     std::cout << val << ", ";
+     }
+     std::cout << std::endl;
+     }
      */
 }
 
 
 void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_of_batches )
 {
+    std::cout << "init abc inference... " << std::flush;
     _simulation_result_vector.clear();
     // _float_prior_archive.clear();
     // _int_prior_archive.clear();
@@ -251,6 +274,16 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     
     std::string completion_eta_str = "";
     
+    std::cout << "Done" << std::endl;
+    
+    if (_verbose_output) {
+        std::cout << "Remaining " << remaining_repeats
+        << " repeats (calculating speed...)"
+        << std::endl;
+    }
+    else {
+        std::cout << "." << std::flush;
+    }
     
     while (remaining_repeats > 0) {
         
@@ -266,7 +299,8 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         //prior_subset.resize(repeats_in_batch);
         
         if ( current_repeat > _global_prior.size() ) {
-            throw "Error: current repeat is larger than prior size: " + std::to_string(current_repeat) + " " + std::to_string(_global_prior.size());
+            std::string tmp_str = "Error: current repeat is larger than prior size: " + std::to_string(current_repeat) + " " + std::to_string(_global_prior.size());
+            throw tmp_str;
         }
         
         
@@ -282,28 +316,25 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         
         //std::cout << std::endl << "\tPrior start_index =" << start_idx << ", end_index=" << end_idx << std::endl;
         
-        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-            
-        }
         
         try {
-        switch (_factor_to_infer) {
-            case Fitness: {
-                // tmp_result_vector = RunFitnessInferenceBatch(prior_subset, current_repeat, current_repeat+repeats_in_batch);
-                tmp_result_vector = RunFitnessInferenceBatch( _global_prior, start_idx, end_idx );
-                break;
+            switch (_factor_to_infer) {
+                case Fitness: {
+                    // tmp_result_vector = RunFitnessInferenceBatch(prior_subset, current_repeat, current_repeat+repeats_in_batch);
+                    tmp_result_vector = RunFitnessInferenceBatch( _global_prior, start_idx, end_idx );
+                    break;
+                }
+                case PopulationSize: {
+                    //tmp_result_vector = RunPopulationSizeInferenceBatch(prior_subset);
+                    tmp_result_vector = RunPopulationSizeInferenceBatch( _global_prior, start_idx, end_idx );
+                    break;
+                }
+                case MutationRate: {
+                    //tmp_result_vector = RunMutationInferenceBatch(prior_subset);
+                    tmp_result_vector = RunMutationInferenceBatch( _global_prior, start_idx, end_idx );
+                    break;
+                }
             }
-            case PopulationSize: {
-                //tmp_result_vector = RunPopulationSizeInferenceBatch(prior_subset);
-                tmp_result_vector = RunPopulationSizeInferenceBatch( _global_prior, start_idx, end_idx );
-                break;
-            }
-            case MutationRate: {
-                //tmp_result_vector = RunMutationInferenceBatch(prior_subset);
-                tmp_result_vector = RunMutationInferenceBatch( _global_prior, start_idx, end_idx );
-                break;
-            }
-        }
         }
         catch (std::string str) {
             std::cerr << "Exeption while running inference batch: " << str << std::endl;
@@ -343,27 +374,33 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
             auto completion_ETA = current_time + duration_remaining;
             auto completion_ETA_timet = std::chrono::system_clock::to_time_t(completion_ETA);
             auto completion_ETA_tm = *std::localtime(&completion_ETA_timet);
-        
+            
             std::stringstream ss;
             ss << std::put_time(&completion_ETA_tm, "%c");
             completion_eta_str = ss.str();
         }
         
-        
-        std::cout << "Remaining " << remaining_repeats
-        << " repeats (rate of "
-        << std::round(calculated_speed)
-        << "sim/sec) - ETA is "
-        //std::put_time(&completion_ETA_tm, "%c")
-        << completion_eta_str
-        << std::endl;
+        if (_verbose_output) {
+            std::cout << "Remaining " << remaining_repeats
+            << " repeats (rate of "
+            << std::round(calculated_speed)
+            << "sim/sec)"
+            // << "sim/sec) - estimated time for completion of position: "
+            // std::put_time(&completion_ETA_tm, "%c")
+            // << completion_eta_str
+            << std::endl;
+        }
+        else {
+            std::cout << "." << std::flush;
+        }
         
         current_repeat += repeats_in_batch;
+        
         
     } // while (remaining_repeats > 0)
     
     
-    std::cout << "Calculating distance... ";
+    std::cout << std::endl << "Calculating distance... " << std::flush;
     
     // scaling factor; default actualling means no scaling (divide by 1)
     std::vector<FLOAT_TYPE> scaling_vector(0);
@@ -371,7 +408,7 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     // std::cout << "scaling vector" << scaling_vector.size() << std::endl;
     
     auto scaling_option_str = _zparams.GetString( fits_constants::PARAM_SCALING,
-                                             fits_constants::PARAM_SCALING_DEFAULT );
+                                                 fits_constants::PARAM_SCALING_DEFAULT );
     
     if ( scaling_option_str.compare(fits_constants::PARAM_SCALING_SD) == 0 ) {
         scaling_vector = GetSDPerAllele(0, _simulation_result_vector.size());
@@ -389,14 +426,14 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     
     // from each simulation result, get only the relevant generations
     for ( auto current_idx=0; current_idx<_simulation_result_vector.size(); ++current_idx ) {
-    //for ( auto& current_result : _simulation_result_vector )
+        //for ( auto& current_result : _simulation_result_vector )
         _simulation_result_vector[current_idx].distance_from_actual =
-            GetDistanceSimActual(actual_matrix, _simulation_result_vector[current_idx].sim_data_matrix, scaling_vector );
+        GetDistanceSimActual( actual_matrix, _simulation_result_vector[current_idx].sim_data_matrix, scaling_vector );
         
         _simulation_result_vector[current_idx].distance_metric = _zparams.GetString( fits_constants::PARAM_DISTANCE, fits_constants::PARAM_DISTANCE_L1 );
         // std::cout << " distance in current result = " << current_result.distance_from_actual << std::endl;
     }
-
+    
     std::cout << "Done." << std::endl;
     
     std::cout << "Sorting results... ";
@@ -453,11 +490,10 @@ std::vector<SimulationResult> clsCMulatorABC::GetResultsVector(bool only_accepte
             
             if (!std::is_sorted(_simulation_result_vector.cbegin(),
                                 _simulation_result_vector.cend() ) ) {
-                std::cerr << "GetResultsVector: results vector is not sorted!" << std::endl;
-                throw "GetResultsVector: results vector is not sorted!";
+                std::string tmp_str = "GetResultsVector: results vector is not sorted!";
+                throw tmp_str;
             }
             
-            std::cout << "test" << std::endl;
             int current_idx=0;
             while ( current_idx < _simulation_result_vector.size() &&
                    _simulation_result_vector[current_idx].distance_from_actual < _rejection_threshold ) {
@@ -475,18 +511,18 @@ std::vector<SimulationResult> clsCMulatorABC::GetResultsVector(bool only_accepte
         std::size_t first_nonzero_distance_idx = 0;
         
         /*
-        while ( first_nonzero_distance_idx<_simulation_result_vector.size() &&
-               _simulation_result_vector[first_nonzero_distance_idx].distance_from_actual==0.0f ) {
-            ++first_nonzero_distance_idx;
-        }
-        */
+         while ( first_nonzero_distance_idx<_simulation_result_vector.size() &&
+         _simulation_result_vector[first_nonzero_distance_idx].distance_from_actual==0.0f ) {
+         ++first_nonzero_distance_idx;
+         }
+         */
         
         std::nth_element(_simulation_result_vector.begin() + first_nonzero_distance_idx,
                          _simulation_result_vector.begin() + first_nonzero_distance_idx + _sims_to_keep,
                          _simulation_result_vector.end());
         
         std::vector<SimulationResult> tmp_vec( _simulation_result_vector.begin() + first_nonzero_distance_idx,
-                                               _simulation_result_vector.begin() + first_nonzero_distance_idx + _sims_to_keep );
+                                              _simulation_result_vector.begin() + first_nonzero_distance_idx + _sims_to_keep );
         
         // std::cout << "sims " << _sims_to_keep << std::endl;
         // std::cout << "tmpvec " << tmp_vec.size() << std::endl;
@@ -538,7 +574,7 @@ FLOAT_TYPE clsCMulatorABC::DistanceL1( const MATRIX_TYPE &actual_data, const MAT
     
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
         if ( sum_diff == 0.0f) {
-            std::cerr << "Warning: actual data identical to simulated data (distance=0)." << std::endl;
+            std::cerr << "Warning: data file identical to simulated data (distance=0)." << std::endl;
         }
     }
     
@@ -584,18 +620,20 @@ FLOAT_TYPE clsCMulatorABC::GetDistanceSimActual( const MATRIX_TYPE &actual_data,
     if ( actual_data.size1() != sim_data.size1() ) {
         std::cerr << "DistanceSimActual - matrices don't match in size1: actual " <<
         actual_data.size1() << "vs sim " << sim_data.size1() << std::endl;
-        throw "DistanceSimActual - matrices don't match in size1";
+        
+        std::string tmp_str = "DistanceSimActual - matrices don't match in size1";
+        throw tmp_str;
     }
     
     if ( actual_data.size2() != sim_data.size2() ) {
-        std::cerr << "DistanceSimActual - matrices don't match in size2: actual " <<
-        actual_data.size2() << "vs sim " << sim_data.size2() << std::endl;
-        throw "DistanceSimActual - matrices don't match in size2";
+        std::string tmp_str = "DistanceSimActual - matrices don't match in size2: actual " +
+        std::to_string(actual_data.size2()) + "vs sim " + std::to_string(sim_data.size2());
+        throw tmp_str;
     }
-
+    
     
     auto tmp_distance_metric = _zparams.GetString( fits_constants::PARAM_DISTANCE, fits_constants::PARAM_DISTANCE_L1 );
-
+    
     if ( tmp_distance_metric.compare(fits_constants::PARAM_DISTANCE_L1) == 0 ) {
         
         calculated_distance = DistanceL1( actual_data, sim_data, scaling_vector );
@@ -643,12 +681,15 @@ void clsCMulatorABC::SetPriorFloat( PRIOR_DISTRIB given_prior )
 void clsCMulatorABC::VerifyIndece( const PRIOR_DISTRIB &prior_distrib, std::size_t start_idx, std::size_t end_idx )
 {
     if ( start_idx > end_idx ) {
-        throw "clsCMulatorABC: start index of prior is bigger than the end (" + std::to_string(start_idx) + "," + std::to_string(end_idx) + ")";
+        std::string tmp_str = "clsCMulatorABC: start index of prior is bigger than the end (" + std::to_string(start_idx) + "," + std::to_string(end_idx) + ")";
+        throw tmp_str;
     }
     if ( start_idx > prior_distrib.size() ) {
-        throw "clsCMulatorABC: start index of prior is bigger prior size (" + std::to_string(start_idx) + "," + std::to_string(prior_distrib.size()) + ")";
+        std::string tmp_str = "clsCMulatorABC: start index of prior is bigger prior size (" + std::to_string(start_idx) + "," + std::to_string(prior_distrib.size()) + ")";
+        throw tmp_str;
     }
     if ( end_idx > prior_distrib.size() ) {
-        throw "clsCMulatorABC: end index of prior is bigger than prior size (" + std::to_string(end_idx) + "," + std::to_string(prior_distrib.size()) + ")";
+        std::string tmp_str = "clsCMulatorABC: end index of prior is bigger than prior size (" + std::to_string(end_idx) + "," + std::to_string(prior_distrib.size()) + ")";
+        throw tmp_str;
     }
 }

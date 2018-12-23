@@ -133,8 +133,10 @@ void ZParams::AddParameter( const std::string paramName, const std::string value
     catch (...) {
         std::string err_msg = "ZParams: Error while adding parameter ";
         err_msg += paramName;
-        throw err_msg.c_str();
+        throw err_msg;
     }
+    
+    //std::cout << "size of unread: " << _unread_parameters.size() << std::endl;
 }
 
 
@@ -170,7 +172,7 @@ void ZParams::AddParameter( const std::string paramName, const bool value )
 }
 
 
-unsigned int ZParams::GetUnsignedInt(const std::string paramName) const
+unsigned int ZParams::GetUnsignedInt(const std::string paramName)
 {
     std::string retreived_str;
     retreived_str = GetString(paramName);
@@ -199,7 +201,7 @@ unsigned int ZParams::GetUnsignedInt(const std::string paramName) const
 }
 
 
-unsigned int ZParams::GetUnsignedInt(const std::string paramName, const unsigned int defaultValue) const
+unsigned int ZParams::GetUnsignedInt(const std::string paramName, const unsigned int defaultValue)
 {
     unsigned int retreived_value = 0;
     
@@ -214,7 +216,7 @@ unsigned int ZParams::GetUnsignedInt(const std::string paramName, const unsigned
 }
 
 
-int ZParams::GetInt(const std::string paramName) const
+int ZParams::GetInt(const std::string paramName)
 {
     std::string retreived_str;
     
@@ -244,7 +246,7 @@ int ZParams::GetInt(const std::string paramName) const
 }
 
 
-int ZParams::GetInt(const std::string paramName, const int defaultValue) const
+int ZParams::GetInt(const std::string paramName, const int defaultValue)
 {
     int retreived_value = 0;
     
@@ -259,7 +261,7 @@ int ZParams::GetInt(const std::string paramName, const int defaultValue) const
 }
 
 
-unsigned long ZParams::GetUnsignedLong(const std::string paramName) const
+unsigned long ZParams::GetUnsignedLong(const std::string paramName)
 {
     std::string retreived_str;
     
@@ -290,7 +292,7 @@ unsigned long ZParams::GetUnsignedLong(const std::string paramName) const
 }
 
 
-unsigned long ZParams::GetUnsignedLong(const std::string paramName, const unsigned long defaultValue) const
+unsigned long ZParams::GetUnsignedLong(const std::string paramName, const unsigned long defaultValue)
 {
     unsigned long retreived_value = 0;
     
@@ -322,9 +324,8 @@ void ZParams::UpdateParameter( const std::string paramName, const std::string va
 }
 
 
-std::string ZParams::GetString(const std::string paramName) const
+std::string ZParams::GetString(const std::string paramName)
 {
-    
     if (!_is_initialized) {
         std::string err_msg = "No parameters were loaded. Error while attempting to get ";
         err_msg += paramName;
@@ -345,7 +346,8 @@ std::string ZParams::GetString(const std::string paramName) const
     return retreived_value;
 }
 
-std::string ZParams::GetString(const std::string paramName, const std::string defaultValue) const
+
+std::string ZParams::GetString(const std::string paramName, const std::string defaultValue)
 {
     std::string retreived_value = "";
     
@@ -360,7 +362,7 @@ std::string ZParams::GetString(const std::string paramName, const std::string de
 }
 
 
-float ZParams::GetFloat(const std::string paramName) const
+float ZParams::GetFloat(const std::string paramName)
 {
     std::string retreived_str;
     
@@ -391,7 +393,7 @@ float ZParams::GetFloat(const std::string paramName) const
 }
 
 
-float ZParams::GetFloat(const std::string paramName, const float defaultValue) const
+float ZParams::GetFloat(const std::string paramName, const float defaultValue)
 {
     float retreived_value = 0.0;
     
@@ -406,7 +408,7 @@ float ZParams::GetFloat(const std::string paramName, const float defaultValue) c
 }
 
 
-double ZParams::GetDouble(const std::string paramName) const
+double ZParams::GetDouble(const std::string paramName)
 {
     std::string retreived_str;
     
@@ -436,7 +438,7 @@ double ZParams::GetDouble(const std::string paramName) const
 }
 
 
-double ZParams::GetDouble(const std::string paramName, const double defaultValue) const
+double ZParams::GetDouble(const std::string paramName, const double defaultValue)
 {
     double retreived_value = 0.0f;
     
@@ -451,7 +453,7 @@ double ZParams::GetDouble(const std::string paramName, const double defaultValue
 }
 
 
-std::string ZParams::GetAllParameters() const
+std::string ZParams::GetAllParameters()
 {
     std::string tmp_str = "name\t\tvalue\n";
     
@@ -463,12 +465,12 @@ std::string ZParams::GetAllParameters() const
 }
 
 
-bool ZParams::IsEmpty() const
+bool ZParams::IsEmpty()
 {
     return _param_map.empty();
 }
 
-void ZParams::WarnIfDecimal( std::string param_name, std::string param_val ) const
+void ZParams::WarnIfDecimal( std::string param_name, std::string param_val )
 {
     std::size_t decimal_pos = param_val.find(".");
     
@@ -478,7 +480,7 @@ void ZParams::WarnIfDecimal( std::string param_name, std::string param_val ) con
     }
 }
 
-void ZParams::WarnIfInteger( std::string param_name, std::string param_val ) const
+void ZParams::WarnIfInteger( std::string param_name, std::string param_val )
 {
     std::size_t decimal_pos = param_val.find(".");
     

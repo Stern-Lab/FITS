@@ -40,7 +40,8 @@ void CMulator::SetNumOfGeneration(int generations)
     }
     
     if ( !IsValid_Generation(generations) ) {
-        throw " SetNumOfGeneration: invalid value (" + std::to_string(generations) + ").";
+        std::string tmp_str = "SetNumOfGeneration: invalid value (" + std::to_string(generations) + ").";
+        throw tmp_str;
     }
     
     _num_generations = generations;
@@ -127,11 +128,13 @@ std::vector<FLOAT_TYPE> CMulator::GetAlleleMinFitnessValues() const
 FLOAT_TYPE CMulator::GetAlleleFreq( int generation, int allele ) const
 {
     if ( !IsValid_Generation(generation) ) {
-        throw "GetAlleleFreq: illegal generation " + std::to_string(generation);
+        std::string tmp_str = "GetAlleleFreq: illegal generation " + std::to_string(generation);
+        throw tmp_str;
     }
     
     if ( !IsValid_Allele(allele) ) {
-        throw "GetAlleleFreq: illegal allele " + std::to_string(allele);
+        std::string tmp_str = "GetAlleleFreq: illegal allele " + std::to_string(allele);
+        throw tmp_str;
     }
     
     if (_use_observed_data) {
@@ -177,8 +180,9 @@ std::vector<FLOAT_TYPE> CMulator::GetRawFrequencyData( std::vector<int> selected
         for ( auto cur_allele=0; cur_allele<_num_alleles; cur_allele++ ) {
             
             if ( !IsValid_Generation(cur_generation) ) {
-                std::cerr << " GetRawFrequencyData: generation out of range (" + std::to_string(tmp_cur_generation) + "). number of generations is " << _num_generations << std::endl;
-                throw " GetRawFrequencyData: generation out of range (" + std::to_string(tmp_cur_generation) + ").";
+                std::string tmp_str = "GetRawFrequencyData: generation out of range (" +
+                std::to_string(tmp_cur_generation) + "). number of generations is " + std::to_string(_num_generations);
+                throw tmp_str;
             }
             
             if (_use_observed_data) {

@@ -269,7 +269,6 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
          */
         ss << std::endl;
     }
-    ss << std::endl;
     
     
     if (!table_only) {

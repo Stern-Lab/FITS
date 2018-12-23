@@ -155,7 +155,7 @@ private:
 	
 	/* Assisting Functions */
 	
-    void WarnAgainstDeprecatedParameters(ZParams zparams);
+    //void WarnAgainstDeprecatedParameters(ZParams zparams);
     
     void PerformChecksBeforeEvolution();
     void InitBasicVariables( ZParams zparams );
@@ -200,7 +200,7 @@ private:
 	bool _initialized_with_parameters;
 	
 	// to mitigate floating point rounding errors
-	FLOAT_TYPE _epsilon_float_compare;
+	// FLOAT_TYPE _epsilon_float_compare;
 	/* END Technical Parameters */
 	
 	
@@ -301,7 +301,7 @@ public:
 	//CMulator( std::string param_filename );
     
 	CMulator( const CMulator &original );
-    CMulator( const ZParams &zparams );
+    CMulator( const ZParams zparams );
     
     //TODO: move ctor
 	/* END Constructors */

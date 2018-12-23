@@ -203,11 +203,13 @@ public:
     std::vector<unsigned int> deleterious_counter;
     std::vector<unsigned int> neutral_counter;
     std::vector<unsigned int> advantageous_counter;
+    std::vector<unsigned int> unassigned_counter;
     
-    std::vector<unsigned int> lethal_percent;
-    std::vector<unsigned int> deleterious_percent;
-    std::vector<unsigned int> neutral_percent;
-    std::vector<unsigned int> advantageous_percent;
+    std::vector<double> lethal_percent;
+    std::vector<double> deleterious_percent;
+    std::vector<double> neutral_percent;
+    std::vector<double> advantageous_percent;
+    std::vector<double> unassigned_percent;
     
     std::vector<FLOAT_TYPE> levenes_pval;
     boost::numeric::ublas::matrix<FLOAT_TYPE> levenes_pval_matrix;
@@ -232,13 +234,13 @@ public:
     
     void WriteStringToFile( std::string filename, std::string str );
     
-    std::string GetMutrateDistrib(const std::vector<SimulationResult>& result_vector);
-    std::string GetFitnessDistrib(const std::vector<SimulationResult>& result_vector);
-    std::string GetPopsizeDistrib(const std::vector<SimulationResult>& result_vector);
+    // std::string GetMutrateDistrib(const std::vector<SimulationResult>& result_vector);
+    // std::string GetFitnessDistrib(const std::vector<SimulationResult>& result_vector);
+    // std::string GetPopsizeDistrib(const std::vector<SimulationResult>& result_vector);
     
-    void WriteFitnessDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
-    void WriteMutRateDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
-    void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
+    // void WriteFitnessDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
+    // void WriteMutRateDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
+    // void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     
     void WritePosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename );
     

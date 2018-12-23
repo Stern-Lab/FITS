@@ -293,7 +293,11 @@ std::string ResultsStats::GetSummaryHeader()
         auto running_minutes = _running_time_sec / 60;
         auto running_seconds = _running_time_sec % 60;
         
-        ss << "Total running time " << running_minutes << ":" << running_seconds << " (minutes:seconds)" << std::endl;
+        ss << "Total running time "
+        << running_minutes
+        << ":"
+        << running_seconds
+        << " (minutes:seconds)" << std::endl;
     }
     
     if ( _rejection_threshold > 0.0f ) {
