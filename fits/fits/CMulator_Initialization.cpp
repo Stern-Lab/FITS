@@ -113,11 +113,12 @@ bool CMulator::InitMutationRates( ZParams zparams )
     for ( auto current_row = 0; current_row < _mutation_rates_matrix.size2(); ++current_row ) {
         boost::numeric::ublas::matrix_row<MATRIX_TYPE> current_row_data( _mutation_rates_matrix, current_row );
         
-        if ( sum(current_row_data) != 1 ) {
-            std::string tmp_str = "Error: individual mutation rates don't sum up to 1 for allele (row) " + std::to_string(current_row);
+        float tmp_sum = sum(current_row_data);
+        std::cout << tmp_sum << std::endl;
+        if ( tmp_sum != 1.0f ) {
+            std::string tmp_str = "Error: individual mutation rates from allele (row) " + std::to_string(current_row) + " sum up to " + std::to_string(tmp_sum) + " and not 1";
             throw tmp_str;
         }
-        
     }
     
     return true;
@@ -497,11 +498,19 @@ void CMulator::InitMemberVariables( ZParams zparams )
     
     try {
         _num_generations = zparams.GetInt(fits_constants::PARAM_NUM_GENERATIONS);
-        _generation_shift = zparams.GetInt(fits_constants::PARAM_GENERATION_SHIFT);
         _available_num_generations = true;
     }
     catch (...) {
         _available_num_generations = false;
+    }
+    
+    
+    
+    try {
+            _generation_shift = zparams.GetInt(fits_constants::PARAM_GENERATION_SHIFT);
+    }
+    catch (...) {
+        // TODO: say that we don't ahave shift.. not that it matters
     }
     
     // the following require number of alleles and generations
