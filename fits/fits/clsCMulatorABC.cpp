@@ -224,37 +224,16 @@ void clsCMulatorABC::NormalizePrior()
             
             auto sum_mutation_rates = sum(current_mutrate_row) - current_mutrate_row[current_row];
             
+            if ( sum_mutation_rates > 1.0f ) {
+                std::string tmp_str = "Sum of mutation rates from allele " + std::to_string(current_row) + " is greater than 1 (" + std::to_string(sum_mutation_rates) + ")";
+                throw tmp_str;
+            }
+            
             // if the samples mutation rate sum up to a value smaller than 1
             // then we need to make sure non-mutation event probability would
             // complement to 1.0
             if ( sum_mutation_rates < 1.0f ) {
-                //std::cout << "current mutation rate row: ";
-                //for ( auto val : current_mutrate_row ) std::cout << val << ", ";
-                //std::cout << std::endl;
-                
-                //std::cout << "Sum rates = " << sum_mutation_rates << std::endl;
-                
                 current_mutrate_row[current_row] = 1.0f - sum_mutation_rates;
-                
-                //std::cout << "normalized: ";
-                //for ( auto val : current_mutrate_row ) std::cout << val << ", ";
-                //std::cout << std::endl;
-            }
-            else {
-                // if the sampled mutation rates sum up to a value larger than 1,
-                // we'll normalize by the sum of values to reach sum of 1
-                //std::cout << "current mutation rate row: ";
-                //for ( auto val : current_mutrate_row ) std::cout << val << ", ";
-                //std::cout << std::endl;
-                
-                auto row_sum = sum(current_mutrate_row);
-                //std::cout << "Sum = " << row_sum << std::endl;
-                
-                current_mutrate_row = current_mutrate_row / row_sum;
-                
-                //std::cout << "normalized: ";
-                //for ( auto val : current_mutrate_row ) std::cout << val << ", ";
-                //std::cout << std::endl;
             }
             
             // fill the vector back with the normalized values
@@ -265,7 +244,6 @@ void clsCMulatorABC::NormalizePrior()
                 
                 _global_prior[current_prior_sample_idx][i] = std::log10( tmp_mutrates_matrix(row, col) );
             }
-            
         }
         
     } // mutation rate

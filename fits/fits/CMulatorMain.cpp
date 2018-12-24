@@ -172,6 +172,15 @@ int InferABC( FactorToInfer factor,
     if ( is_multi_position ) {
         
         // multiple positions
+        std::vector<
+        boost::accumulators::accumulator_set<
+        FLOAT_TYPE,
+        boost::accumulators::stats<
+        boost::accumulators::tag::median,
+        boost::accumulators::tag::variance,
+        boost::accumulators::tag::mean,
+        boost::accumulators::tag::min,
+        boost::accumulators::tag::max> >> distance_accumulator_vector;
         
         //std::vector< std::vector<FLOAT_TYPE>> global_prior(0);
         
@@ -257,6 +266,7 @@ int InferABC( FactorToInfer factor,
             if ( accepted_results_vector.empty() ) {
                 
                 accepted_results_vector.resize( global_prior.size() );
+                distance_accumulator_vector.resize( global_prior.size() );
                 // std::cout << "accepted results initialized to size " << accepted_results_vector.size() << std::endl;
                 // std::cout << "position results vector size " << position_results_vec.size() << std::endl;
                 
@@ -266,6 +276,7 @@ int InferABC( FactorToInfer factor,
                     auto result_idx = current_result.prior_sample_index;
                     //std::cout << "prior sample index:" << result_idx << std::endl;
                     
+                    distance_accumulator_vector[result_idx](current_result.distance_from_actual);
                     current_result.SetMultiPosition(true);
                     current_result.pos = current_position_num;
                     current_result.sum_distance = current_result.distance_from_actual;
@@ -299,6 +310,8 @@ int InferABC( FactorToInfer factor,
                     // std::cout << " for fitness: ";
                     // for ( auto val : current_result.fitness_values ) std::cout << val << ",";
                     
+                    distance_accumulator_vector[result_idx](current_result.distance_from_actual);
+                    
                     current_result.SetMultiPosition(true);
                     current_result.pos = current_position_num;
                     accepted_results_vector[result_idx].sum_distance += current_result.distance_from_actual;
@@ -312,8 +325,6 @@ int InferABC( FactorToInfer factor,
                     
                     // std::cout << "\t new distance=" << accepted_results_vector[result_idx].sum_distance << std::endl;
                 }
-             
-                
             }
             std::cout << "Done." << std::endl;
             
