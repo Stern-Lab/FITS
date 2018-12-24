@@ -390,7 +390,7 @@ public:
     std::string GetAllOutputAsText( bool header = true, std::string delimiter = fits_constants::FILE_FIELD_DELIMITER ) const;
     
     MATRIX_TYPE GetAllOutputAsMatrix() const;
-    MATRIX_TYPE GetAllOutputAsMatrix( std::vector<int> actual_generations ) const;
+    MATRIX_TYPE GetAllOutputAsMatrix( const std::vector<int>& actual_generations ) const;
     
 
     std::vector<FLOAT_TYPE> GetRawFrequencyData();

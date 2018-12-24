@@ -310,11 +310,13 @@ std::string ResultsStats::GetSummaryHeader()
     return ss.str();
 }
 
+
 FLOAT_TYPE ResultsStats::GetMedian( std::vector<FLOAT_TYPE> vec )
 {
     auto median_idx = std::floor(vec.size() / 2);
     
-    std::nth_element( vec.begin(), vec.begin()+median_idx, vec.end() );
+    std::partial_sort( vec.begin(), vec.begin()+median_idx+1, vec.end() );
+    //std::nth_element( vec.begin(), vec.begin()+median_idx, vec.end() );
     
     if ( vec.size() % 2 == 0 ) {
         return ( vec[median_idx] + vec[median_idx-1] ) / 2;
@@ -327,10 +329,10 @@ int ResultsStats::GetMedian( std::vector<int> vec )
 {
     auto median_idx = std::floor(vec.size() / 2);
     
-    
     //std::cout << " median idx=" << median_idx << std::endl;
     
-    std::nth_element( vec.begin(), vec.begin()+median_idx, vec.end() );
+    std::partial_sort( vec.begin(), vec.begin()+median_idx+1, vec.end() );
+    //std::nth_element( vec.begin(), vec.begin()+median_idx, vec.end() );
     
     if ( vec.size() % 2 == 0 ) {
         //std::cout << " median value=" << ( vec[median_idx] + vec[median_idx-1] ) / 2 << std::endl;

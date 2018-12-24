@@ -44,7 +44,7 @@ MATRIX_TYPE CMulator::GetAllOutputAsMatrix() const
 }
 
 
-MATRIX_TYPE CMulator::GetAllOutputAsMatrix( std::vector<int> actual_generations ) const
+MATRIX_TYPE CMulator::GetAllOutputAsMatrix( const std::vector<int>& actual_generations ) const
 {
     auto rows_to_return = actual_generations.size();
     

@@ -31,6 +31,7 @@ void ResultsStats::CalculateStatsMutation()
     boost::accumulators::stats<
     boost::accumulators::tag::variance,
     boost::accumulators::tag::mean,
+    boost::accumulators::tag::median,
     boost::accumulators::tag::min,
     boost::accumulators::tag::max> > acc_distance;
     
@@ -39,6 +40,7 @@ void ResultsStats::CalculateStatsMutation()
     boost::accumulators::stats<
     boost::accumulators::tag::variance,
     boost::accumulators::tag::mean,
+    boost::accumulators::tag::median,
     boost::accumulators::tag::min,
     boost::accumulators::tag::max> > > acc_matrix(_num_alleles,_num_alleles);
     
@@ -76,7 +78,9 @@ void ResultsStats::CalculateStatsMutation()
             
             mean_mutation_rates(row,col) = boost::accumulators::mean( acc_matrix(row,col) );
             
-            median_mutation_rates(row,col) = GetMedian(median_matrix(row,col));
+            
+            // median_mutation_rates(row,col) = GetMedian(median_matrix(row,col));
+            median_mutation_rates(row,col) = boost::accumulators::median( acc_matrix(row,col) );
         }
     }
     

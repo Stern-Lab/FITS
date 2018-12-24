@@ -860,7 +860,7 @@ bool IsInferenceRun( std::string first_argument )
 
 int main(int argc, char* argv[])
 {
-    
+ 
     if (argc <= 1) {
         print_welcome();
         print_syntaxes(argv[0]);

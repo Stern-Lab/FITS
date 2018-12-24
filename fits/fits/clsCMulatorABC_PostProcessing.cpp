@@ -57,6 +57,7 @@ std::vector<int> clsCMulatorABC::GetUniqueIndexSet( int num_items )
 
 // Calculate Median Absolute Deviation (MAD)
 // This is used for scaling frequencies
+/*
 std::vector<FLOAT_TYPE> clsCMulatorABC::GetMADPerAllele( std::size_t start_idx, std::size_t end_idx )
 {
     
@@ -104,8 +105,9 @@ std::vector<FLOAT_TYPE> clsCMulatorABC::GetMADPerAllele( std::size_t start_idx, 
     
     return allele_mad_vec;
 }
+*/
 
-
+/*
 std::vector<FLOAT_TYPE> clsCMulatorABC::GetSDPerAllele( std::size_t start_idx, std::size_t end_idx )
 {
     
@@ -116,6 +118,7 @@ std::vector<FLOAT_TYPE> clsCMulatorABC::GetSDPerAllele( std::size_t start_idx, s
     boost::accumulators::stats<
     boost::accumulators::tag::variance,
     boost::accumulators::tag::mean,
+    boost::accumulators::tag::median,
     boost::accumulators::tag::min,
     boost::accumulators::tag::max> > > allele_accumulator_vec;
     
@@ -140,11 +143,12 @@ std::vector<FLOAT_TYPE> clsCMulatorABC::GetSDPerAllele( std::size_t start_idx, s
     
     return allele_sd_vec;
 }
-
+*/
 
 // for a given dataset, sum the number of results in which the inferred parameter value is smaller than the actual
 // parameter values used to generate the dataset
 // NOTE: assumes that pseudo-data sets are contiguous (e.g. first 100) and the reset of sims is contiguous
+/*
 std::vector<unsigned int>
 clsCMulatorABC::CoverageSingleDatasetFitness( std::size_t dataset_idx, std::size_t start_idx, std::size_t end_idx ) const
 {
@@ -163,3 +167,4 @@ clsCMulatorABC::CoverageSingleDatasetFitness( std::size_t dataset_idx, std::size
     
     return local_fitness_underestimate_count_vec;
 }
+*/

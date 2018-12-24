@@ -95,7 +95,7 @@ private:
         _distrib_matrix(19,0) = 0.085f;  _distrib_matrix(19,1) = 0.95f;
         
         _distrib_matrix(20,0) = 0.1;     _distrib_matrix(20,1) = 1.00f;
-        _distrib_matrix(21,0) = 0.05;    _distrib_matrix(21,1) = 1.00f + std::numeric_limits<FLOAT_TYPE>::epsilon(); // used to be 0.05
+        _distrib_matrix(21,0) = 0.05;    _distrib_matrix(21,1) = 1.05f;
         _distrib_matrix(22,0) = 0.03;    _distrib_matrix(22,1) = 1.10f;
         _distrib_matrix(23,0) = 0.02;    _distrib_matrix(23,1) = 1.15f;
         _distrib_matrix(24,0) = 0.02;    _distrib_matrix(24,1) = 1.20f;
@@ -295,7 +295,7 @@ private:
                             auto tmp_max = fitness_composite_val_col(tmp_idx+1);
                             
                             // it's important that we'll sample Lethals and Neutral as exactly 0 and 1 to provide informative inference
-                            if ( tmp_min == tmp_max || tmp_min == 0.0f || tmp_min == 1.0f ) {
+                            if ( tmp_min == tmp_max || tmp_min == 0.0f ) {
                                 tmp_val = tmp_min;
                             }
                             else {

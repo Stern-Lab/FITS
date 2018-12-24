@@ -418,12 +418,19 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     auto scaling_option_str = _zparams.GetString( fits_constants::PARAM_SCALING,
                                                  fits_constants::PARAM_SCALING_DEFAULT );
     
+    
     if ( scaling_option_str.compare(fits_constants::PARAM_SCALING_SD) == 0 ) {
-        scaling_vector = GetSDPerAllele(0, _simulation_result_vector.size());
+        std::string tmp_str = "Not scaling SD";
+        throw tmp_str;
+        
+        // scaling_vector = GetSDPerAllele(0, _simulation_result_vector.size());
     }
     
     if ( scaling_option_str.compare(fits_constants::PARAM_SCALING_MAD) == 0) {
-        scaling_vector = GetMADPerAllele(0, _simulation_result_vector.size());
+        std::string tmp_str = "Not scaling MAD";
+        throw tmp_str;
+        
+        // scaling_vector = GetMADPerAllele(0, _simulation_result_vector.size());
     }
     
     

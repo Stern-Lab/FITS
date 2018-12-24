@@ -45,6 +45,7 @@ void ResultsStats::CalculateStatsFitness()
     boost::accumulators::stats<
     boost::accumulators::tag::variance,
     boost::accumulators::tag::mean,
+    boost::accumulators::tag::median,
     boost::accumulators::tag::min,
     boost::accumulators::tag::max> > > acc_vec_fitness(_num_alleles);
 
@@ -140,7 +141,9 @@ void ResultsStats::CalculateStatsFitness()
         allele_max_fitness[current_allele] = boost::accumulators::max(acc_vec_fitness[current_allele]);
         allele_min_fitness[current_allele] = boost::accumulators::min(acc_vec_fitness[current_allele]);
         
-        allele_median_fitness[current_allele] = GetMedian( allele_fitness_storage[current_allele] );
+        
+        // allele_median_fitness[current_allele] = GetMedian( allele_fitness_storage[current_allele] );
+        allele_median_fitness[current_allele] = boost::accumulators::median(acc_vec_fitness[current_allele]);
         
         // calculate Bayesian pval - P(w<1|data)
         allele_pval[current_allele] =
@@ -443,13 +446,13 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
             //Nu_flag = true;
         }
         
-        ss << boost::format("%-10.3d") % allele_median_fitness[current_allele];
-        ss << boost::format("%-10.3d") % allele_mean_fitness[current_allele];
-        ss << boost::format("%-10.3d") % allele_min_fitness[current_allele];
-        ss << boost::format("%-10.3d") % allele_max_fitness[current_allele];
-        ss << boost::format("%-10.3d") % deleterious_percent[current_allele];
-        ss << boost::format("%-10.3d") % neutral_percent[current_allele];
-        ss << boost::format("%-10.3d") % advantageous_percent[current_allele];
+        ss << boost::format("%-10.3f") % allele_median_fitness[current_allele];
+        ss << boost::format("%-10.3f") % allele_mean_fitness[current_allele];
+        ss << boost::format("%-10.3f") % allele_min_fitness[current_allele];
+        ss << boost::format("%-10.3f") % allele_max_fitness[current_allele];
+        ss << boost::format("%-10.1f") % deleterious_percent[current_allele];
+        ss << boost::format("%-10.1f") % neutral_percent[current_allele];
+        ss << boost::format("%-10.1f") % advantageous_percent[current_allele];
         ss << boost::format("%-10s") % AlleleCategory2String(allele_category[current_allele]);
         //ss << boost::format("%-10.3d") % _distance_min;
         //ss << boost::format("%-10.3d") % _distance_max;

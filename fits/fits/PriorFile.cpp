@@ -36,15 +36,24 @@ _prior_entry_vec(0)
             std::vector<std::string> line_fields;
             try {
                 boost::split(line_fields, tmp_line, boost::is_any_of( fits_constants::FILE_FIELD_DELIMITER ));
+                expected_num_columns = line_fields.size();
             }
             catch (...) {
                 std::string tmp_str = "Error while parsing prior file to columns. Header line:\n" + tmp_line;
                 throw tmp_str;
             }
             
+            if ( line_fields.size() != 2 ) {
+                std::string tmp_str = "Error while reading data file (line " + std::to_string(current_line_num) +
+                "): line contains " + std::to_string(line_fields.size())  + " columns, expected " + std::to_string(expected_num_columns) + ".\n";
+                
+                throw tmp_str;
+            }
+            
             is_first_line = false;
             continue;
         }
+        
         
         std::vector<std::string> line_fields;
         try {
@@ -55,13 +64,13 @@ _prior_entry_vec(0)
             throw tmp_str;
         }
         
-        
-        if ( line_fields.size() < 2 ) {
+        if ( line_fields.size() != 2 ) {
             std::string tmp_str = "Error while reading data file (line " + std::to_string(current_line_num) +
             "): line contains " + std::to_string(line_fields.size())  + " columns, expected " + std::to_string(expected_num_columns) + ".\n";
             
             throw tmp_str;
         }
+        
         
         PriorFileEntry tmp_prior_entry;
         try {

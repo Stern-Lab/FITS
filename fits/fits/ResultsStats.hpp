@@ -43,6 +43,7 @@
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/statistics/max.hpp>
 #include <boost/accumulators/statistics/min.hpp>
+#include <boost/accumulators/statistics/median.hpp>
 #include <boost/format.hpp>
 #include <boost/locale.hpp>
 
