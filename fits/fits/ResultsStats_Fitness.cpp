@@ -385,7 +385,7 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
     }
     
     if ( !table_only ) {
-        auto prior_str = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
+        auto prior_str = _zparams.GetString( fits_constants::PARAM_FITNESS_PRIOR_DISTRIB,
                                           fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
         
         ss << "Prior used: " << prior_str << std::endl;

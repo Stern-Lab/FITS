@@ -57,7 +57,7 @@ std::vector<int> clsCMulatorABC::GetUniqueIndexSet( int num_items )
 
 // Calculate Median Absolute Deviation (MAD)
 // This is used for scaling frequencies
-/*
+
 std::vector<FLOAT_TYPE> clsCMulatorABC::GetMADPerAllele( std::size_t start_idx, std::size_t end_idx )
 {
     
@@ -105,9 +105,9 @@ std::vector<FLOAT_TYPE> clsCMulatorABC::GetMADPerAllele( std::size_t start_idx, 
     
     return allele_mad_vec;
 }
-*/
 
-/*
+
+
 std::vector<FLOAT_TYPE> clsCMulatorABC::GetSDPerAllele( std::size_t start_idx, std::size_t end_idx )
 {
     
@@ -143,7 +143,7 @@ std::vector<FLOAT_TYPE> clsCMulatorABC::GetSDPerAllele( std::size_t start_idx, s
     
     return allele_sd_vec;
 }
-*/
+
 
 // for a given dataset, sum the number of results in which the inferred parameter value is smaller than the actual
 // parameter values used to generate the dataset

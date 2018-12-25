@@ -71,7 +71,7 @@ _verbose_output(false)
     
     switch (_factor_to_infer) {
         case Fitness: {
-            auto tmp_prior = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
+            auto tmp_prior = _zparams.GetString( fits_constants::PARAM_FITNESS_PRIOR_DISTRIB,
                                                 fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
             
             if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) == 0 ) {
@@ -416,15 +416,15 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     
     
     if ( scaling_option_str.compare(fits_constants::PARAM_SCALING_SD) == 0 ) {
-        std::string tmp_str = "Not scaling SD";
-        throw tmp_str;
+        //std::string tmp_str = "Not scaling SD";
+        //throw tmp_str;
         
-        // scaling_vector = GetSDPerAllele(0, _simulation_result_vector.size());
+        scaling_vector = GetSDPerAllele(0, _simulation_result_vector.size());
     }
     
     if ( scaling_option_str.compare(fits_constants::PARAM_SCALING_MAD) == 0) {
-        std::string tmp_str = "Not scaling MAD";
-        throw tmp_str;
+        //std::string tmp_str = "Not scaling MAD";
+        //throw tmp_str;
         
         // scaling_vector = GetMADPerAllele(0, _simulation_result_vector.size());
     }
