@@ -36,12 +36,6 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( c
     */
     
     local_sim_object.AssertAbleToInferPopulationSize();
-    /*
-    if ( !local_sim_object.IsAbleToInferPopulationSize() ) {
-        std::cerr << "Not enough parameters to infer population size" << std::endl;
-        throw "Not enough parameters to infer population size";
-    }
-    */
     
     // set initial frequencies from actual data
     auto init_freq_vec = _actual_data_position.GetInitFreqs();
@@ -49,8 +43,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( c
         local_sim_object.SetAlleleInitFreq(i, init_freq_vec[i]);
     }
     
-    auto first_generation = _actual_data_position.GetFirstGeneration();
-    auto last_generation = _actual_data_position.GetLastGeneration();
+    //auto first_generation = _actual_data_position.GetFirstGeneration();
+    //auto last_generation = _actual_data_position.GetLastGeneration();
     // auto num_generations = last_generation - first_generation + 1;
     // local_sim_object.SetGenerationShift(first_generation);
     // local_sim_object.SetNumOfGeneration(num_generations);

@@ -122,7 +122,7 @@ void ZParams::AddParameter( const std::string paramName, const std::string value
 {
     if ( _read_only && _is_initialized ) {
         std::string err_msg = "ZParams: Read only. Cannot add parameters.";
-        throw err_msg.c_str();
+        throw err_msg;
     }
     
     std::pair<std::string, std::string> tmp_pair(paramName, value);

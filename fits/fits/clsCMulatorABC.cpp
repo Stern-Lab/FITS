@@ -98,16 +98,12 @@ _verbose_output(false)
             
             if ( prior_distribution.empty() ) {
                 
-                if (_verbose_output) {
-                    std::cout << "Sampling from prior... " << std::flush;
-                }
+                std::cout << "Sampling from prior... " << std::flush;
                 
                 PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
                 _global_prior = sampler.SamplePrior(_repeats);
                 
-                if (_verbose_output) {
-                    std::cout << "Done." << std::endl;
-                }
+                std::cout << "Done." << std::endl;
             }
             else {
                 _global_prior = prior_distribution;

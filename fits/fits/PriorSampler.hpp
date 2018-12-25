@@ -57,6 +57,10 @@ public:
 private:
     std::vector<C> _min_vector;
     std::vector<C> _max_vector;
+    
+    boost::numeric::ublas::matrix<C> _min_matrix;
+    boost::numeric::ublas::matrix<C> _max_matrix;
+    
     PriorDistributionType _distrib_type;
     
     FLOAT_TYPE _log_normal_sigma, _log_normal_mu, _log_normal_lethal;
@@ -180,6 +184,9 @@ public:
             throw "Prior sampler: size of matrices do not match.";
         }
         
+        _max_matrix = max_matrix;
+        _min_matrix = min_matrix;
+        
         for ( auto row=0; row<min_matrix.size1(); ++row ) {
             for ( auto col=0; col<min_matrix.size2(); ++col ) {
                 _min_vector.push_back( min_matrix(row,col) );
@@ -187,6 +194,7 @@ public:
             }
         }
     }
+    
     
     PriorSampler( PriorSampler<C> &original ) :
     _log_normal_mu(original._log_normal_mu), _log_normal_sigma(original._log_normal_sigma), _log_normal_lethal(original._log_normal_lethal),
@@ -197,6 +205,51 @@ public:
     {
         _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
         _rnd_gen.seed(_rnd_seed);
+    }
+    
+    
+    std::vector< boost::numeric::ublas::matrix<C> > SamplePriorAsMatrix( std::size_t num_samples, bool sum1_diagonal )
+    {
+        std::vector< boost::numeric::ublas::matrix<C> > tmp_matrix_vector;
+        
+        for ( auto current_sample=0; current_sample<num_samples; ++current_sample ) {
+            
+            boost::numeric::ublas::matrix<C> tmp_matrix( _min_matrix.size1(), _min_matrix.size2() );
+            
+            for ( auto current_row=0; current_row<tmp_matrix.size1(); ++current_row ) {
+                
+                for ( auto current_col=0; current_col<tmp_matrix.size2(); ++current_col ) {
+                    
+                    auto min_val = _min_matrix(current_row, current_col);
+                    auto max_val = _max_matrix(current_row, current_col);
+                    
+                    tmp_matrix(current_row, current_col) = SampleFromDistribution( min_val, max_val );
+                }
+                
+                if (sum1_diagonal) {
+                    
+                    boost::numeric::ublas::matrix_row<MATRIX_TYPE> current_mutrate_row( tmp_matrix, current_row );
+                    
+                    auto sum_mutation_rates = sum(current_mutrate_row) - current_mutrate_row[current_row];
+                    
+                    if ( sum_mutation_rates > 1.0f ) {
+                        std::string tmp_str = "Sum of mutation rates from allele " + std::to_string(current_row) + " is greater than 1 (" + std::to_string(sum_mutation_rates) + ")";
+                        throw tmp_str;
+                    }
+                    
+                    // if the samples mutation rate sum up to a value smaller than 1
+                    // then we need to make sure non-mutation event probability would
+                    // complement to 1.0
+                    if ( sum_mutation_rates < 1.0f ) {
+                        current_mutrate_row[current_row] = 1.0f - sum_mutation_rates;
+                    }
+                }
+            }
+            
+            tmp_matrix_vector.push_back( tmp_matrix );
+        }
+        
+        return tmp_matrix_vector;
     }
     
     // TODO: write special method for matrix/vector/single sampling

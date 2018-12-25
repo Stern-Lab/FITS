@@ -505,7 +505,6 @@ void CMulator::InitMemberVariables( ZParams zparams )
     }
     
     
-    
     try {
             _generation_shift = zparams.GetInt(fits_constants::PARAM_GENERATION_SHIFT);
     }
