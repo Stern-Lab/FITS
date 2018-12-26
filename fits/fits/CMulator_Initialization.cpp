@@ -34,7 +34,7 @@ bool CMulator::InitMutationRates( ZParams zparams )
     // first, check if we need to use a single value
     auto single_mutation_rate = zparams.GetDouble( fits_constants::PARAM_SINGLE_MUTATION_RATE, 0.0f );
     
-    if ( single_mutation_rate != 0.0f ) {
+    if ( single_mutation_rate > 0.0f ) {
         
         _use_single_mutation_rate = true;
         
@@ -86,6 +86,12 @@ bool CMulator::InitMutationRates( ZParams zparams )
             
             std::string current_mutation_rate_str = fits_constants::PARAM_MUTATION_RATE + std::to_string(from_allele) + "_" + std::to_string(to_allele);
             
+            // we would later complete this to 1, don't actually need to read this value
+            if ( from_allele == to_allele ) {
+                _mutation_rates_matrix.at_element(from_allele, to_allele) = 0.0f;
+                continue;
+            }
+            
             if ( !zparams.IsParameterFound( current_mutation_rate_str ) ) {
                 // if we reached here, single is not found AND specific mutation rate is not found
                 return false;
@@ -99,26 +105,16 @@ bool CMulator::InitMutationRates( ZParams zparams )
             //sanity_mutation_rate_sum += tmp_mutation_rate;
         }
         
-        
-        
-        /*
-        if ( std::fabs(1.0f - sanity_mutation_rate_sum ) > _epsilon_float_compare ) {
-            std::cerr << "Warning: Mutation rates don't sum up to 1.0: " << sanity_mutation_rate_sum
-            << ". Delta is " << 1.0 - sanity_mutation_rate_sum << " and epsilon is " << _epsilon_float_compare << std::endl;
-            //throw( _name_of_run + ": Mutation rates don't sum up to 1.0: " + std::to_string(sanity_mutation_rate_sum) );
-        }
-         */
     }// finished loading individual mutation rates
     
+    // instead of making sure this == 1 calculate the diagonal such that it does
     for ( auto current_row = 0; current_row < _mutation_rates_matrix.size2(); ++current_row ) {
         boost::numeric::ublas::matrix_row<MATRIX_TYPE> current_row_data( _mutation_rates_matrix, current_row );
         
-        float tmp_sum = sum(current_row_data);
-        std::cout << tmp_sum << std::endl;
-        if ( tmp_sum != 1.0f ) {
-            std::string tmp_str = "Error: individual mutation rates from allele (row) " + std::to_string(current_row) + " sum up to " + std::to_string(tmp_sum) + " and not 1";
-            throw tmp_str;
-        }
+        auto row_sum = sum(current_row_data) - current_row_data[current_row];
+        auto diagonal_value = 1.0f - row_sum;
+        
+        current_row_data[current_row] = diagonal_value;
     }
     
     return true;
@@ -357,7 +353,13 @@ bool CMulator::InitFitnessValues( ZParams zparams )
             return false;
         }
         
-        _allele_fitness[current_allele_num] = zparams.GetFloat(current_allele_fitness_str);
+        try {
+            _allele_fitness[current_allele_num] = zparams.GetFloat(current_allele_fitness_str);
+        }
+        catch (...) {
+            return false;
+        }
+        
         
         if ( _allele_fitness[current_allele_num] < 0 ) {
             //std::cerr << "Missing fitness value for allele " << current_allele_num << std::endl;

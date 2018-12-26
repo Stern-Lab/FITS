@@ -426,7 +426,7 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         //std::string tmp_str = "Not scaling MAD";
         //throw tmp_str;
         
-        // scaling_vector = GetMADPerAllele(0, _simulation_result_vector.size());
+        scaling_vector = GetMADPerAllele(0, _simulation_result_vector.size());
     }
     
     

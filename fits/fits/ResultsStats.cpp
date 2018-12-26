@@ -243,6 +243,10 @@ FLOAT_TYPE ResultsStats::LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vect
     
     //auto numerator = static_cast<float>( (N-k)*( N1*(Z1-Z0)*(Z1-Z0) + N2*(Z2-Z0)*(Z2-Z0) ) );
     auto numerator = static_cast<FLOAT_TYPE>( (N-k)*( N1*std::pow(Z1-Z0, 2) + N2*std::pow(Z2-Z0, 2) ) );
+    if ( numerator <= 0 ) {
+        std::string tmp_str = "Error in Levene's test - numerator is not positive (" + std::to_string(numerator) + ")";
+        throw tmp_str;
+    }
     
     // sum for each group
     FLOAT_TYPE sum_diff_group1 = 0.0f;
@@ -257,7 +261,10 @@ FLOAT_TYPE ResultsStats::LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vect
     
     // final result
     auto denominator = static_cast<FLOAT_TYPE>(k-1.0f)*( sum_diff_group1 + sum_diff_group2 );
-    
+    if ( denominator <= 0 ) {
+        std::string tmp_str = "Error in Levene's test - denominator is not positive (" + std::to_string(denominator) + ")";
+        throw tmp_str;
+    }
     auto W = numerator / denominator;
     
     // quantile of the F distribution is F( alpha=0.05, k-1 degrees, N-k degrees )

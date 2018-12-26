@@ -151,6 +151,7 @@ public:
     double _pop_min;
     double _pop_max;
     double _pop_mean;
+    double _pop_mad;
     double _pop_sd;
     double _pop_median;
     
@@ -186,6 +187,7 @@ public:
     std::vector<FLOAT_TYPE> allele_mean_fitness;
     std::vector<FLOAT_TYPE> allele_sd_fitness;
     std::vector<FLOAT_TYPE> allele_median_fitness;
+    std::vector<FLOAT_TYPE> allele_mad;
     
     std::vector<FLOAT_TYPE> allele_min_fitness;
     std::vector<FLOAT_TYPE> allele_max_fitness;
@@ -223,6 +225,7 @@ public:
     boost::numeric::ublas::matrix<FLOAT_TYPE> min_mutation_rates;
     boost::numeric::ublas::matrix<FLOAT_TYPE> max_mutation_rates;
     boost::numeric::ublas::matrix<FLOAT_TYPE> mean_mutation_rates;
+    boost::numeric::ublas::matrix<FLOAT_TYPE> mad_mutation_rates;
     boost::numeric::ublas::matrix<FLOAT_TYPE> median_mutation_rates;
     boost::numeric::ublas::matrix<FLOAT_TYPE> normalized_median_mutation_rates;
     
@@ -231,6 +234,7 @@ public:
     int min_population_size;
     int mean_population_size;
     int median_population_size;
+    int mad_population_size;
     int normalized_median_population_size;
     
     void WriteStringToFile( std::string filename, std::string str );

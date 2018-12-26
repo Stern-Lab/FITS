@@ -365,7 +365,7 @@ public:
 	
 	FLOAT_TYPE GetMutationRate( int from, int to ) const;
     
-    void SetMutationRateMatrix( MATRIX_TYPE new_mutation_matrix );
+    void SetMutationRateMatrix( const MATRIX_TYPE& new_mutation_matrix );
     MATRIX_TYPE GetMutationRateMatrix() const;
     INT_MATRIX GetMinMutationRateMatrix() const;
     INT_MATRIX GetMaxMutationRateMatrix() const;

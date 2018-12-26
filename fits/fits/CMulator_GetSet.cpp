@@ -397,7 +397,7 @@ void CMulator::SetRandomSeed(unsigned int new_seed)
 }
 
 
-void CMulator::SetMutationRateMatrix( MATRIX_TYPE new_mutation_matrix )
+void CMulator::SetMutationRateMatrix( const MATRIX_TYPE& new_mutation_matrix )
 {
     // TODO: check that rates are summed to 1
     // TODO: update some dirty bit

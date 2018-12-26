@@ -32,6 +32,8 @@ void ResultsStats::CalculateStatsFitness()
     MATRIX_TYPE posterior_matrix( _num_results, _num_alleles );
     MATRIX_TYPE prior_matrix( _num_results, _num_alleles );
     
+    
+    
     boost::accumulators::accumulator_set<
     FLOAT_TYPE,
     boost::accumulators::stats<
@@ -90,10 +92,10 @@ void ResultsStats::CalculateStatsFitness()
     }
     
     
-    // Boost does not calculate Median well, so doing it manually
+    
     std::vector< std::vector<FLOAT_TYPE> > allele_fitness_storage( _num_alleles );
     
-    for (auto current_sim_index=0; current_sim_index<_num_results; ++current_sim_index ) {
+    for (auto current_sim_index=0; current_sim_index<_result_vector.size(); ++current_sim_index ) {
         
         auto current_sim_data = _result_vector[current_sim_index];
         
@@ -156,17 +158,22 @@ void ResultsStats::CalculateStatsFitness()
     // Calculate MAD for the alleles
     
     // start with distances
-    std::vector< std::vector<FLOAT_TYPE> > allele_distance_vec( _num_alleles );
+    //std::vector< std::vector<FLOAT_TYPE> > allele_distance_vec( _num_alleles );
     
-    for ( auto current_allele=0; current_allele<allele_distance_vec.size(); ++current_allele ) {
-        for ( auto val : allele_fitness_storage[current_allele] ) {
-            allele_distance_vec[current_allele].push_back( std::fabs(val - allele_median_fitness[current_allele] ) );
+    for ( auto current_allele=0; current_allele<allele_median_fitness.size(); ++current_allele ) {
+        
+        boost::accumulators::accumulator_set<
+        FLOAT_TYPE,
+        boost::accumulators::stats<
+        boost::accumulators::tag::median > > acc_distance_for_mad;
+        
+        for ( auto current_fitness : allele_fitness_storage[current_allele] ) {
+            // allele_distance_vec[current_allele].push_back( std::fabs(current_fitness - allele_median_fitness[current_allele] ) );
+            // allele_MAD[current_allele] = GetMedian( allele_distance_vec[current_allele] );
+            acc_distance_for_mad( std::fabs(current_fitness - allele_median_fitness[current_allele] ) );
         }
-    }
-    
-    // calculate median distance
-    for ( auto current_allele=0; current_allele<allele_distance_vec.size(); ++current_allele ) {
-        allele_MAD[current_allele] = GetMedian( allele_distance_vec[current_allele] );
+        
+        allele_MAD[current_allele] = boost::accumulators::median(acc_distance_for_mad);
     }
 
     
@@ -209,6 +216,7 @@ void ResultsStats::CalculateStatsFitness()
     
                                                                                                             
     // get settings for min and max fitness limits for prior
+    /*
     MATRIX_TYPE fitness_limits_matrix(2, _num_alleles);
     for ( auto current_allele=0; current_allele<_num_alleles; ++current_allele ) {
         std::string current_allele_fitness_str = fits_constants::PARAM_ALLELE_FITNESS + std::to_string(current_allele);
@@ -224,6 +232,7 @@ void ResultsStats::CalculateStatsFitness()
             throw "Missing fitness value for allele " + std::to_string(current_allele);
         }
     }
+     */
     
     // auto num_prior_samples = _zparams.GetInt(fits_constants::PARAM_SIM_REPEATS);
     
@@ -291,8 +300,22 @@ void ResultsStats::CalculateStatsFitness()
         //auto partial_allele_prior_vec = whole_allele_prior_vec;
         //auto partial_allele_prior_vec = DownsampleVector( whole_allele_prior_vec, current_allele_posterior_vec.size() );
         //std::cout << "size of partial prior vec: " << current_allele_prior_vec.size() << "  posterior vec: " << current_allele_posterior_vec.size() << std::endl;
-        
-        auto levenes_p = LevenesTest2( current_allele_posterior_vec, current_allele_prior_vec );
+        FLOAT_TYPE levenes_p = -1.0f;
+        try {
+            levenes_p = LevenesTest2( current_allele_posterior_vec, current_allele_prior_vec );
+        }
+        catch ( const char* str ) {
+            std::string tmp_str = "Error while calculating Levene's test: " + std::string(str);
+            throw tmp_str;
+        }
+        catch ( std::string str ) {
+            std::string tmp_str = "Error while calculating Levene's test: " + str;
+            throw tmp_str;
+        }
+        catch (...) {
+            std::string tmp_str = "Unknown error while calculating Levene's test.";
+            throw tmp_str;
+        }
         
         levenes_pval[current_allele] = levenes_p;
     }
@@ -355,7 +378,6 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
         auto tmp_scaling_str = _zparams.GetString( fits_constants::PARAM_SCALING,
                                                   fits_constants::PARAM_SCALING_DEFAULT );
         
-        
         if ( tmp_scaling_str.compare(fits_constants::PARAM_SCALING_OFF) == 0 ) {
             // ss << "Data has not been scaled" << std::endl;
         }
@@ -407,13 +429,14 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
         ss << "--------------------" << std::endl;
     }
     
-    
+    // allele_MAD
     
     // TABLE PRINTING
     
     ss << boost::format("%-10s") % "allele";
     ss << boost::format("%-10s") % "median";
-    ss << boost::format("%-10s") % "mean";
+    ss << boost::format("%-10s") % "MAD";
+    // ss << boost::format("%-10s") % "mean";
     ss << boost::format("%-10s") % "low";
     ss << boost::format("%-10s") % "high";
     ss << boost::format("%-10s") % "DEL(%)";
@@ -422,7 +445,7 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
     ss << boost::format("%-10s") % "category";
     //ss << boost::format("%-10s") % "minldist";
     //ss << boost::format("%-10s") % "maxldist";
-    //ss << boost::format("%-10s") % "MAD";
+    //
     ss << boost::format("%-10s") % "pval";
     ss << std::endl;
     
@@ -447,7 +470,8 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
         }
         
         ss << boost::format("%-10.3f") % allele_median_fitness[current_allele];
-        ss << boost::format("%-10.3f") % allele_mean_fitness[current_allele];
+        ss << boost::format("%-10.3f") % allele_MAD[current_allele];
+         // ss << boost::format("%-10.3f") % allele_mean_fitness[current_allele];
         ss << boost::format("%-10.3f") % allele_min_fitness[current_allele];
         ss << boost::format("%-10.3f") % allele_max_fitness[current_allele];
         ss << boost::format("%-10.1f") % deleterious_percent[current_allele];

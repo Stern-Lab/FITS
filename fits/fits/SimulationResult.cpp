@@ -206,7 +206,7 @@ std::vector<FLOAT_TYPE> SimulationResult::GetSDForEachAllele()
         boost::accumulators::accumulator_set<
         FLOAT_TYPE,
         boost::accumulators::stats<
-        //boost::accumulators::tag::median,
+        boost::accumulators::tag::median,
         boost::accumulators::tag::variance,
         boost::accumulators::tag::mean,
         boost::accumulators::tag::min,

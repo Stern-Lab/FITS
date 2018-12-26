@@ -42,7 +42,7 @@ enum FactorToInfer {
 namespace fits_constants {
     
     /* GENERAL */
-    const std::string current_version_str = "1.1.9";
+    const std::string current_version_str = "1.1.10";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
     const std::string FILE_FIELD_DELIMITER = "\t";
     
@@ -63,12 +63,6 @@ namespace fits_constants {
     /* PARAMETERS */
     
     /* General */
-    const std::string PARAM_INFERENCE_ARG = "infer"; // will be used instead of command line args
-    const std::string PARAM_INFERENCE_ARG_FITNESS = "fitness";
-    const std::string PARAM_INFERENCE_ARG_MUTATION = "mutation";
-    const std::string PARAM_INFERENCE_ARG_POPSIZE = "popsize";
-    const std::string PARAM_INFERENCE_ARG_EMPTY = "";
-    
     const std::string PARAM_DUMP_PARAMETERS = "dump_all_parameteres";
     
     /* Population Size */
@@ -88,7 +82,7 @@ namespace fits_constants {
     
     const std::string PARAM_REJECTION_THRESHOLD = "rejection_threshold";
     
-    const std::string PARAM_IMEMDIATE_REJECTION = "immediate_rejection";
+    // const std::string PARAM_IMEMDIATE_REJECTION = "immediate_rejection";
     
     const std::string PARAM_GENERATION_SHIFT = "generation_shift";
     
@@ -100,7 +94,6 @@ namespace fits_constants {
     const int PARAM_NUM_ALLELES_DEFAULT = -1;
     
     const std::string PARAM_ALLELE_INIT_FREQ = "init_freq_allele";
-    //const std::string PARAM_ALLELE_NO_INIT_FREQS = "no_init_freqs_as_parameters"; // assume it will be provided later
     
     
     /* Mutation Rates */
@@ -144,8 +137,8 @@ namespace fits_constants {
     const std::string PARAM_ACCEPTANCE_LIMIT = "acceptance_limit";
     const std::size_t ACCEPTANCE_LIMIT_DEFAULT = 0;
     
-    //const std::string PARAM_SKIP_STOCHASTIC_STEP = "skip_stochastic_step";
-    //const int PARAM_SKIP_STOCHASTIC_STEP_DEFAULT = 0;
+    // const std::string PARAM_SKIP_STOCHASTIC_STEP = "skip_stochastic_step";
+    // const int PARAM_SKIP_STOCHASTIC_STEP_DEFAULT = 0;
     
     // prior distributions
     const std::string PARAM_FITNESS_PRIOR_DISTRIB = "fitness_prior";
@@ -165,11 +158,11 @@ namespace fits_constants {
     
     // composite prior for fitness inference
     // if one is manually chosen - all rest must be also
-    const std::string PARAM_PRIOR_FRACTION_LTH = "prior_fraction_lth";
-    const std::string PARAM_PRIOR_FRACTION_DEL = "prior_fraction_del";
-    const std::string PARAM_PRIOR_FRACTION_NEU = "prior_fraction_neu";
-    const std::string PARAM_PRIOR_FRACTION_ADV = "prior_fraction_adv";
-    const FLOAT_TYPE PARAM_PRIOR_FRACTION_DEFAULT = -1.0f;
+    // const std::string PARAM_PRIOR_FRACTION_LTH = "prior_fraction_lth";
+    // const std::string PARAM_PRIOR_FRACTION_DEL = "prior_fraction_del";
+    // const std::string PARAM_PRIOR_FRACTION_NEU = "prior_fraction_neu";
+    // const std::string PARAM_PRIOR_FRACTION_ADV = "prior_fraction_adv";
+    // const FLOAT_TYPE PARAM_PRIOR_FRACTION_DEFAULT = -1.0f;
     
     const std::string PARAM_DISTANCE = "distance_metric";
     const std::string PARAM_DISTANCE_L1 = "L1";

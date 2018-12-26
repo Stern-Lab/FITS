@@ -1,20 +1,20 @@
 /*
-    FITS - Flexible Inference from Time-Series data
-    (c) 2016-2018 by Tal Zinger
-    tal.zinger@outlook.com
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ FITS - Flexible Inference from Time-Series data
+ (c) 2016-2018 by Tal Zinger
+ tal.zinger@outlook.com
+ 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include "ResultsStats.hpp"
 
@@ -44,7 +44,7 @@ void ResultsStats::CalculateStatsMutation()
     boost::accumulators::tag::min,
     boost::accumulators::tag::max> > > acc_matrix(_num_alleles,_num_alleles);
     
-    boost::numeric::ublas::matrix< std::vector<FLOAT_TYPE> > median_matrix(_num_alleles,_num_alleles);
+    boost::numeric::ublas::matrix< std::vector<FLOAT_TYPE> > raw_rates_matrix(_num_alleles,_num_alleles);
     
     prior_matrix.resize(_num_alleles,_num_alleles);
     
@@ -52,8 +52,9 @@ void ResultsStats::CalculateStatsMutation()
     max_mutation_rates.resize(_num_alleles, _num_alleles);
     mean_mutation_rates.resize(_num_alleles, _num_alleles);
     median_mutation_rates.resize(_num_alleles, _num_alleles);
-    normalized_median_mutation_rates.resize(_num_alleles, _num_alleles);
+    // normalized_median_mutation_rates.resize(_num_alleles, _num_alleles);
     levenes_pval_matrix.resize(_num_alleles,_num_alleles);
+    mad_mutation_rates.resize(_num_alleles, _num_alleles);
     
     for ( auto sim_result : _result_vector ) {
         
@@ -64,7 +65,7 @@ void ResultsStats::CalculateStatsMutation()
             for ( auto col=0; col<_num_alleles; ++col ) {
                 
                 acc_matrix(row,col)( sim_result.mutation_rates(row,col) );
-                median_matrix(row,col).push_back(sim_result.mutation_rates(row,col));
+                raw_rates_matrix(row,col).push_back(sim_result.mutation_rates(row,col));
             }
         }
     }
@@ -84,11 +85,31 @@ void ResultsStats::CalculateStatsMutation()
         }
     }
     
+    
+    for ( auto row=0; row<_num_alleles; ++row ) {
+        
+        for ( auto col=0; col<_num_alleles; ++col ) {
+            
+            boost::accumulators::accumulator_set<
+            FLOAT_TYPE,
+            boost::accumulators::stats<
+            boost::accumulators::tag::median > > acc_distance_for_mad;
+            
+            for ( auto current_rate : raw_rates_matrix(row, col) ) {
+                
+                acc_distance_for_mad( std::fabs( current_rate - median_mutation_rates(row,col) ) );
+            }
+            
+            mad_mutation_rates(row, col) = boost::accumulators::median(acc_distance_for_mad);
+        }
+    }
+    
     _distance_min = boost::accumulators::min(acc_distance);
     _distance_max = boost::accumulators::max(acc_distance);
     _distance_mean = boost::accumulators::mean(acc_distance);
     _distance_sd = std::sqrt(boost::accumulators::variance(acc_distance));
     
+    /*
     for ( auto row=0; row<_num_alleles; ++row ) {
         
         FLOAT_TYPE tmp_sum = 0.0f;
@@ -103,6 +124,7 @@ void ResultsStats::CalculateStatsMutation()
             normalized_median_mutation_rates(row,col) = median_mutation_rates(row,col) / tmp_sum;
         }
     }
+    */
     
     // levene's pval
     auto min_prior_mutation_rates = local_sim.GetMinMutationRateMatrix();
@@ -140,17 +162,11 @@ void ResultsStats::CalculateStatsMutation()
         
         for ( auto col=0; col<_num_alleles; ++col ) {
             
-            if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-                std::cout << "calculating levenes test" << std::endl;
-                std::cout << "Prior size=" << prior_matrix(row,col).size() << std::endl;
-                std::cout << "Posterior size=" << median_matrix(row,col).size() << std::endl;
-            }
-            
             if ( row==col) {
                 levenes_pval_matrix(row,col) = -1.0f;
             }
             else {
-                levenes_pval_matrix(row,col) = LevenesTest2( median_matrix(row,col),
+                levenes_pval_matrix(row,col) = LevenesTest2( raw_rates_matrix(row,col),
                                                             prior_matrix(row,col) );
             }
             
@@ -165,10 +181,68 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
 {
     std::stringstream ss;
     
-    if (!table_only) {
-        ss << "Mutation Rate Report" << std::endl;
-        ss << GetSummaryHeader();
-    }
+    if ( table_only ) {
+        
+        // first header row - "to"
+        ss << fits_constants::FILE_FIELD_DELIMITER;
+        for (auto col=0; col<_num_alleles; ++col ) {
+            ss << "to " + std::to_string(col) << fits_constants::FILE_FIELD_DELIMITER;
+        }
+        ss << std::endl;
+        
+        
+        // second header row
+        ss << fits_constants::FILE_FIELD_DELIMITER;
+        for (auto col=0; col<_num_alleles; ++col ) {
+            ss << "median" << fits_constants::FILE_FIELD_DELIMITER;
+            ss << "min" << fits_constants::FILE_FIELD_DELIMITER;
+            ss << "max" << fits_constants::FILE_FIELD_DELIMITER;
+            ss << "pval" << fits_constants::FILE_FIELD_DELIMITER;
+        }
+        
+        // fill data
+        for ( auto row=0; row<_num_alleles; ++row ) {
+            
+            ss << "from " + std::to_string(row) << fits_constants::FILE_FIELD_DELIMITER;
+            
+            for (auto col=0; col<_num_alleles; ++col ) {
+                
+                auto tmp_median = median_mutation_rates(row,col);
+                auto tmp_min = min_mutation_rates(row,col);
+                auto tmp_max = max_mutation_rates(row,col);
+                auto tmp_pval = levenes_pval_matrix(row,col);
+                
+                // median
+                if ( row == col ) {
+                    ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
+                }
+                else {
+                    if ( levenes_pval_matrix(row,col) < fits_constants::LEVENES_SIGNIFICANCE ) {
+                        ss << tmp_median << fits_constants::FILE_FIELD_DELIMITER;
+                    }
+                    else {
+                        ss << tmp_median << fits_constants::FILE_FIELD_DELIMITER;
+                    }
+                    
+                    // min, max
+                    ss << tmp_min << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << tmp_max << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << tmp_pval << fits_constants::FILE_FIELD_DELIMITER;
+                }
+            } // col
+            ss << std::endl;
+        } // row
+        
+        return ss.str();
+    } // table only
+    
+    
+    ss << "Mutation Rate Report" << std::endl;
+    ss << GetSummaryHeader();
+    
     
     
     //auto current_time_raw = std::chrono::system_clock::now();
@@ -181,24 +255,43 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
     //ss << "=====================" << std::endl;
     
     //if ( _rejection_threshold > 0.0f ) {
-     //   ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
+    //   ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
     //}
     
-
-    if (!table_only) {
-        ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1) << std::endl;
-        ss << "Distance metric: " << _distance_metric << std::endl;
-        
-        if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
-            ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")" << std::endl;
-        }
-        
-        if ( _single_mutrate_inferred ) {
-            ss << "Inferred a single mutation rate." << std::endl;
-        }
-        
-        ss << "====================" << std::endl;
+    
+    
+    ss << "Population size (N) is " << _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1) << std::endl;
+    
+    auto tmp_scaling_str = _zparams.GetString( fits_constants::PARAM_SCALING,
+                                              fits_constants::PARAM_SCALING_DEFAULT );
+    
+    if ( tmp_scaling_str.compare(fits_constants::PARAM_SCALING_OFF) == 0 ) {
+        // ss << "Data has not been scaled" << std::endl;
     }
+    else {
+        ss << "Data was scaled using " << tmp_scaling_str << std::endl;
+    }
+    
+    
+    if ( _single_mutrate_used ) {
+        ss << "Used a single mutation rate." << std::endl;
+    }
+    else {
+        ss << "Used individual mutation rates." << std::endl;
+    }
+    
+    ss << "Distance metric: " << _distance_metric << std::endl;
+    
+    if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
+        ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")" << std::endl;
+    }
+    
+    if ( _single_mutrate_inferred ) {
+        ss << "Inferred a single mutation rate." << std::endl;
+    }
+    
+    ss << "====================" << std::endl;
+    
     
     
     // first header row - "to"
@@ -213,6 +306,7 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
     ss << boost::format("%-12s") % "";
     for (auto col=0; col<_num_alleles; ++col ) {
         ss << boost::format("%-12s") % "median";
+        ss << boost::format("%-12s") % "MAD";
         ss << boost::format("%-12s") % "min";
         ss << boost::format("%-12s") % "max";
         ss << boost::format("%-12s") % "pval";
@@ -220,8 +314,8 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
     //ss << boost::format("%-10s") % "minldist";
     //ss << boost::format("%-10s") % "maxldist";
     //for (auto col=0; col<_num_alleles; ++col ) {
-     //   std::string tmpstr = "pval (to" + std::to_string(col) + ")";
-     //   ss << boost::format("%-12s") % tmpstr;
+    //   std::string tmpstr = "pval (to" + std::to_string(col) + ")";
+    //   ss << boost::format("%-12s") % tmpstr;
     //}
     ss << std::endl;
     
@@ -235,9 +329,11 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
             auto tmp_min = min_mutation_rates(row,col);
             auto tmp_max = max_mutation_rates(row,col);
             auto tmp_pval = levenes_pval_matrix(row,col);
+            auto tmp_mad = mad_mutation_rates(row, col);;
             
             // median
             if ( row == col ) {
+                ss << boost::format("%-12s") % "---";
                 ss << boost::format("%-12s") % "---";
                 ss << boost::format("%-12s") % "---";
                 ss << boost::format("%-12s") % "---";
@@ -248,8 +344,10 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
                     ss << boost::format("%-12.2e") % tmp_median;
                 }
                 else {
-                    ss << boost::format("*%-12.2e") % tmp_median;
+                    ss << boost::format("*%-11.2e") % tmp_median;
                 }
+                
+                ss << boost::format("%-12.2e") % tmp_mad;
                 
                 // min, max
                 ss << boost::format("%-12.2e") % tmp_min;
@@ -262,25 +360,23 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
         //ss << boost::format("%-10.3d") % _distance_max;
         
         /*
-        for (auto col=0; col<_num_alleles; ++col ) {
-            if ( row == col ) {
-                ss << boost::format("%-12s") % "---";
-            }
-            else {
-                ss << boost::format("%-12.3d") % levenes_pval_matrix(row,col);
-            }
-        }
+         for (auto col=0; col<_num_alleles; ++col ) {
+         if ( row == col ) {
+         ss << boost::format("%-12s") % "---";
+         }
+         else {
+         ss << boost::format("%-12.3d") % levenes_pval_matrix(row,col);
+         }
+         }
          */
         ss << std::endl;
     }
     
-    
-    if (!table_only) {
-        if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
-            ss << _zparams.GetAllParameters() << std::endl;
-        }
+    if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
+        ss << _zparams.GetAllParameters() << std::endl;
     }
     
+    
     return ss.str();
-
+    
 }
