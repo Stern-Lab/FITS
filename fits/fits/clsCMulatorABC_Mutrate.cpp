@@ -19,8 +19,7 @@
 #include "clsCMulatorABC.h"
 
 
-//std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
-std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib, std::size_t start_idx, std::size_t end_idx )
+std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB_VECTOR &prior_distrib, std::size_t start_idx, std::size_t end_idx )
 {
     VerifyIndece( prior_distrib, start_idx, end_idx );
     
@@ -91,7 +90,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
             std::cout << "Putting sampled mutation rates in matrix." << std::endl;
         }
         
-        std::vector<FLOAT_TYPE> tmp_line_sum( tmp_mutrates_matrix.size1(), 0.0f );
+        // std::vector<FLOAT_TYPE> tmp_line_sum( tmp_mutrates_matrix.size1(), 0.0f );
         
         // if it were 0, then it would be overridden
         auto current_single_mutation_rate = current_mutrate_vector[1];
@@ -120,9 +119,9 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
             
          
             // to normalize such that row sums up to 1.0
-            if ( row != col ) {
-                tmp_line_sum[row] += tmp_mutrates_matrix(row, col);
-            }
+            //if ( row != col ) {
+             //   tmp_line_sum[row] += tmp_mutrates_matrix(row, col);
+            //}
         }
         
         // normalize
@@ -131,10 +130,6 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
             //tmp_mutrates_matrix(row,row) = 1.0f - tmp_line_sum[row];
         //}
         
-        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-            std::cout << "Mutation matrix processing finished:" << std::endl;
-            std::cout << tmp_mutrates_matrix << std::endl;
-        }
         
         local_sim_object.SetMutationRateMatrix(tmp_mutrates_matrix);
         

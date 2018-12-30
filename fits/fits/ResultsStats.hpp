@@ -95,12 +95,12 @@ class ResultsStats {
     
     bool _is_multi_position;
     
-    PRIOR_DISTRIB _prior_distrib;
+    PRIOR_DISTRIB_VECTOR _prior_distrib;
     PriorDistributionType _prior_type;
     std::vector<SimulationResult> _result_vector;
     
 public:
-    ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB &prior_distrib, const std::vector<SimulationResult>& result_vector );
+    ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB_VECTOR &prior_distrib, const std::vector<SimulationResult>& result_vector );
     
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );
     int GetMedian( std::vector<int> vec );
@@ -116,7 +116,7 @@ public:
     //std::string _prior_type_str;
     
     void SetPriorType( PriorDistributionType prior_type ) { _prior_type = prior_type; }
-    void SetPriorDistrib( PRIOR_DISTRIB prior_distrib ) { _prior_distrib = prior_distrib; }
+    void SetPriorDistrib( PRIOR_DISTRIB_VECTOR prior_distrib ) { _prior_distrib = prior_distrib; }
     
     bool _single_mutrate_inferred;
     void SetSingleMutrateInferred( bool is_single_inferred ) { _single_mutrate_inferred=is_single_inferred; }
@@ -249,7 +249,7 @@ public:
     
     void WritePosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename );
     
-    void WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distrib, std::string filename );
+    void WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib, std::string filename );
     
     // void WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename );
     

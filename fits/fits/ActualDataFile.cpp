@@ -114,6 +114,7 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
             }
             
             if ( line_fields.size() < ACTUAL_DATA_MINIMAL_COLS ) {
+                infile.close();
                 std::string tmp_str = "Not enough columns in data file (" + std::to_string(line_fields.size()) + " instead of " + std::to_string(ACTUAL_DATA_MINIMAL_COLS) + ")";
                 throw tmp_str;
             }
@@ -129,12 +130,16 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
             boost::split(line_fields, tmp_line, boost::is_any_of( fits_constants::FILE_FIELD_DELIMITER ));
         }
         catch (...) {
+            infile.close();
             std::string tmp_str = "Error while parsing data file to columns. Line from file:\n" + tmp_line;
             throw tmp_str;
         }
         
         
         if ( line_fields.size() < ACTUAL_DATA_MINIMAL_COLS || line_fields.size() != expected_num_columns ) {
+            
+            infile.close();
+            
             std::string tmp_str = "Error while reading data file (line " + std::to_string(current_line_num) +
             "): line contains " + std::to_string(line_fields.size())  + " columns, expected " + std::to_string(expected_num_columns) + ".\n";
             
@@ -148,6 +153,7 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
             boost::trim(line_fields[ACTUAL_DATA_COLUMN_FREQ]);
         }
         catch (...) {
+            infile.close();
             std::string tmp_str = "Error while parsing data file while trimming (line " + std::to_string(current_line_num) + ")";
             throw tmp_str;
         }
@@ -159,6 +165,7 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
             tmp_data_entry.gen = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_GENERATION]);
         }
         catch (...) {
+            infile.close();
             std::string tmp_str = "Error while loading data: Generation column ("  + std::to_string(ACTUAL_DATA_COLUMN_GENERATION) + ") in line " + std::to_string(current_line_num) + " does not contain a valid value.";
             throw tmp_str;
         }
@@ -167,6 +174,7 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
             tmp_data_entry.allele = boost::lexical_cast<int>(line_fields[ACTUAL_DATA_COLUMN_ALLELE]);
         }
         catch (...) {
+            infile.close();
             std::string tmp_str = "Error while loading data: Allele column ("  + std::to_string(ACTUAL_DATA_COLUMN_GENERATION) + ") in line " + std::to_string(current_line_num) + " does not contain a valid value.";
             throw tmp_str;
         }
@@ -175,6 +183,7 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
             tmp_data_entry.freq = boost::lexical_cast<FLOAT_TYPE>(line_fields[ACTUAL_DATA_COLUMN_FREQ]);
         }
         catch (...) {
+            infile.close();
             std::string tmp_str = "Error while loading data: Frequency column ("  + std::to_string(ACTUAL_DATA_COLUMN_FREQ) + ") in line " + std::to_string(current_line_num) + " does not contain a valid value.";
             throw tmp_str;
         }
@@ -194,6 +203,7 @@ std::vector<ActualDataEntry> ActualDataFile::DataFileToEntries( std::string file
                 tmp_data_entry.pos = tmp_pos;
             }
             catch (...) {
+                infile.close();
                 std::string tmp_str = "Error while loading data: Position column ("  + std::to_string(ACTUAL_DATA_COLUMN_POSITION) + ") in line " + std::to_string(current_line_num) + " does not contain a valid value.";
                 throw tmp_str;
             }

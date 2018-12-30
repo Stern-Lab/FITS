@@ -297,7 +297,7 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
     // first header row - "to"
     ss << boost::format("%-12s") % "";
     for (auto col=0; col<_num_alleles; ++col ) {
-        ss << boost::format("%-48s") % ("to " + std::to_string(col));
+        ss << boost::format("%-60s") % ("to " + std::to_string(col));
     }
     ss << std::endl;
     

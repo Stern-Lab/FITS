@@ -22,7 +22,7 @@
 clsCMulatorABC::clsCMulatorABC()
 {}
 
-clsCMulatorABC::clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distribution ) :
+clsCMulatorABC::clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distribution_vec, const PRIOR_DISTRIB_MATRIX& prior_distribution_matrix  ) :
 _zparams(sim_params),
 _total_running_time_sec(0),
 _prior_type(PriorDistributionType::UNIFORM),
@@ -96,7 +96,7 @@ _verbose_output(false)
             auto min_fitness_vec = local_sim_object.GetAlleleMinFitnessValues();
             auto max_fitness_vec = local_sim_object.GetAlleleMaxFitnessValues();
             
-            if ( prior_distribution.empty() ) {
+            if ( prior_distribution_vec.empty() ) {
                 
                 std::cout << "Sampling from prior... " << std::flush;
                 
@@ -106,7 +106,7 @@ _verbose_output(false)
                 std::cout << "Done." << std::endl;
             }
             else {
-                _global_prior = prior_distribution;
+                _global_prior = prior_distribution_vec;
                 
                 if (_verbose_output) {
                     std::cout << "Reusing prior." << std::endl;
@@ -118,7 +118,7 @@ _verbose_output(false)
             std::vector<FLOAT_TYPE> minN {_zparams.GetDouble(fits_constants::PARAM_MIN_LOG_POPSIZE)};
             std::vector<FLOAT_TYPE> maxN {_zparams.GetDouble(fits_constants::PARAM_MAX_LOG_POPSIZE)};
             
-            if ( prior_distribution.empty() ) {
+            if ( prior_distribution_vec.empty() ) {
                 if (_verbose_output) {
                     std::cout << "Sampling from prior... " << std::flush;
                 }
@@ -131,7 +131,7 @@ _verbose_output(false)
                 }
             }
             else {
-                _global_prior = prior_distribution;
+                _global_prior = prior_distribution_vec;
                 
                 if (_verbose_output) {
                     std::cout << "Reusing prior." << std::endl;
@@ -143,7 +143,7 @@ _verbose_output(false)
             auto min_matrix = local_sim_object.GetMinMutationRateMatrix();
             auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
             
-            if ( prior_distribution.empty() ) {
+            if ( prior_distribution_vec.empty() ) {
                 
                 if (_verbose_output) {
                     std::cout << "Sampling from prior... " << std::flush;
@@ -158,7 +158,7 @@ _verbose_output(false)
                 }
             }
             else {
-                _global_prior = prior_distribution;
+                _global_prior = prior_distribution_vec;
                 
                 if (_verbose_output) {
                     std::cout << "Reusing prior." << std::endl;
@@ -657,7 +657,7 @@ FLOAT_TYPE clsCMulatorABC::GetDistanceSimActual( const MATRIX_TYPE &actual_data,
     return calculated_distance;
 }
 
-PRIOR_DISTRIB clsCMulatorABC::GetPriorFloat()
+PRIOR_DISTRIB_VECTOR clsCMulatorABC::GetPriorFloat()
 {
     //return _float_prior_archive;
     return _global_prior;
@@ -677,7 +677,7 @@ std::string clsCMulatorABC::GetPriorFloatAsString()
     return tmp_str;
 }
 
-void clsCMulatorABC::SetPriorFloat( PRIOR_DISTRIB given_prior )
+void clsCMulatorABC::SetPriorFloat( PRIOR_DISTRIB_VECTOR given_prior )
 {
     _global_prior.clear();
     
@@ -689,7 +689,7 @@ void clsCMulatorABC::SetPriorFloat( PRIOR_DISTRIB given_prior )
 }
 
 
-void clsCMulatorABC::VerifyIndece( const PRIOR_DISTRIB &prior_distrib, std::size_t start_idx, std::size_t end_idx )
+void clsCMulatorABC::VerifyIndece( const PRIOR_DISTRIB_VECTOR &prior_distrib, std::size_t start_idx, std::size_t end_idx )
 {
     if ( start_idx > end_idx ) {
         std::string tmp_str = "clsCMulatorABC: start index of prior is bigger than the end (" + std::to_string(start_idx) + "," + std::to_string(end_idx) + ")";

@@ -71,6 +71,19 @@ int InferABC( FactorToInfer factor,
     try {
         // setting read-only to false, so we could add missing parameters
         my_zparams.ReadParameters(param_filename, false);
+        
+        // already at this point, check if we have sufficient parameters
+        CMulator test_simulator(my_zparams);
+        if ( factor == MutationRate ) {
+            test_simulator.AssertAbleToInferMutationRate();
+        }
+        if ( factor == Fitness ) {
+            test_simulator.AssertAbleToInferFitness();
+        }
+        if ( factor == PopulationSize ) {
+            test_simulator.AssertAbleToInferPopulationSize();
+        }
+        
         std::cout << "Done." << std::endl;
     }
     catch (std::exception& e) {
@@ -158,7 +171,7 @@ int InferABC( FactorToInfer factor,
     std::vector<SimulationResult> accepted_results_vector;
     std::vector<SimulationResult> results_from_all_positions;
     
-    PRIOR_DISTRIB used_prior_distrib;
+    PRIOR_DISTRIB_VECTOR used_prior_distrib;
     std::size_t results_to_accept = 0;
     PriorDistributionType prior_type = UNDEFINED;
     
@@ -186,7 +199,8 @@ int InferABC( FactorToInfer factor,
         
         auto actual_positions_vec = actual_data_file.GetPositionNumbers();
         
-        PRIOR_DISTRIB global_prior;
+        PRIOR_DISTRIB_VECTOR global_prior;
+        PRIOR_DISTRIB_MATRIX global_matrix_prior; //currently dud. I want to avoid copying vactors into matrices all the time.
         
         remaining_positions = actual_positions_vec.size();
         
@@ -222,7 +236,7 @@ int InferABC( FactorToInfer factor,
                 my_zparams.UpdateParameter( fits_constants::PARAM_GENERATION_SHIFT, std::to_string(first_generation) );
             }
             
-            clsCMulatorABC abc_object_sim( my_zparams, current_position_data, factor, global_prior );
+            clsCMulatorABC abc_object_sim( my_zparams, current_position_data, factor, global_prior, global_matrix_prior );
             
             
             // we want to use the prior generated for this position - for all of the rest
@@ -424,8 +438,9 @@ int InferABC( FactorToInfer factor,
             my_zparams.UpdateParameter( fits_constants::PARAM_GENERATION_SHIFT, std::to_string(first_generation) );
         }
         
-        PRIOR_DISTRIB dud_prior;
-        clsCMulatorABC abc_object_sim( my_zparams, actual_data_file.GetFirstPosition(), factor, dud_prior );
+        PRIOR_DISTRIB_VECTOR dud_prior;
+        PRIOR_DISTRIB_MATRIX dud_matrix_prior;
+        clsCMulatorABC abc_object_sim( my_zparams, actual_data_file.GetFirstPosition(), factor, dud_prior, dud_matrix_prior );
         
         prior_type = abc_object_sim.GetPriorType();
         

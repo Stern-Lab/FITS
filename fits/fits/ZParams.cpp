@@ -91,16 +91,19 @@ void ZParams::ReadParameters( const std::string filename, bool ReadOnly = false 
             continue;
         }
         
+        f.close();
         std::string err_msg = "Error while reading file " + filename + ": the following line (" +  std::to_string(line_count) + ") is not a valid parameter or comment:\n" + line + "\n";
         throw err_msg;
     }
     
     if (f.bad()) {
+        f.close();
         std::string err_msg = "ZParams: error while reading file " + filename + "\n";
         throw err_msg;
     }
     
     if ( parameter_count == 0 ) {
+        f.close();
         std::string err_msg = "ZParams: error while reading file " + filename + " - No valid parameters found.\n";
         throw err_msg;
     }

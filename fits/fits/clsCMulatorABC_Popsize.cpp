@@ -18,8 +18,7 @@
 
 #include "clsCMulatorABC.h"
 
-// std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
-std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB &prior_distrib, std::size_t start_idx, std::size_t end_idx )
+std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB_VECTOR &prior_distrib, std::size_t start_idx, std::size_t end_idx )
 {
     VerifyIndece( prior_distrib, start_idx, end_idx );
     

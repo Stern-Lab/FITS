@@ -30,7 +30,8 @@
 #define FLOAT_TYPE double
 #define MATRIX_TYPE boost::numeric::ublas::matrix<FLOAT_TYPE>
 #define INT_MATRIX boost::numeric::ublas::matrix<int>
-#define PRIOR_DISTRIB std::vector< std::vector<FLOAT_TYPE> >
+#define PRIOR_DISTRIB_VECTOR std::vector< std::vector<FLOAT_TYPE> >
+#define PRIOR_DISTRIB_MATRIX std::vector< std::vector<FLOAT_TYPE> >
 
 enum FactorToInfer {
     Fitness,
@@ -42,7 +43,7 @@ enum FactorToInfer {
 namespace fits_constants {
     
     /* GENERAL */
-    const std::string current_version_str = "1.1.10";
+    const std::string current_version_str = "1.1.11";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
     const std::string FILE_FIELD_DELIMITER = "\t";
     
@@ -110,7 +111,7 @@ namespace fits_constants {
     const std::string PARAM_ALLELE_MIN_FITNESS = "min_fitness_allele";
     
     //const std::string PARAM_SIM_ID = "name_of_run";
-    const std::string PARAM_SIM_REPEATS = "num_repeats";
+    const std::string PARAM_SIM_REPEATS = "num_samples_from_prior";
     const int PARAM_SIM_REPEATS_DEFAULT = 100000;
     
     const std::string PARAM_MANUAL_SEED = "manual_seed";

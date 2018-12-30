@@ -19,7 +19,7 @@
 #include "ResultsStats.hpp"
 
 // ResultsStats::ResultsStats(ZParams zparams)
-ResultsStats::ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB &prior_distrib, const std::vector<SimulationResult>& result_vector )
+ResultsStats::ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB_VECTOR &prior_distrib, const std::vector<SimulationResult>& result_vector )
 :
 _is_multi_position(false),
 _running_time_sec(0),
@@ -80,7 +80,7 @@ std::string ResultsStats::GetPrintCommonHeaderStr()
     return tmp_str;
 }
 
-void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB& prior_distrib, std::string filename )
+void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib, std::string filename )
 {
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
     
