@@ -459,10 +459,10 @@ double ZParams::GetDouble(const std::string paramName, const double defaultValue
 
 std::string ZParams::GetAllParameters()
 {
-    std::string tmp_str = "name\t\tvalue\n";
+    std::string tmp_str = "name\tvalue\n";
     
     for ( auto current_pair : _param_map ) {
-        tmp_str += current_pair.first + "\t\t" + current_pair.second + "\n";
+        tmp_str += current_pair.first + "\t" + current_pair.second + "\n";
     }
     
     return tmp_str;
