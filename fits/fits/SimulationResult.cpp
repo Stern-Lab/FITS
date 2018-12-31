@@ -151,17 +151,16 @@ void SimulationResult::swap( SimulationResult& other )
 
 void SimulationResult::swap(SimulationResult& res1, SimulationResult& res2)
 {
-    std::cerr << std::endl << " Swap with references is used but not implemented!" << std::endl;
-    throw " Swap with references is used but not implemented!";
+    std::string tmp_str = "SimulationResult: Swap with references is used but not implemented!";
+    throw tmp_str;
 }
 
 
 void SimulationResult::swap(SimulationResult *res1, SimulationResult *res2)
 {
-    std::cerr << std::endl << " Swap *res is used but not implemented!" << std::endl;
-    throw " Swap *res is used but not implemented!";
+    std::string tmp_str = "SimulationResult: Swap *res is used but not implemented!";
+    throw tmp_str;
 }
-
 
 
 SimulationResult& SimulationResult::operator=( SimulationResult other)

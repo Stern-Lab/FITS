@@ -307,7 +307,8 @@ int CMulator::GetPopulationSize() const
 int CMulator::GetGenerationShift() const
 {
     if (!_initialized_with_parameters) {
-        throw " GetGenerationShift: object not initialized with parameters.";
+        std::string tmp_str = "GetGenerationShift: object not initialized with parameters.";
+        throw tmp_str;
     }
     
     return _generation_shift;
@@ -338,7 +339,8 @@ int CMulator::GetAlleleNumber() const
 FLOAT_TYPE CMulator::GetInitAlleleFreq(int allele) const
 {
     if (!_initialized_with_parameters) {
-        throw " GetInitAlleleFreq: object not initialized with parameters.";
+        std::string tmp_str = "GetInitAlleleFreq: object not initialized with parameters.";
+        throw tmp_str;
     }
     
     return _allele_init_freqs[allele];
@@ -376,8 +378,12 @@ void CMulator::SetWTAllele(int wt_index)
 void CMulator::SetFitnessValues( const std::vector<FLOAT_TYPE> &_given_allele_fitness )
 {
     if ( _given_allele_fitness.size() != _num_alleles ) {
-        std::cerr << " SetFitnessValues: num of alleles is " << _num_alleles << " but trying to set " << _given_allele_fitness.size() << " values " << std::endl;
-        throw " SetFitnessValues: trying to set fitness with different size than number of alleles";
+        std::string tmp_str = " SetFitnessValues: num of alleles is " +
+        std::to_string(_num_alleles) +
+        " but trying to set " +
+        std::to_string(_given_allele_fitness.size()) + " values ";
+        
+        throw tmp_str;
     }
     
     _allele_fitness = _given_allele_fitness;
@@ -429,7 +435,8 @@ int CMulator::GetRepeats() const
 void CMulator::SetPopulationSize( int N )
 {
     if ( !IsValid_PopulationSize(N) ) {
-        throw "Invalid population size: " + std::to_string(N);
+        std::string tmp_str = "Invalid population size: " + std::to_string(N);
+        throw tmp_str;
     }
     
     _N = N;

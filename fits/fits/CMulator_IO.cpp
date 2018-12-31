@@ -72,7 +72,8 @@ MATRIX_TYPE CMulator::GetAllOutputAsMatrix( const std::vector<int>& actual_gener
 std::string CMulator::GetAllOutputAsText(bool header, std::string delimiter) const
 {
 	if (!_initialized_with_parameters) {
-		throw " GetAllOutputAsText: object not initialized with parameters.";
+        std::string tmp_str = "GetAllOutputAsText: object not initialized with parameters.";
+        throw tmp_str;
 	}
 	
     std::string tmp_str = "";

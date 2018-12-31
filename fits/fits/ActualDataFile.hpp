@@ -154,6 +154,8 @@ public:
     int GetFirstGeneration( int position = NO_POSITION_SPECIFIED );
     int GetLastGeneration( int position = NO_POSITION_SPECIFIED );
     
+    std::string GetAsRawText();
+    
     ActualDataPositionData GetFirstPosition();
     ActualDataPositionData GetPosition( int position );
     int GetNumberOfPositions();

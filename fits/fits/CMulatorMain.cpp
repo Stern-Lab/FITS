@@ -66,11 +66,71 @@ int InferABC( FactorToInfer factor,
     }
     
     
+    bool is_multi_position = false;
+    ActualDataFile actual_data_file;
+    std::cout << "Reading data file... ";
+    try {
+        actual_data_file.LoadActualData(actual_data_filename);
+        
+        auto positions_detected = actual_data_file.GetNumberOfPositions();
+        
+        if (positions_detected>1) {
+            std::cout << "Done - Multiple positions detected (" << positions_detected << ")." << std::endl;
+            is_multi_position = true;
+        }
+        else {
+            std::cout << "Done." << std::endl;
+        }
+        
+    }
+    catch (std::string str) {
+        std::cerr << std::endl << "Exception while loading data: " << str << std::endl;
+        return 1;
+    }
+    catch (const char* str) {
+        std::cerr << std::endl << "Exception while loading data: " << str << std::endl;
+        return 1;
+    }
+    catch (std::exception& e) {
+        std::cerr << std::endl << "Exception while loading data: " << e.what() << std::endl;
+        return 1;
+    }
+    catch (...) {
+        std::cerr << std::endl << "Unknown exception while loading data." << std::endl;
+        return 1;
+    }
+    
+    
     ZParams my_zparams;
     std::cout << "Reading parameters... ";
     try {
         // setting read-only to false, so we could add missing parameters
         my_zparams.ReadParameters(param_filename, false);
+        
+        // fill in data if missing
+        if ( !my_zparams.IsParameterFound( fits_constants::PARAM_NUM_ALLELES ) ) {
+            auto tmp_num_alleles = std::to_string( actual_data_file.GetNumberOfAlleles() );
+            my_zparams.AddParameter( fits_constants::PARAM_NUM_ALLELES, tmp_num_alleles );
+            
+            auto current_position_data = actual_data_file.GetFirstPosition();
+            auto first_generation = current_position_data.GetFirstGeneration();
+            auto last_generation = current_position_data.GetLastGeneration();
+            auto num_generations = last_generation - first_generation + 1;
+            
+            if ( !my_zparams.IsParameterFound( fits_constants::PARAM_NUM_GENERATIONS ) ) {
+                my_zparams.AddParameter( fits_constants::PARAM_NUM_GENERATIONS, num_generations );
+            }
+            else {
+                my_zparams.UpdateParameter( fits_constants::PARAM_NUM_GENERATIONS, std::to_string(num_generations) );
+            }
+            
+            if ( !my_zparams.IsParameterFound( fits_constants::PARAM_GENERATION_SHIFT ) ) {
+                my_zparams.AddParameter( fits_constants::PARAM_GENERATION_SHIFT, first_generation );
+            }
+            else {
+                my_zparams.UpdateParameter( fits_constants::PARAM_GENERATION_SHIFT, std::to_string(first_generation) );
+            }
+        }
         
         // already at this point, check if we have sufficient parameters
         CMulator test_simulator(my_zparams);
@@ -107,62 +167,6 @@ int InferABC( FactorToInfer factor,
         my_zparams.AddParameter( fits_constants::PARAM_VERBOSE_SWITCH, fits_constants::PARAM_VERBOSE_SWITCH_OFF );
     }
     bool verbose_output = ( my_zparams.GetInt( fits_constants::PARAM_VERBOSE_SWITCH ) == fits_constants::PARAM_VERBOSE_SWITCH_ON );
-    
-    
-    bool is_multi_position = false;
-    ActualDataFile actual_data_file;
-    std::cout << "Reading data file... ";
-    try {
-        actual_data_file.LoadActualData(actual_data_filename);
-        
-        auto positions_detected = actual_data_file.GetNumberOfPositions();
-        
-        if (positions_detected>1) {
-            std::cout << "Done - Multiple positions detected (" << positions_detected << ")." << std::endl;
-            is_multi_position = true;
-        }
-        else {
-            std::cout << "Done." << std::endl << std::endl;
-        }
-        
-    }
-    catch (std::string str) {
-        std::cerr << std::endl << "Exception while loading data: " << str << std::endl;
-        return 1;
-    }
-    catch (const char* str) {
-        std::cerr << std::endl << "Exception while loading data: " << str << std::endl;
-        return 1;
-    }
-    catch (std::exception& e) {
-        std::cerr << std::endl << "Exception while loading data: " << e.what() << std::endl;
-        return 1;
-    }
-    catch (...) {
-        std::cerr << std::endl << "Unknown exception while loading data." << std::endl;
-        return 1;
-    }
-    
-    
-    
-    // Filling missing parameters from actual data
-    try {
-        if ( !my_zparams.IsParameterFound( fits_constants::PARAM_NUM_ALLELES ) ) {
-            auto tmp_num_alleles = std::to_string( actual_data_file.GetNumberOfAlleles() );
-            my_zparams.AddParameter( fits_constants::PARAM_NUM_ALLELES, tmp_num_alleles );
-            
-            // std::cout << "Autodetected alleles: " << tmp_num_alleles << std::endl;
-        }
-    }
-    catch (std::string str) {
-        std::cerr << std::endl << "Exception while filling out allele number. data: " << str << std::endl;
-        return 1;
-    }
-    catch (...) {
-        std::cerr << std::endl << "Unknown exception while filling out allele number." << std::endl;
-        return 1;
-    }
-
     
     
     std::cout << std::endl << "Running simulations:" << std::endl;

@@ -19,6 +19,41 @@
 
 #include "ActualDataFile.hpp"
 
+std::string ActualDataFile::GetAsRawText()
+{
+    std::string tmp_str = "";
+    
+    tmp_str += "gen\t";
+    tmp_str += "allele\t";
+    tmp_str += "freq\t";
+    tmp_str += "pos\n";
+    
+    for ( auto current_position : _position_data ) {
+        
+        for ( auto current_data_entry : current_position._actual_data ) {
+            
+            auto current_generation = current_data_entry.gen;
+            auto current_allele = current_data_entry.allele;
+            auto current_frequency = current_data_entry.freq;
+            auto current_position = current_data_entry.pos;
+            
+            tmp_str += std::to_string(current_generation) + "\t";
+            tmp_str += std::to_string(current_allele) + "\t";
+            tmp_str += std::to_string(current_frequency) + "\t";
+            
+            if ( current_position < 0 ) {
+                tmp_str += "N/A";
+            }
+            else {
+                tmp_str += std::to_string(current_position);
+            }
+            tmp_str += "\n";
+        }
+    }
+    
+    return tmp_str;
+}
+
 int ActualDataFile::GetNumberOfPositions()
 {
     return _position_data.size();

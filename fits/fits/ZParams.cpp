@@ -47,6 +47,7 @@ void ZParams::Clear()
 void ZParams::ReadParameters( const std::string filename, bool ReadOnly = false )
 {
     _read_only = ReadOnly;
+    _is_initialized = false;
     
     std::ifstream f ( filename );
     
@@ -495,6 +496,14 @@ void ZParams::WarnIfInteger( std::string param_name, std::string param_val )
 
 bool ZParams::IsParameterFound( const std::string paramName )
 {
+    if (!_is_initialized) {
+        return false;
+    }
+    
+    if ( _param_map.empty() ) {
+        return false;
+    }
+    
     try {
         std::string dummy_str = GetString( paramName );
     }
