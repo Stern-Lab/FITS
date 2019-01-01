@@ -327,6 +327,51 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
     
     std::stringstream ss;
     
+    if (table_only) {
+        
+        ss << "allele" << "\t";
+        ss << "median" << "\t";
+        ss << "MAD" << "\t";
+        ss << "low" << "\t";
+        ss << "high" << "\t";
+        ss << "DEL(%)" << "\t";
+        ss << "NEU(%)" << "\t";
+        ss << "ADV(%)" << "\t";
+        ss << "category" << "\t";
+        ss << "pval";
+        ss << std::endl;
+        
+        for ( auto current_allele=0; current_allele<_num_alleles; ++current_allele ) {
+            
+            if ( _allele_Nu[current_allele] >= 1.0 &&
+                levenes_pval[current_allele] < fits_constants::LEVENES_SIGNIFICANCE ) {
+                ss << current_allele << "\t";
+            }
+            else {
+                ss << "*" << current_allele << "\t";
+            }
+            
+            ss << allele_median_fitness[current_allele] << "\t";
+            ss << allele_MAD[current_allele] << "\t";
+            
+            ss << allele_min_fitness[current_allele] << "\t";
+            ss << allele_max_fitness[current_allele] << "\t";
+            ss << deleterious_percent[current_allele] << "\t";
+            ss << neutral_percent[current_allele] << "\t";
+            ss << advantageous_percent[current_allele] << "\t";
+            ss << AlleleCategory2String(allele_category[current_allele]) << "\t";
+            
+            if ( allele_category[current_allele] == WT ) {
+                ss << "N/A";
+            }
+            else {
+                ss << levenes_pval[current_allele];
+            }
+            ss << std::endl;
+        }
+        
+        return ss.str();
+    }
     /*
     ss << "Quick Report - Fitness" << std::endl;
     ss << "=============================" << std::endl;

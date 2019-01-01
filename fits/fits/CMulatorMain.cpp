@@ -182,50 +182,252 @@ int InferABC( FactorToInfer factor,
     std::vector<FLOAT_TYPE> multi_pos_distance_vec;
     
     try {
-    
-    //auto positions_detected = actual_data_file.GetNumberOfPositions();
-    
-    //if ( positions_detected>1 ) {
-    if ( is_multi_position ) {
         
-        // multiple positions
-        std::vector<
-        boost::accumulators::accumulator_set<
-        FLOAT_TYPE,
-        boost::accumulators::stats<
-        boost::accumulators::tag::median,
-        boost::accumulators::tag::variance,
-        boost::accumulators::tag::mean,
-        boost::accumulators::tag::min,
-        boost::accumulators::tag::max> >> distance_accumulator_vector;
+        //auto positions_detected = actual_data_file.GetNumberOfPositions();
         
-        //std::vector< std::vector<FLOAT_TYPE>> global_prior(0);
-        
-        auto actual_positions_vec = actual_data_file.GetPositionNumbers();
-        
-        PRIOR_DISTRIB_VECTOR global_prior;
-        PRIOR_DISTRIB_MATRIX global_matrix_prior; //currently dud. I want to avoid copying vactors into matrices all the time.
-        
-        remaining_positions = actual_positions_vec.size();
-        
-        for ( auto current_position_num : actual_positions_vec ) {
+        //if ( positions_detected>1 ) {
+        if ( is_multi_position ) {
             
-            auto start_time_position = std::chrono::high_resolution_clock::now();
+            // multiple positions
+            std::vector<
+            boost::accumulators::accumulator_set<
+            FLOAT_TYPE,
+            boost::accumulators::stats<
+            boost::accumulators::tag::median,
+            boost::accumulators::tag::variance,
+            boost::accumulators::tag::mean,
+            boost::accumulators::tag::min,
+            boost::accumulators::tag::max> >> distance_accumulator_vector;
             
-            auto current_position_data = actual_data_file.GetPosition(current_position_num);
-            std::cout << "-- Position " << current_position_num << " --" << std::endl;
+            //std::vector< std::vector<FLOAT_TYPE>> global_prior(0);
+            
+            auto actual_positions_vec = actual_data_file.GetPositionNumbers();
+            
+            PRIOR_DISTRIB_VECTOR global_prior;
+            PRIOR_DISTRIB_MATRIX global_matrix_prior; //currently dud. I want to avoid copying vactors into matrices all the time.
+            
+            remaining_positions = actual_positions_vec.size();
+            
+            for ( auto current_position_num : actual_positions_vec ) {
+                
+                auto start_time_position = std::chrono::high_resolution_clock::now();
+                
+                auto current_position_data = actual_data_file.GetPosition(current_position_num);
+                std::cout << "-- Position " << current_position_num << " --" << std::endl;
+                
+                /* ----------------- */
+                /*  Run simulations  */
+                /* ----------------- */
+                auto first_generation = current_position_data.GetFirstGeneration();
+                auto last_generation = current_position_data.GetLastGeneration();
+                auto num_generations = last_generation - first_generation + 1;
+                
+                if ( !my_zparams.IsParameterFound( fits_constants::PARAM_NUM_GENERATIONS ) ) {
+                    my_zparams.AddParameter( fits_constants::PARAM_NUM_GENERATIONS, num_generations );
+                    
+                    // std::cout << "Autodetected generations: " << num_generations << std::endl;
+                }
+                else {
+                    my_zparams.UpdateParameter( fits_constants::PARAM_NUM_GENERATIONS, std::to_string(num_generations) );
+                }
+                
+                if ( !my_zparams.IsParameterFound( fits_constants::PARAM_GENERATION_SHIFT ) ) {
+                    my_zparams.AddParameter( fits_constants::PARAM_GENERATION_SHIFT, first_generation );
+                    
+                    // std::cout << "Autodetected generation shift (first generation): " << first_generation << std::endl;
+                }
+                else {
+                    my_zparams.UpdateParameter( fits_constants::PARAM_GENERATION_SHIFT, std::to_string(first_generation) );
+                }
+                
+                clsCMulatorABC abc_object_sim( my_zparams, current_position_data, factor, global_prior, global_matrix_prior );
+                
+                
+                // we want to use the prior generated for this position - for all of the rest
+                
+                //std::cout << "Prior " << std::endl;
+                if ( global_prior.empty() ) {
+                    global_prior = abc_object_sim.GetPriorFloat();
+                    used_prior_distrib = abc_object_sim.GetPriorFloat();
+                }
+                //else {
+                //    std::cout << "Setting prior" << std::endl;
+                //    abc_object_sim.SetPriorFloat(global_prior);
+                //}
+                prior_type = abc_object_sim.GetPriorType();
+                //std::cout << "Done prior" << std::endl;
+                
+                // results_to_accept = abc_object_sim.GetNumberOfKeptResults() * positions_detected;
+                results_to_accept = abc_object_sim.GetNumberOfKeptResults();
+                
+                abc_object_sim.SetImmediateRejection(false);
+                
+                auto num_batches = my_zparams.GetInt(fits_constants::PARAM_SIM_REPEATS);
+                
+                if ( num_batches > 10 ) {
+                    num_batches = 10;
+                }
+                
+                abc_object_sim.RunABCInference(factor, num_batches);
+                running_time_sec += abc_object_sim.GetRunningTimeSec();
+                tmp_rejection_threshold = abc_object_sim.GetRejectionThreshold();
+                
+                //simulation_speed = abc_object_sim.GetSimulationSpeed();
+                
+                /* --------------- */
+                /*  Store results  */
+                /* --------------- */
+                std::cout << "Aggregating multi-polsition data... ";
+                auto position_results_vec = abc_object_sim.GetResultsVector(false);
+                
+                // add distances - make sure data is consistent
+                if ( accepted_results_vector.empty() ) {
+                    
+                    accepted_results_vector.resize( global_prior.size() );
+                    distance_accumulator_vector.resize( global_prior.size() );
+                    // std::cout << "accepted results initialized to size " << accepted_results_vector.size() << std::endl;
+                    // std::cout << "position results vector size " << position_results_vec.size() << std::endl;
+                    
+                    //for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
+                    for ( auto current_result : position_results_vec ) {
+                        
+                        auto result_idx = current_result.prior_sample_index;
+                        //std::cout << "prior sample index:" << result_idx << std::endl;
+                        
+                        distance_accumulator_vector[result_idx](current_result.distance_from_actual);
+                        current_result.SetMultiPosition(true);
+                        current_result.pos = current_position_num;
+                        current_result.sum_distance = current_result.distance_from_actual;
+                        //std::cout << accepted_results_vector[result_idx].sum_distance;
+                        accepted_results_vector[result_idx] = current_result;
+                        
+                        //tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
+                        //tmp_accepted_results_vec[result_idx].pos = current_position_num;
+                        //tmp_accepted_results_vec[result_idx].sum_distance = tmp_accepted_results_vec[result_idx].distance_from_actual;
+                        
+                        //accepted_results_vector.push_back( tmp_accepted_results_vec[result_idx] );
+                        // accepted_results_vector[result_idx] = tmp_accepted_results_vec[result_idx];
+                        
+                        
+                        results_from_all_positions.push_back( current_result );
+                    }
+                }
+                else {
+                    //for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
+                    // std::cout << "position results vector size " << position_results_vec.size() << std::endl;
+                    
+                    for ( auto current_result : position_results_vec ) {
+                        
+                        auto result_idx = current_result.prior_sample_index;
+                        //std::cout << "prior sample index:" << result_idx << std::endl;
+                        
+                        // test consistency
+                        // std::cout << "\n prior idx " << result_idx << " stored: ";
+                        // for ( auto val : accepted_results_vector[result_idx].fitness_values ) std::cout << val << ",";
+                        // std::cout << " with distance=" << accepted_results_vector[result_idx].sum_distance << " adding " << current_result.distance_from_actual << std::endl;
+                        // std::cout << " for fitness: ";
+                        // for ( auto val : current_result.fitness_values ) std::cout << val << ",";
+                        
+                        distance_accumulator_vector[result_idx](current_result.distance_from_actual);
+                        
+                        current_result.SetMultiPosition(true);
+                        current_result.pos = current_position_num;
+                        accepted_results_vector[result_idx].sum_distance += current_result.distance_from_actual;
+                        
+                        results_from_all_positions.push_back( current_result );
+                        
+                        //tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
+                        //tmp_accepted_results_vec[result_idx].pos = current_position_num;
+                        
+                        //accepted_results_vector[result_idx].sum_distance = accepted_results_vector[result_idx].sum_distance + tmp_accepted_results_vec[result_idx].distance_from_actual;
+                        
+                        // std::cout << "\t new distance=" << accepted_results_vector[result_idx].sum_distance << std::endl;
+                    }
+                }
+                std::cout << "Done." << std::endl;
+                
+                
+                auto finish_time_position = std::chrono::high_resolution_clock::now();
+                
+                auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(finish_time_position - start_time_position);
+                auto calculated_speed = 1.0f / static_cast<double>( elapsed_ms.count() );
+                calculated_speed *= 1000; // 1/milisecond to 1/second
+                // std::cout << "elapsed ms: " << elapsed_ms.count() << std::endl;
+                
+                
+                // auto remaining_repeats = remaining_positions * my_zparams.GetInt( fits_constants::PARAM_SIM_REPEATS );
+                // auto seconds_remaining = remaining_repeats / static_cast<int>(std::round(simulation_speed));
+                //auto remaining_repeats = remaining_positions * my_zparams.GetInt( fits_constants::PARAM_SIM_REPEATS );
+                //std::cout << "remaining positions " << remaining_positions << std::endl;
+                
+                auto seconds_remaining = remaining_positions / calculated_speed;
+                
+                //std::cout << "seconds remaining " << seconds_remaining << std::endl;
+                auto duration_remaining = std::chrono::seconds( static_cast<int>(seconds_remaining) );
+                auto current_time = std::chrono::system_clock::now();
+                auto completion_ETA = current_time + duration_remaining;
+                auto completion_ETA_timet = std::chrono::system_clock::to_time_t(completion_ETA);
+                auto completion_ETA_tm = *std::localtime(&completion_ETA_timet);
+                
+                
+                int remaining_hour = seconds_remaining / 60 / 60;
+                int remaining_min = ( seconds_remaining / 60 ) - ( remaining_hour * 60 );
+                int remaining_sec = seconds_remaining - ( 60 * remaining_min ) - ( 360 * remaining_hour );
+                std::cout << " >> Remaining time for completion: "
+                << std::setfill('0') << std::setw(2) << remaining_hour << ":"
+                << std::setfill('0') << std::setw(2) << remaining_min << ":"
+                << std::setfill('0') << std::setw(2) << remaining_sec << " (hh:mm:ss) -> "
+                << std::put_time(&completion_ETA_tm, "%c") << std::endl << std::endl;
+                
+                --remaining_positions;
+            }
+            
+            std::cout << "Finished running simulations." << std::endl << std::endl;
+            
+            std::cout << "Testing prior coverage... " << std::flush;
+            std::vector<std::size_t> prior_idx_vec;
+            for ( auto current_result : accepted_results_vector ) {
+                prior_idx_vec.push_back( current_result.prior_sample_index );
+            }
+            std::sort( prior_idx_vec.begin(), prior_idx_vec.end() );
+            std::cout << "found " << prior_idx_vec.size() << " samples, ";
+            for ( auto current_idx = 0; current_idx < prior_idx_vec.size(); ++current_idx ) {
+                if ( current_idx != prior_idx_vec[current_idx] ) {
+                    std::cerr << "problem at idx " << current_idx << " value " << prior_idx_vec[current_idx] << std::endl;
+                    std::string tmp_str = "prior coverage not complete";
+                    throw tmp_str;
+                }
+                
+            }
+            std::cout << "all values found. Done." << std::endl;
+            
+            std::cout << "Sorting data from multiple positions... " << std::flush;
+            std::nth_element(accepted_results_vector.begin(),
+                             accepted_results_vector.begin() + results_to_accept,
+                             accepted_results_vector.end());
+            
+            accepted_results_vector.erase( accepted_results_vector.begin() + results_to_accept, accepted_results_vector.end() );
+            
+            std::sort( accepted_results_vector.begin(), accepted_results_vector.end() );
+            
+            std::cout << "Done." << std::endl;
+        }
+        else {
+            
+            // single position
             
             /* ----------------- */
             /*  Run simulations  */
             /* ----------------- */
-            auto first_generation = current_position_data.GetFirstGeneration();
-            auto last_generation = current_position_data.GetLastGeneration();
+            auto only_position = actual_data_file.GetFirstPosition();
+            auto first_generation = only_position.GetFirstGeneration();
+            auto last_generation = only_position.GetLastGeneration();
             auto num_generations = last_generation - first_generation + 1;
             
             if ( !my_zparams.IsParameterFound( fits_constants::PARAM_NUM_GENERATIONS ) ) {
                 my_zparams.AddParameter( fits_constants::PARAM_NUM_GENERATIONS, num_generations );
                 
-                // std::cout << "Autodetected generations: " << num_generations << std::endl;
+                //std::cout << "Autodetected generations: " << num_generations << std::endl;
             }
             else {
                 my_zparams.UpdateParameter( fits_constants::PARAM_NUM_GENERATIONS, std::to_string(num_generations) );
@@ -240,25 +442,11 @@ int InferABC( FactorToInfer factor,
                 my_zparams.UpdateParameter( fits_constants::PARAM_GENERATION_SHIFT, std::to_string(first_generation) );
             }
             
-            clsCMulatorABC abc_object_sim( my_zparams, current_position_data, factor, global_prior, global_matrix_prior );
+            PRIOR_DISTRIB_VECTOR dud_prior;
+            PRIOR_DISTRIB_MATRIX dud_matrix_prior;
+            clsCMulatorABC abc_object_sim( my_zparams, actual_data_file.GetFirstPosition(), factor, dud_prior, dud_matrix_prior );
             
-            
-            // we want to use the prior generated for this position - for all of the rest
-            
-            //std::cout << "Prior " << std::endl;
-            if ( global_prior.empty() ) {
-                global_prior = abc_object_sim.GetPriorFloat();
-                used_prior_distrib = abc_object_sim.GetPriorFloat();
-            }
-            //else {
-            //    std::cout << "Setting prior" << std::endl;
-            //    abc_object_sim.SetPriorFloat(global_prior);
-            //}
             prior_type = abc_object_sim.GetPriorType();
-            //std::cout << "Done prior" << std::endl;
-            
-            // results_to_accept = abc_object_sim.GetNumberOfKeptResults() * positions_detected;
-            results_to_accept = abc_object_sim.GetNumberOfKeptResults();
             
             abc_object_sim.SetImmediateRejection(false);
             
@@ -272,468 +460,280 @@ int InferABC( FactorToInfer factor,
             running_time_sec += abc_object_sim.GetRunningTimeSec();
             tmp_rejection_threshold = abc_object_sim.GetRejectionThreshold();
             
-            //simulation_speed = abc_object_sim.GetSimulationSpeed();
+            std::cout << "Testing prior coverage... " << std::flush;
+            auto tmp_all_results_vec = abc_object_sim.GetResultsVector(false);
+            std::vector<std::size_t> prior_idx_vec;
+            for ( auto current_result : tmp_all_results_vec ) {
+                prior_idx_vec.push_back( current_result.prior_sample_index );
+            }
+            std::sort( prior_idx_vec.begin(), prior_idx_vec.end() );
+            std::cout << "found " << prior_idx_vec.size() << " samples, ";
+            for ( auto current_idx = 0; current_idx < prior_idx_vec.size(); ++current_idx ) {
+                if ( current_idx != prior_idx_vec[current_idx] ) {
+                    std::cout << "problem at idx " << current_idx << " value " << prior_idx_vec[current_idx] << std::endl;
+                    std::string tmp_str = "prior not complete";
+                    throw tmp_str;
+                }
+                
+            }
+            std::cout << "all values found. Done." << std::endl;
             
             /* --------------- */
             /*  Store results  */
             /* --------------- */
-            std::cout << "Aggregating multi-polsition data... ";
-            auto position_results_vec = abc_object_sim.GetResultsVector(false);
+            std::cout << "Gathering results... " << std::flush;;
+            auto tmp_accepted_results_vec = abc_object_sim.GetResultsVector(true);
+            for ( auto tmp_result : tmp_accepted_results_vec ) {
+                accepted_results_vector.push_back(tmp_result);
+            }
             
-            // add distances - make sure data is consistent
-            if ( accepted_results_vector.empty() ) {
-                
-                accepted_results_vector.resize( global_prior.size() );
-                distance_accumulator_vector.resize( global_prior.size() );
-                // std::cout << "accepted results initialized to size " << accepted_results_vector.size() << std::endl;
-                // std::cout << "position results vector size " << position_results_vec.size() << std::endl;
-                
-                //for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
-                for ( auto current_result : position_results_vec ) {
-                    
-                    auto result_idx = current_result.prior_sample_index;
-                    //std::cout << "prior sample index:" << result_idx << std::endl;
-                    
-                    distance_accumulator_vector[result_idx](current_result.distance_from_actual);
-                    current_result.SetMultiPosition(true);
-                    current_result.pos = current_position_num;
-                    current_result.sum_distance = current_result.distance_from_actual;
-                    //std::cout << accepted_results_vector[result_idx].sum_distance;
-                    accepted_results_vector[result_idx] = current_result;
-                    
-                    //tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
-                    //tmp_accepted_results_vec[result_idx].pos = current_position_num;
-                    //tmp_accepted_results_vec[result_idx].sum_distance = tmp_accepted_results_vec[result_idx].distance_from_actual;
-                    
-                    //accepted_results_vector.push_back( tmp_accepted_results_vec[result_idx] );
-                    // accepted_results_vector[result_idx] = tmp_accepted_results_vec[result_idx];
-                    
-                    
-                    results_from_all_positions.push_back( current_result );
-                }
-            }
-            else {
-                //for ( auto result_idx=0; result_idx<tmp_accepted_results_vec.size(); ++result_idx ) {
-                // std::cout << "position results vector size " << position_results_vec.size() << std::endl;
-                
-                for ( auto current_result : position_results_vec ) {
-                    
-                    auto result_idx = current_result.prior_sample_index;
-                    //std::cout << "prior sample index:" << result_idx << std::endl;
-                    
-                    // test consistency
-                    // std::cout << "\n prior idx " << result_idx << " stored: ";
-                    // for ( auto val : accepted_results_vector[result_idx].fitness_values ) std::cout << val << ",";
-                    // std::cout << " with distance=" << accepted_results_vector[result_idx].sum_distance << " adding " << current_result.distance_from_actual << std::endl;
-                    // std::cout << " for fitness: ";
-                    // for ( auto val : current_result.fitness_values ) std::cout << val << ",";
-                    
-                    distance_accumulator_vector[result_idx](current_result.distance_from_actual);
-                    
-                    current_result.SetMultiPosition(true);
-                    current_result.pos = current_position_num;
-                    accepted_results_vector[result_idx].sum_distance += current_result.distance_from_actual;
-                    
-                    results_from_all_positions.push_back( current_result );
-                    
-                    //tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
-                    //tmp_accepted_results_vec[result_idx].pos = current_position_num;
-                    
-                    //accepted_results_vector[result_idx].sum_distance = accepted_results_vector[result_idx].sum_distance + tmp_accepted_results_vec[result_idx].distance_from_actual;
-                    
-                    // std::cout << "\t new distance=" << accepted_results_vector[result_idx].sum_distance << std::endl;
-                }
-            }
+            std::sort( accepted_results_vector.begin(), accepted_results_vector.end() );
+            
+            used_prior_distrib = abc_object_sim.GetPriorFloat();
             std::cout << "Done." << std::endl;
             
-            
-            auto finish_time_position = std::chrono::high_resolution_clock::now();
-            
-            auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(finish_time_position - start_time_position);
-            auto calculated_speed = 1.0f / static_cast<double>( elapsed_ms.count() );
-            calculated_speed *= 1000; // 1/milisecond to 1/second
-            // std::cout << "elapsed ms: " << elapsed_ms.count() << std::endl;
-            
-            
-            // auto remaining_repeats = remaining_positions * my_zparams.GetInt( fits_constants::PARAM_SIM_REPEATS );
-            // auto seconds_remaining = remaining_repeats / static_cast<int>(std::round(simulation_speed));
-            //auto remaining_repeats = remaining_positions * my_zparams.GetInt( fits_constants::PARAM_SIM_REPEATS );
-            //std::cout << "remaining positions " << remaining_positions << std::endl;
-            
-            auto seconds_remaining = remaining_positions / calculated_speed;
-            
-            //std::cout << "seconds remaining " << seconds_remaining << std::endl;
-            auto duration_remaining = std::chrono::seconds( static_cast<int>(seconds_remaining) );
-            auto current_time = std::chrono::system_clock::now();
-            auto completion_ETA = current_time + duration_remaining;
-            auto completion_ETA_timet = std::chrono::system_clock::to_time_t(completion_ETA);
-            auto completion_ETA_tm = *std::localtime(&completion_ETA_timet);
-            
-            
-            int remaining_hour = seconds_remaining / 60 / 60;
-            int remaining_min = ( seconds_remaining / 60 ) - ( remaining_hour * 60 );
-            int remaining_sec = seconds_remaining - ( 60 * remaining_min ) - ( 360 * remaining_hour );
-            std::cout << " >> Remaining time for completion: "
-            << std::setfill('0') << std::setw(2) << remaining_hour << ":"
-            << std::setfill('0') << std::setw(2) << remaining_min << ":"
-            << std::setfill('0') << std::setw(2) << remaining_sec << " (hh:mm:ss) -> "
-            << std::put_time(&completion_ETA_tm, "%c") << std::endl << std::endl;
-            
-            --remaining_positions;
+            std::cout << "Finished running simulations." << std::endl << std::endl;
         }
         
-        std::cout << "Finished running simulations." << std::endl << std::endl;
         
-        std::cout << "Testing prior coverage... " << std::flush;
-        std::vector<std::size_t> prior_idx_vec;
-        for ( auto current_result : accepted_results_vector ) {
-            prior_idx_vec.push_back( current_result.prior_sample_index );
-        }
-        std::sort( prior_idx_vec.begin(), prior_idx_vec.end() );
-        std::cout << "found " << prior_idx_vec.size() << " samples, ";
-        for ( auto current_idx = 0; current_idx < prior_idx_vec.size(); ++current_idx ) {
-            if ( current_idx != prior_idx_vec[current_idx] ) {
-                std::cerr << "problem at idx " << current_idx << " value " << prior_idx_vec[current_idx] << std::endl;
-                std::string tmp_str = "prior coverage not complete";
-                throw tmp_str;
-            }
-            
-        }
-        std::cout << "all values found. Done." << std::endl;
+        /* --------------------- */
+        /*  Process simulations  */
+        /* --------------------- */
+        std::cout << "Processing results (" <<  accepted_results_vector.size() << " simulations):" << std::endl;
         
-        std::cout << "Sorting data from multiple positions... " << std::flush;
-        std::nth_element(accepted_results_vector.begin(),
-                         accepted_results_vector.begin() + results_to_accept,
-                         accepted_results_vector.end());
         
-        accepted_results_vector.erase( accepted_results_vector.begin() + results_to_accept, accepted_results_vector.end() );
         
-        std::sort( accepted_results_vector.begin(), accepted_results_vector.end() );
+        ResultsStats result_stats( my_zparams, prior_type, used_prior_distrib, accepted_results_vector );
         
-        std::cout << "Done." << std::endl;
-    }
-    else {
+        result_stats.SetPriorType(prior_type);
         
-        // single position
+        // result_stats.SetRejectionThreshold( abc_object_sim.GetRejectionThreshold() );
+        result_stats.SetRejectionThreshold( tmp_rejection_threshold );
         
-        /* ----------------- */
-        /*  Run simulations  */
-        /* ----------------- */
-        auto only_position = actual_data_file.GetFirstPosition();
-        auto first_generation = only_position.GetFirstGeneration();
-        auto last_generation = only_position.GetLastGeneration();
-        auto num_generations = last_generation - first_generation + 1;
+        auto single_mutation_rate = my_zparams.GetFloat( fits_constants::PARAM_SINGLE_MUTATION_RATE, 0.0f );
+        result_stats.SetSingleMutrateUsed( single_mutation_rate != 0.0f );
         
-        if ( !my_zparams.IsParameterFound( fits_constants::PARAM_NUM_GENERATIONS ) ) {
-            my_zparams.AddParameter( fits_constants::PARAM_NUM_GENERATIONS, num_generations );
-            
-            //std::cout << "Autodetected generations: " << num_generations << std::endl;
-        }
-        else {
-            my_zparams.UpdateParameter( fits_constants::PARAM_NUM_GENERATIONS, std::to_string(num_generations) );
-        }
+        // result_stats.SetRunningTimeSec( abc_object_sim.GetTotalRunningTimeSec() );
+        result_stats.SetRunningTimeSec( running_time_sec );
         
-        if ( !my_zparams.IsParameterFound( fits_constants::PARAM_GENERATION_SHIFT ) ) {
-            my_zparams.AddParameter( fits_constants::PARAM_GENERATION_SHIFT, first_generation );
-            
-            // std::cout << "Autodetected generation shift (first generation): " << first_generation << std::endl;
-        }
-        else {
-            my_zparams.UpdateParameter( fits_constants::PARAM_GENERATION_SHIFT, std::to_string(first_generation) );
-        }
         
-        PRIOR_DISTRIB_VECTOR dud_prior;
-        PRIOR_DISTRIB_MATRIX dud_matrix_prior;
-        clsCMulatorABC abc_object_sim( my_zparams, actual_data_file.GetFirstPosition(), factor, dud_prior, dud_matrix_prior );
-        
-        prior_type = abc_object_sim.GetPriorType();
-        
-        abc_object_sim.SetImmediateRejection(false);
-        
-        auto num_batches = my_zparams.GetInt(fits_constants::PARAM_SIM_REPEATS);
-        
-        if ( num_batches > 10 ) {
-            num_batches = 10;
-        }
-        
-        abc_object_sim.RunABCInference(factor, num_batches);
-        running_time_sec += abc_object_sim.GetRunningTimeSec();
-        tmp_rejection_threshold = abc_object_sim.GetRejectionThreshold();
-        
-        std::cout << "Testing prior coverage... " << std::flush;
-        auto tmp_all_results_vec = abc_object_sim.GetResultsVector(false);
-        std::vector<std::size_t> prior_idx_vec;
-        for ( auto current_result : tmp_all_results_vec ) {
-            prior_idx_vec.push_back( current_result.prior_sample_index );
-        }
-        std::sort( prior_idx_vec.begin(), prior_idx_vec.end() );
-        std::cout << "found " << prior_idx_vec.size() << " samples, ";
-        for ( auto current_idx = 0; current_idx < prior_idx_vec.size(); ++current_idx ) {
-            if ( current_idx != prior_idx_vec[current_idx] ) {
-                std::cout << "problem at idx " << current_idx << " value " << prior_idx_vec[current_idx] << std::endl;
-                std::string tmp_str = "prior not complete";
-                throw tmp_str;
-            }
-            
-        }
-        std::cout << "all values found. Done." << std::endl;
-        
-        /* --------------- */
-        /*  Store results  */
-        /* --------------- */
-        std::cout << "Gathering results... " << std::flush;;
-        auto tmp_accepted_results_vec = abc_object_sim.GetResultsVector(true);
-        for ( auto tmp_result : tmp_accepted_results_vec ) {
-            accepted_results_vector.push_back(tmp_result);
-        }
-        
-        std::sort( accepted_results_vector.begin(), accepted_results_vector.end() );
-        
-        used_prior_distrib = abc_object_sim.GetPriorFloat();
-        std::cout << "Done." << std::endl;
-        
-        std::cout << "Finished running simulations." << std::endl << std::endl;
-    }
-    
-    
-    /* --------------------- */
-    /*  Process simulations  */
-    /* --------------------- */
-    std::cout << "Processing results (" <<  accepted_results_vector.size() << " simulations):" << std::endl;
-    
-    
-    
-    ResultsStats result_stats( my_zparams, prior_type, used_prior_distrib, accepted_results_vector );
-    
-    result_stats.SetPriorType(prior_type);
-    
-    // result_stats.SetRejectionThreshold( abc_object_sim.GetRejectionThreshold() );
-    result_stats.SetRejectionThreshold( tmp_rejection_threshold );
-    
-    auto single_mutation_rate = my_zparams.GetFloat( fits_constants::PARAM_SINGLE_MUTATION_RATE, 0.0f );
-    result_stats.SetSingleMutrateUsed( single_mutation_rate != 0.0f );
-    
-    // result_stats.SetRunningTimeSec( abc_object_sim.GetTotalRunningTimeSec() );
-    result_stats.SetRunningTimeSec( running_time_sec );
-    
-    
         //std::cout << "checkpoint 1" << std::endl;
-    switch (factor) {
-        case Fitness: {
-            
-            try {
-                //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT ) );
-                //result_stats.CalculateStatsFitness(accepted_results_vector);
-                //result_stats.SetPriorDistrib(used_prior_distrib);
-                result_stats.CalculateStatsFitness();
+        switch (factor) {
+            case Fitness: {
                 
-            }
-            catch (std::string str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (const char* str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (std::exception& e) {
-                std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
-                return 1;
-            }
-            catch (...) {
-                std::string tmp_str = "Error while calculating stats.";
-                throw tmp_str;
-            }
-            //std::cout << "checkpoint 2" << std::endl;
-            
-            try {
-                std::string tmp_summary_str = result_stats.GetSummaryFitness(false);
+                try {
+                    //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT ) );
+                    //result_stats.CalculateStatsFitness(accepted_results_vector);
+                    //result_stats.SetPriorDistrib(used_prior_distrib);
+                    result_stats.CalculateStatsFitness();
+                    
+                }
+                catch (std::string str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (const char* str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    std::string tmp_str = "Error while calculating stats.";
+                    throw tmp_str;
+                }
+                //std::cout << "checkpoint 2" << std::endl;
                 
-                //void ResultsStats::WriteMultiPositionPosterior( FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
-                
-                
-                std::cout << "Writing posterior... " << std::flush;
-                //result_stats.WriteFitnessDistribToFile(accepted_results_vector, posterior_output_filename);
-                result_stats.WritePosterior( is_multi_position, FactorToInfer::Fitness, accepted_results_vector, results_from_all_positions, posterior_output_filename );
-                
-                std::cout << "Done." << std::endl;
-                
-                std::cout << "Writing summary... " << std::flush;
-                result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
-                std::cout << "Done." << std::endl;
-                
-                if ( prior_output_filename.compare("") != 0 ) {
-                    std::cout << "Writing prior... " << std::flush;
-                    result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
+                try {
+                    std::string tmp_summary_str = result_stats.GetSummaryFitness(false);
+                    
+                    //void ResultsStats::WriteMultiPositionPosterior( FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
+                    
+                    
+                    std::cout << "Writing posterior... " << std::flush;
+                    //result_stats.WriteFitnessDistribToFile(accepted_results_vector, posterior_output_filename);
+                    result_stats.WritePosterior( is_multi_position, FactorToInfer::Fitness, accepted_results_vector, results_from_all_positions, posterior_output_filename );
+                    
                     std::cout << "Done." << std::endl;
+                    
+                    std::cout << "Writing summary... " << std::flush;
+                    result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
+                    std::cout << "Done." << std::endl;
+                    
+                    if ( prior_output_filename.compare("") != 0 ) {
+                        std::cout << "Writing prior... " << std::flush;
+                        result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
+                        std::cout << "Done." << std::endl;
+                    }
+                    
+                    std::cout << std::endl << "Summary:" << std::endl;
+                    std::cout << tmp_summary_str;
+                }
+                catch (std::string str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (const char* str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    std::cerr << std::endl << "Unknown error while writing result files." << std::endl;
+                    return 1;
                 }
                 
-                std::cout << std::endl << "Summary:" << std::endl;
-                std::cout << tmp_summary_str;
+                break;
             }
-            catch (std::string str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (const char* str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (std::exception& e) {
-                std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
-                return 1;
-            }
-            catch (...) {
-                std::cerr << std::endl << "Unknown error while writing result files." << std::endl;
-                return 1;
-            }
-            
-            break;
-        }
-            // std::cout << "checkpoint 3" << std::endl;
-            
-        case PopulationSize: {
-            
-            try {
-                //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
-                //result_stats.SetPriorDistrib(used_prior_distrib);
-                //result_stats.CalculateStatsFitness(accepted_results_vector);
-                //result_stats.CalculateStatsPopulationSize(accepted_results_vector);
-                result_stats.CalculateStatsPopulationSize();
-            }
-            catch (std::string str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (const char* str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (std::exception& e) {
-                std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
-                return 1;
-            }
-            catch (...) {
-                std::cerr << std::endl << "Unknown error while calculatig stats." << std::endl;
-                return 1;
-            }
-            
-            
-            
-            try {
-                std::string tmp_summary_str = result_stats.GetSummaryPopSize(false);
+                // std::cout << "checkpoint 3" << std::endl;
                 
+            case PopulationSize: {
                 
-                std::cout << "Writing posterior... " << std::flush;
-                result_stats.WritePosterior( is_multi_position, FactorToInfer::PopulationSize, accepted_results_vector, results_from_all_positions, posterior_output_filename );
-                
-                //result_stats.WritePopSizeDistribToFile(accepted_results_vector, posterior_output_filename);
-                std::cout << "Done." << std::endl;
-                
-                std::cout << "Writing summary... " << std::flush;
-                result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
-                std::cout << "Done." << std::endl;
-                
-                if ( prior_output_filename.compare("") != 0 ) {
-                    std::cout << "Writing prior... " << std::flush;
-                    result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
-                    std::cout << "Done." << std::endl;
+                try {
+                    //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
+                    //result_stats.SetPriorDistrib(used_prior_distrib);
+                    //result_stats.CalculateStatsFitness(accepted_results_vector);
+                    //result_stats.CalculateStatsPopulationSize(accepted_results_vector);
+                    result_stats.CalculateStatsPopulationSize();
+                }
+                catch (std::string str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (const char* str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    std::cerr << std::endl << "Unknown error while calculatig stats." << std::endl;
+                    return 1;
                 }
                 
-                std::cout << std::endl << "Summary:" << std::endl;
-                std::cout << tmp_summary_str;
-            }
-            catch (const char* str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (std::string str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (std::exception& e) {
-                std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
-                return 1;
-            }
-            catch (...) {
-                std::cerr << std::endl << "Unknown error while writing result files." << std::endl;
-                return 1;
-            }
-            
-            break;
-        }
-            
-        case MutationRate: {
-            
-            auto infer_single_mutrate = my_zparams.GetInt(fits_constants::PARAM_MIN_LOG_SINGLE_MUTATION_RATE, 0);
-            
-            try {
-                result_stats.SetSingleMutrateInferred( infer_single_mutrate != 0 );
-                //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
-                //result_stats.SetPriorDistrib(used_prior_distrib);
-                //result_stats.CalculateStatsMutation(accepted_results_vector);
-                result_stats.CalculateStatsMutation();
-            }
-            catch (std::string str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (const char* str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (std::exception& e) {
-                std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
-                return 1;
-            }
-            catch (...) {
-                std::cerr << std::endl << "Unknown error while calculating stats." << std::endl;
-                return 1;
-            }
-            
-            
-            try {
-                std::string tmp_summary_str = result_stats.GetSummaryMutRate(false);
                 
-                std::cout << "Writing posterior... " << std::flush;
-                // result_stats.WriteMutRateDistribToFile(accepted_results_vector, posterior_output_filename);
-                result_stats.WritePosterior( is_multi_position, FactorToInfer::MutationRate, accepted_results_vector, results_from_all_positions, posterior_output_filename );
                 
-                std::cout << "Done." << std::endl;
-                
-                std::cout << "Writing summary... " << std::flush;
-                result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
-                std::cout << "Done." << std::endl;
-                
-                if ( prior_output_filename.compare("") != 0 ) {
-                    std::cout << "Writing prior... ";
-                    result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
+                try {
+                    std::string tmp_summary_str = result_stats.GetSummaryPopSize(false);
+                    
+                    
+                    std::cout << "Writing posterior... " << std::flush;
+                    result_stats.WritePosterior( is_multi_position, FactorToInfer::PopulationSize, accepted_results_vector, results_from_all_positions, posterior_output_filename );
+                    
+                    //result_stats.WritePopSizeDistribToFile(accepted_results_vector, posterior_output_filename);
                     std::cout << "Done." << std::endl;
+                    
+                    std::cout << "Writing summary... " << std::flush;
+                    result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
+                    std::cout << "Done." << std::endl;
+                    
+                    if ( prior_output_filename.compare("") != 0 ) {
+                        std::cout << "Writing prior... " << std::flush;
+                        result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
+                        std::cout << "Done." << std::endl;
+                    }
+                    
+                    std::cout << std::endl << "Summary:" << std::endl;
+                    std::cout << tmp_summary_str;
+                }
+                catch (const char* str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::string str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    std::cerr << std::endl << "Unknown error while writing result files." << std::endl;
+                    return 1;
                 }
                 
-                std::cout << std::endl << "Summary:" << std::endl;
-                std::cout << tmp_summary_str;
+                break;
             }
-            catch (const char* str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
+                
+            case MutationRate: {
+                
+                auto infer_single_mutrate = my_zparams.GetInt(fits_constants::PARAM_MIN_LOG_SINGLE_MUTATION_RATE, 0);
+                
+                try {
+                    result_stats.SetSingleMutrateInferred( infer_single_mutrate != 0 );
+                    //result_stats.SetPriorType( my_zparams.GetString(fits_constants::PARAM_PRIOR_DISTRIB, fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) );
+                    //result_stats.SetPriorDistrib(used_prior_distrib);
+                    //result_stats.CalculateStatsMutation(accepted_results_vector);
+                    result_stats.CalculateStatsMutation();
+                }
+                catch (std::string str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (const char* str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    std::cerr << std::endl << "Unknown error while calculating stats." << std::endl;
+                    return 1;
+                }
+                
+                
+                try {
+                    std::string tmp_summary_str = result_stats.GetSummaryMutRate(false);
+                    
+                    std::cout << "Writing posterior... " << std::flush;
+                    // result_stats.WriteMutRateDistribToFile(accepted_results_vector, posterior_output_filename);
+                    result_stats.WritePosterior( is_multi_position, FactorToInfer::MutationRate, accepted_results_vector, results_from_all_positions, posterior_output_filename );
+                    
+                    std::cout << "Done." << std::endl;
+                    
+                    std::cout << "Writing summary... " << std::flush;
+                    result_stats.WriteStringToFile(summary_output_filename, tmp_summary_str);
+                    std::cout << "Done." << std::endl;
+                    
+                    if ( prior_output_filename.compare("") != 0 ) {
+                        std::cout << "Writing prior... ";
+                        result_stats.WritePriorDistribToFile( factor, used_prior_distrib, prior_output_filename);
+                        std::cout << "Done." << std::endl;
+                    }
+                    
+                    std::cout << std::endl << "Summary:" << std::endl;
+                    std::cout << tmp_summary_str;
+                }
+                catch (const char* str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::string str) {
+                    std::cerr << std::endl << "Exception caught: " << str << std::endl;
+                    return 1;
+                }
+                catch (std::exception& e) {
+                    std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
+                    return 1;
+                }
+                catch (...) {
+                    std::cerr << std::endl << "Unknown error while writing result files." << std::endl;
+                    return 1;
+                }
+                
+                break;
             }
-            catch (std::string str) {
-                std::cerr << std::endl << "Exception caught: " << str << std::endl;
-                return 1;
-            }
-            catch (std::exception& e) {
-                std::cerr << std::endl << "Exception caught: " << e.what() << std::endl;
-                return 1;
-            }
-            catch (...) {
-                std::cerr << std::endl << "Unknown error while writing result files." << std::endl;
-                return 1;
-            }
-            
-            break;
         }
-    }
     }
     /*
      catch (const char* str) {
@@ -741,12 +741,12 @@ int InferABC( FactorToInfer factor,
      return 1;
      }
      */
-
-     catch (std::string str) {
-     std::cerr << std::endl << "Exception caught while attempting to report stats: " << str << std::endl;
-     return 1;
-     }
-     
+    
+    catch (std::string str) {
+        std::cerr << std::endl << "Exception caught while attempting to report stats: " << str << std::endl;
+        return 1;
+    }
+    
     /*
      catch (std::exception& e) {
      std::cerr << std::endl << "Exception caught while attempting to report stats: " << e.what() << std::endl;
@@ -879,7 +879,7 @@ bool IsInferenceRun( std::string first_argument )
 
 int main(int argc, char* argv[])
 {
- 
+    
     if (argc <= 1) {
         print_welcome();
         print_syntaxes(argv[0]);
