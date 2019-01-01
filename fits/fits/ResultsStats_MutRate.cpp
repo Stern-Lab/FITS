@@ -197,8 +197,13 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
             ss << "median" << fits_constants::FILE_FIELD_DELIMITER;
             ss << "min" << fits_constants::FILE_FIELD_DELIMITER;
             ss << "max" << fits_constants::FILE_FIELD_DELIMITER;
-            ss << "pval" << fits_constants::FILE_FIELD_DELIMITER;
+            ss << "pval";
+            
+            if ( col < _num_alleles-1 ) {
+                ss << fits_constants::FILE_FIELD_DELIMITER;
+            }
         }
+        ss << std::endl;
         
         // fill data
         for ( auto row=0; row<_num_alleles; ++row ) {
@@ -217,7 +222,11 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
                     ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
                     ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
                     ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
-                    ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << "---";
+                    
+                    if ( col < _num_alleles-1 ) {
+                        ss << fits_constants::FILE_FIELD_DELIMITER;
+                    }
                 }
                 else {
                     if ( levenes_pval_matrix(row,col) < fits_constants::LEVENES_SIGNIFICANCE ) {
@@ -230,10 +239,18 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
                     // min, max
                     ss << tmp_min << fits_constants::FILE_FIELD_DELIMITER;
                     ss << tmp_max << fits_constants::FILE_FIELD_DELIMITER;
-                    ss << tmp_pval << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << tmp_pval;
+                    
+                    if ( col < _num_alleles-1 ) {
+                        ss << fits_constants::FILE_FIELD_DELIMITER;
+                    }
                 }
             } // col
-            ss << std::endl;
+            // ss << std::endl;
+            
+            if ( row < _num_alleles-1 ) {
+                ss << std::endl;
+            }
         } // row
         
         return ss.str();

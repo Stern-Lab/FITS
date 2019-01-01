@@ -168,7 +168,7 @@ std::string ResultsStats::GetSummaryPopSize( bool table_only )
         ss << "MAD" << fits_constants::FILE_FIELD_DELIMITER;
         ss << "low" << fits_constants::FILE_FIELD_DELIMITER;
         ss << "high" << fits_constants::FILE_FIELD_DELIMITER;
-        ss << "pval" << fits_constants::FILE_FIELD_DELIMITER;
+        ss << "pval";
         ss << std::endl;
         
         if ( levenes_pval[0] < fits_constants::LEVENES_SIGNIFICANCE ) {
@@ -182,7 +182,7 @@ std::string ResultsStats::GetSummaryPopSize( bool table_only )
         ss << _pop_mad << fits_constants::FILE_FIELD_DELIMITER;
         ss << _pop_min << fits_constants::FILE_FIELD_DELIMITER;
         ss << _pop_max << fits_constants::FILE_FIELD_DELIMITER;
-        ss << levenes_pval[0] << fits_constants::FILE_FIELD_DELIMITER;
+        ss << levenes_pval[0];
         
         return ss.str();
     }
