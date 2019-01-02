@@ -186,7 +186,7 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
         // first header row - "to"
         ss << fits_constants::FILE_FIELD_DELIMITER;
         for (auto col=0; col<_num_alleles; ++col ) {
-            ss << "to " + std::to_string(col)
+            ss << "to" + std::to_string(col)
             << fits_constants::FILE_FIELD_DELIMITER
             << fits_constants::FILE_FIELD_DELIMITER
             << fits_constants::FILE_FIELD_DELIMITER;
@@ -215,7 +215,7 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
         // fill data
         for ( auto row=0; row<_num_alleles; ++row ) {
             
-            ss << "from " + std::to_string(row) << fits_constants::FILE_FIELD_DELIMITER;
+            ss << "from" + std::to_string(row) << fits_constants::FILE_FIELD_DELIMITER;
             
             for (auto col=0; col<_num_alleles; ++col ) {
                 
