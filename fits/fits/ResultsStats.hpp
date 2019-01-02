@@ -247,8 +247,11 @@ public:
     // void WriteMutRateDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     // void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     
+    std::string GetPosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec );
+    
     void WritePosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename );
     
+    std::string GetPrior( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib );
     void WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib, std::string filename );
     
     // void WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename );

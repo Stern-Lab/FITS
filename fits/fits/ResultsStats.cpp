@@ -80,65 +80,7 @@ std::string ResultsStats::GetPrintCommonHeaderStr()
     return tmp_str;
 }
 
-void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib, std::string filename )
-{
-    std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
-    
-    if (!outfile.is_open()) {
-        std::string tmp_str = "unable to open file for writing: " + filename;
-        throw tmp_str;
-    }
-    
 
-    // 2016-09-04 adding sanity check to report problem
-    if ( prior_distrib.empty() ) {
-        std::string tmp_str = "Error in writing prior: result_vector is empty. Filename: " + filename;
-        throw tmp_str;
-    }
- 
-    // print title according to the prior type
-    switch (factor_to_infer) {
-        case Fitness: {
-            
-            for (auto i = 0; i < prior_distrib[0].size(); ++i) {
-                outfile << "allele" << i << fits_constants::FILE_FIELD_DELIMITER;
-            }
-            outfile << std::endl;
-            break;
-        }
-            
-        case MutationRate: {
-            
-            auto num_alleles = prior_distrib[0].size() / 2;
-            
-            for (auto i = 0; i < prior_distrib[0].size(); ++i) {
-                auto from_allele = i / num_alleles;
-                auto to_allele = i % num_alleles;
-                    
-                outfile << "allele" << from_allele << "_" << to_allele << fits_constants::FILE_FIELD_DELIMITER;
-            }
-            outfile << std::endl;
-            break;
-        }
-            
-        case PopulationSize: {
-            
-            outfile << "N" << std::endl;
-            break;
-        }
-    }
-    
-    for ( auto current_vec : prior_distrib ) {
-        
-        for ( auto current_val : current_vec ) {
-            
-            outfile << current_val << fits_constants::FILE_FIELD_DELIMITER;
-        }
-        outfile << std::endl;
-    }
-    
-    outfile.close();
-}
 
 /*
 void ResultsStats::WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename )

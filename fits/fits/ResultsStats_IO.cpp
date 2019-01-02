@@ -269,32 +269,26 @@ void ResultsStats::WriteStringToFile( std::string filename, std::string str )
     outfile.close();
 }
 
-
-void ResultsStats::WritePosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
-//void ResultsStats::WriteMultiPositionPosterior( FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
+std::string ResultsStats::GetPosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec )
 {
-    
     if ( accepted_results_vec.empty() ) {
-        throw "Error in WriteMultiPositionPosterior: accepted results vector is empty.";
+        std::string tmp_str = "Error in WriteMultiPositionPosterior: accepted results vector is empty.";
+        throw tmp_str;
     }
     
     if ( all_results_vec.empty() && is_multi_position ) {
-        throw "Error in WriteMultiPositionPosterior: all-results vector is empty.";
+        std::string tmp_str = "Error in WriteMultiPositionPosterior: all-results vector is empty.";
+        throw tmp_str;
     }
     
-    std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
-    
-    if (!outfile.is_open()) {
-        throw "Error in WriteMultiPositionPosterior: unable to open file " + filename;
-    }
+    std::stringstream ss;
     
     // header
-    
-    outfile << "position" << fits_constants::FILE_FIELD_DELIMITER << "distance";
+    ss << "position" << fits_constants::FILE_FIELD_DELIMITER << "distance";
     switch (factor) {
         case Fitness: {
             for (auto i = 0; i < accepted_results_vec[0].fitness_values.size(); ++i) {
-                outfile << fits_constants::FILE_FIELD_DELIMITER << "allele" << i;
+                ss << fits_constants::FILE_FIELD_DELIMITER << "allele" << i;
             }
             break;
         }
@@ -302,39 +296,39 @@ void ResultsStats::WritePosterior( bool is_multi_position, FactorToInfer factor,
         case MutationRate: {
             for (auto i = 0; i < accepted_results_vec[0].fitness_values.size(); ++i) {
                 for (auto j = 0; j < accepted_results_vec[0].fitness_values.size(); ++j) {
-                    outfile << fits_constants::FILE_FIELD_DELIMITER << "allele" << i << "_" << j;
+                    ss << fits_constants::FILE_FIELD_DELIMITER << "allele" << i << "_" << j;
                 }
             }
             break;
         }
             
         case PopulationSize: {
-            outfile << fits_constants::FILE_FIELD_DELIMITER << "N";
+            ss << fits_constants::FILE_FIELD_DELIMITER << "N";
             break;
         }
     }
-    outfile << std::endl;
+    ss << std::endl;
     
     
     // in any case accepted results will be the accepted results..
     for ( auto tmp_entry : accepted_results_vec ) {
         
         // position of -1 to mark the "total" or "global" position
-        outfile << "N/A" << fits_constants::FILE_FIELD_DELIMITER;
+        ss << "N/A" << fits_constants::FILE_FIELD_DELIMITER;
         
         if ( is_multi_position ) {
             // note this is the sum of distances
-            outfile << tmp_entry.sum_distance;
+            ss << tmp_entry.sum_distance;
         }
         else {
-            outfile << tmp_entry.distance_from_actual;
+            ss << tmp_entry.distance_from_actual;
         }
         
         
         switch (factor) {
             case Fitness: {
                 for ( auto tmpval : tmp_entry.fitness_values ) {
-                    outfile << fits_constants::FILE_FIELD_DELIMITER << tmpval;
+                    ss << fits_constants::FILE_FIELD_DELIMITER << tmpval;
                 }
                 break;
             }
@@ -342,39 +336,38 @@ void ResultsStats::WritePosterior( bool is_multi_position, FactorToInfer factor,
             case MutationRate: {
                 for (auto row = 0; row < tmp_entry.mutation_rates.size1(); ++row) {
                     for (auto col = 0; col < tmp_entry.mutation_rates.size2(); ++col) {
-                        outfile << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.mutation_rates(row,col);
+                        ss << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.mutation_rates(row,col);
                     }
                 }
                 break;
             }
                 
             case PopulationSize: {
-                outfile << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.N << std::endl;
+                ss << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.N << std::endl;
                 break;
             }
         }
-        outfile << std::endl;
+        ss << std::endl;
     } // end of accepted results
     
     
     // only single position, we're done writing
     if ( !is_multi_position ) {
-        outfile.close();
-        return;
+        return ss.str();
     }
     
     
     // now write per-position data
     for ( auto tmp_entry : all_results_vec ) {
         
-        outfile << tmp_entry.pos << fits_constants::FILE_FIELD_DELIMITER;
+        ss << tmp_entry.pos << fits_constants::FILE_FIELD_DELIMITER;
         
-        outfile << tmp_entry.distance_from_actual;
+        ss << tmp_entry.distance_from_actual;
         
         switch (factor) {
             case Fitness: {
                 for ( auto tmpval : tmp_entry.fitness_values ) {
-                    outfile << fits_constants::FILE_FIELD_DELIMITER << tmpval;
+                    ss << fits_constants::FILE_FIELD_DELIMITER << tmpval;
                 }
                 break;
             }
@@ -382,19 +375,126 @@ void ResultsStats::WritePosterior( bool is_multi_position, FactorToInfer factor,
             case MutationRate: {
                 for (auto row = 0; row < tmp_entry.mutation_rates.size1(); ++row) {
                     for (auto col = 0; col < tmp_entry.mutation_rates.size2(); ++col) {
-                        outfile << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.mutation_rates(row,col);
+                        ss << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.mutation_rates(row,col);
                     }
                 }
                 break;
             }
                 
             case PopulationSize: {
-                outfile << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.N << std::endl;
+                ss << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.N << std::endl;
                 break;
             }
         }
-        outfile << std::endl;
+        ss << std::endl;
     } // end of all results
     
+    return ss.str();
+}
+
+
+void ResultsStats::WritePosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename )
+{
+    std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
+    
+    if (!outfile.is_open()) {
+        std::string tmp_str = "Error in WriteMultiPositionPosterior: unable to open file " + filename;
+        throw tmp_str;
+    }
+    
+    try {
+        auto str_posterior = GetPosterior( is_multi_position, factor, accepted_results_vec, all_results_vec );
+        outfile << str_posterior;
+    }
+    catch ( std::string str ) {
+        outfile.close();
+        throw str;
+    }
+    catch ( ... ) {
+        outfile.close();
+        std::string tmp_str = "Unknown error while getting posterior";
+        throw tmp_str;
+    }
+    
     outfile.close();
+}
+
+void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib, std::string filename )
+{
+    std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
+    
+    if (!outfile.is_open()) {
+        std::string tmp_str = "Error in WritePriorDistribToFile: unable to open file " + filename;
+        throw tmp_str;
+    }
+    
+    try {
+        auto str_prior = GetPrior( factor_to_infer, prior_distrib );
+        outfile << str_prior;
+    }
+    catch ( std::string str ) {
+        outfile.close();
+        throw str;
+    }
+    catch ( ... ) {
+        outfile.close();
+        std::string tmp_str = "Unknown error while getting prior";
+        throw tmp_str;
+    }
+    
+    outfile.close();
+}
+
+std::string ResultsStats::GetPrior( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib )
+// void ResultsStats::WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib, std::string filename )
+{
+    std::stringstream ss;
+    
+    if ( prior_distrib.empty() ) {
+        std::string tmp_str = "Error in getting prior: result_vector is empty.";
+        throw tmp_str;
+    }
+    
+    // print title according to the prior type
+    switch (factor_to_infer) {
+        case Fitness: {
+            
+            for (auto i = 0; i < prior_distrib[0].size(); ++i) {
+                ss << "allele" << i << fits_constants::FILE_FIELD_DELIMITER;
+            }
+            ss << std::endl;
+            break;
+        }
+            
+        case MutationRate: {
+            
+            auto num_alleles = prior_distrib[0].size() / 2;
+            
+            for (auto i = 0; i < prior_distrib[0].size(); ++i) {
+                auto from_allele = i / num_alleles;
+                auto to_allele = i % num_alleles;
+                
+                ss << "allele" << from_allele << "_" << to_allele << fits_constants::FILE_FIELD_DELIMITER;
+            }
+            ss << std::endl;
+            break;
+        }
+            
+        case PopulationSize: {
+            
+            ss << "N" << std::endl;
+            break;
+        }
+    }
+    
+    for ( auto current_vec : prior_distrib ) {
+        
+        for ( auto current_val : current_vec ) {
+            
+            ss << current_val << fits_constants::FILE_FIELD_DELIMITER;
+        }
+        ss << std::endl;
+    }
+    
+    return ss.str();
 }

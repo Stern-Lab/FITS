@@ -187,12 +187,16 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
         ss << fits_constants::FILE_FIELD_DELIMITER;
         for (auto col=0; col<_num_alleles; ++col ) {
             ss << "to" + std::to_string(col)
-            << "-" << fits_constants::FILE_FIELD_DELIMITER
+            << fits_constants::FILE_FIELD_DELIMITER
             << "-" << fits_constants::FILE_FIELD_DELIMITER
             << "-" << fits_constants::FILE_FIELD_DELIMITER;
+           
             
             if ( col < _num_alleles-1 ) {
-                << "-" << fits_constants::FILE_FIELD_DELIMITER;
+               ss << "-" << fits_constants::FILE_FIELD_DELIMITER;
+            }
+            else {
+                ss << "-";
             }
         }
         ss << std::endl;
