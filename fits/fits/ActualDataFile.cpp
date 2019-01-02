@@ -38,7 +38,8 @@ _num_alleles(other._num_alleles),
 _actual_generations(other._actual_generations),
 _actual_frequencies(other._actual_frequencies),
 _init_frequencies(other._init_frequencies)
-{}
+{
+}
 
 void ActualDataPositionData::Clear()
 {
@@ -60,7 +61,8 @@ _is_initialized(false)
 
 ActualDataFile::ActualDataFile( const ActualDataFile& other ) :
 _multi_positions(other._multi_positions),
-_is_initialized(other._is_initialized)
+_is_initialized(other._is_initialized),
+_position_data(other._position_data)
 {}
 
 void ActualDataFile::ValidateMultiPosition(int position)
