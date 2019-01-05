@@ -190,7 +190,6 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
             << fits_constants::FILE_FIELD_DELIMITER
             << "-" << fits_constants::FILE_FIELD_DELIMITER
             << "-" << fits_constants::FILE_FIELD_DELIMITER;
-           
             
             if ( col < _num_alleles-1 ) {
                ss << "-" << fits_constants::FILE_FIELD_DELIMITER;
@@ -206,6 +205,7 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
         ss << fits_constants::FILE_FIELD_DELIMITER;
         for (auto col=0; col<_num_alleles; ++col ) {
             ss << "median" << fits_constants::FILE_FIELD_DELIMITER;
+            ss << "MAD" << fits_constants::FILE_FIELD_DELIMITER;
             ss << "min" << fits_constants::FILE_FIELD_DELIMITER;
             ss << "max" << fits_constants::FILE_FIELD_DELIMITER;
             ss << "pval";
@@ -224,12 +224,14 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
             for (auto col=0; col<_num_alleles; ++col ) {
                 
                 auto tmp_median = median_mutation_rates(row,col);
+                auto tmp_mad = mad_mutation_rates(row,col);
                 auto tmp_min = min_mutation_rates(row,col);
                 auto tmp_max = max_mutation_rates(row,col);
                 auto tmp_pval = levenes_pval_matrix(row,col);
                 
                 // median
                 if ( row == col ) {
+                    ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
                     ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
                     ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
                     ss << "---" << fits_constants::FILE_FIELD_DELIMITER;
@@ -241,16 +243,17 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
                 }
                 else {
                     if ( levenes_pval_matrix(row,col) < fits_constants::LEVENES_SIGNIFICANCE ) {
-                        ss << tmp_median << fits_constants::FILE_FIELD_DELIMITER;
+                        ss << boost::format("%-.2e") % tmp_median << fits_constants::FILE_FIELD_DELIMITER;
                     }
                     else {
-                        ss << tmp_median << fits_constants::FILE_FIELD_DELIMITER;
+                        ss << boost::format("%-.2e") % tmp_median << fits_constants::FILE_FIELD_DELIMITER;
                     }
                     
                     // min, max
-                    ss << tmp_min << fits_constants::FILE_FIELD_DELIMITER;
-                    ss << tmp_max << fits_constants::FILE_FIELD_DELIMITER;
-                    ss << tmp_pval;
+                    ss << boost::format("%-.2e") % tmp_mad << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << boost::format("%-.2e") % tmp_min << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << boost::format("%-.2e") % tmp_max << fits_constants::FILE_FIELD_DELIMITER;
+                    ss << boost::format("%-.2e") % tmp_pval;
                     
                     if ( col < _num_alleles-1 ) {
                         ss << fits_constants::FILE_FIELD_DELIMITER;

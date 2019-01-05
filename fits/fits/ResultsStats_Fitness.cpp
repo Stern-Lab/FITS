@@ -351,14 +351,14 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
                 ss << "*" << current_allele << "\t";
             }
             
-            ss << allele_median_fitness[current_allele] << "\t";
-            ss << allele_MAD[current_allele] << "\t";
+            ss << boost::format("%-.3f") % allele_median_fitness[current_allele] << "\t";
+            ss << boost::format("%-.3f") % allele_MAD[current_allele] << "\t";
             
-            ss << allele_min_fitness[current_allele] << "\t";
-            ss << allele_max_fitness[current_allele] << "\t";
-            ss << deleterious_percent[current_allele] << "\t";
-            ss << neutral_percent[current_allele] << "\t";
-            ss << advantageous_percent[current_allele] << "\t";
+            ss << boost::format("%-.3f") % allele_min_fitness[current_allele] << "\t";
+            ss << boost::format("%-.3f") % allele_max_fitness[current_allele] << "\t";
+            ss << boost::format("%-.1f") % deleterious_percent[current_allele] << "\t";
+            ss << boost::format("%-.1f") % neutral_percent[current_allele] << "\t";
+            ss << boost::format("%-.1f") % advantageous_percent[current_allele] << "\t";
             ss << AlleleCategory2String(allele_category[current_allele]) << "\t";
             
             if ( allele_category[current_allele] == WT ) {
