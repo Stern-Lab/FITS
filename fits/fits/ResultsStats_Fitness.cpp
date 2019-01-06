@@ -365,7 +365,7 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
                 ss << "N/A";
             }
             else {
-                ss << levenes_pval[current_allele];
+                ss << boost::format("%-.1f") % levenes_pval[current_allele];
             }
             
             if ( current_allele < _num_alleles-1 ) {
