@@ -54,7 +54,7 @@ std::string ActualDataFile::GetAsRawText()
     return tmp_str;
 }
 
-int ActualDataFile::GetNumberOfPositions()
+std::size_t ActualDataFile::GetNumberOfPositions()
 {
     return _position_data.size();
 }

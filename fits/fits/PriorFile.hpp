@@ -15,38 +15,47 @@
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+
+
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 #include "fits_constants.h"
 
 
-struct PriorFileEntry {
-    double probability;
-    double value;
-    
-    bool operator<( const PriorFileEntry& other ) const
-    {
-        return value < other.value;
-    }
-};
-
 
 class PriorFile {
-  
-    std::vector<PriorFileEntry> _prior_entry_vec;
+
+    boost::mt19937 _rnd_gen;
+    unsigned int _rnd_seed;
+    
+    PRIOR_DISTRIB_VECTOR _prior_distribution;
+    std::vector<std::string> _header_titles;
+    
+    bool _is_initialized;
     
 public:
-    PriorFile( std::string filename );
+    PriorFile();
     
-    std::vector<PriorFileEntry> ReadPriorFromFile( std::string filename );
+    void ReadPriorFromFile( std::string filename );
     
-    MATRIX_TYPE GetPriorMatrix();
+    PRIOR_DISTRIB_VECTOR GetPriorAsVector();
+    
+    std::size_t GetPriorSize() { return _prior_distribution.size(); }
+    
+    PRIOR_DISTRIB_VECTOR ResamplePriorAsVector( std::size_t num_samples, bool overwrite_internal );
+    
+    // MATRIX_TYPE GetPriorMatrix( std::size_t rows, std::size_t cols );
     
     const int PRIOR_FILE_COLUMN_PROBABILITY = 0;
     const int PRIOR_FILE_COLUMN_VALUE = 1;
+    
+    bool IsInitialized() { return _is_initialized; }
 };
 
 #endif /* PriorFile_hpp */

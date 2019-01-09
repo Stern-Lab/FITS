@@ -135,6 +135,8 @@ class ActualDataFile {
     
     void ValidateMultiPosition(int position);
     
+    void ValidateDataFile();
+    
     std::vector<ActualDataEntry> DataFileToEntries( std::string filename );
     
 public:
@@ -158,7 +160,7 @@ public:
     
     ActualDataPositionData GetFirstPosition();
     ActualDataPositionData GetPosition( int position );
-    int GetNumberOfPositions();
+    std::size_t GetNumberOfPositions();
     std::vector<int> GetPositionNumbers();
     
     

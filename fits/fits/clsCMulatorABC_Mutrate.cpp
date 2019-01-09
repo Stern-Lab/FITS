@@ -80,6 +80,19 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
     //for (auto current_mutrate_idx=0; current_mutrate_idx<prior_distrib.size(); ++current_mutrate_idx ) {
     for (auto current_prior_sample_idx=start_idx; current_prior_sample_idx<end_idx; ++current_prior_sample_idx ) {
         
+        if ( _expected_prior_sample_size != prior_distrib[current_prior_sample_idx].size() ) {
+            std::string tmp_str = "Expected sample size is " + std::to_string(_expected_prior_sample_size)
+            + " but current sample size is " + std::to_string(prior_distrib[current_prior_sample_idx].size()) +
+            ". Sample: ";
+            
+            for ( auto val : prior_distrib[current_prior_sample_idx] ) {
+                tmp_str += std::to_string(val) + " ";
+            }
+            
+            throw tmp_str;
+        }
+        
+        
         auto current_mutrate_vector = prior_distrib[current_prior_sample_idx];
         
         local_sim_object.Reset_Soft();

@@ -85,7 +85,7 @@ private:
 	int _logistic_growth_K;		// population capacity
 	int _logistic_growth_t;		// time; couples to number of generations but may be reset following bottleneck
 	FLOAT_TYPE _logistic_growth_r;	// growth rate
-	int _repeats;
+    std::size_t _repeats;
 
 	int _wt_allele_index;
 	//bool _infer_wt_automatically;		// don't expect min and max values for each alleles. infer the wt, assign 1 to min and max, and assign arbitrary min and max for rest of alleles
@@ -347,7 +347,7 @@ public:
 	
 	// this shouldn't be here.. but rather in a wrapping class
 	// but I can't afford any other thread calling parameters class
-	int GetRepeats() const;
+    std::size_t GetRepeats() const;
 	
 	FLOAT_TYPE GetInitAlleleFreq(int allele) const;
 	

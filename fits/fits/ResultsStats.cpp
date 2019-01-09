@@ -181,7 +181,7 @@ FLOAT_TYPE ResultsStats::LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vect
     auto k = 2.0f; // prior & posterior
     
     //auto alpha = 0.05;
-    auto alpha = 0.01f;
+    // auto alpha = 0.01f;
     
     //auto numerator = static_cast<float>( (N-k)*( N1*(Z1-Z0)*(Z1-Z0) + N2*(Z2-Z0)*(Z2-Z0) ) );
     auto numerator = static_cast<FLOAT_TYPE>( (N-k)*( N1*std::pow(Z1-Z0, 2) + N2*std::pow(Z2-Z0, 2) ) );

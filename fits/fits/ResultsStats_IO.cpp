@@ -460,8 +460,14 @@ std::string ResultsStats::GetPrior( FactorToInfer factor_to_infer, const PRIOR_D
         case Fitness: {
             
             for (auto i = 0; i < prior_distrib[0].size(); ++i) {
-                ss << "allele" << i << fits_constants::FILE_FIELD_DELIMITER;
+                ss << "allele" << i;
+                
+                if ( i< prior_distrib[0].size()-1 ) {
+                    ss << fits_constants::FILE_FIELD_DELIMITER;
+                }
             }
+            
+            
             ss << std::endl;
             break;
         }
@@ -474,7 +480,11 @@ std::string ResultsStats::GetPrior( FactorToInfer factor_to_infer, const PRIOR_D
                 auto from_allele = i / num_alleles;
                 auto to_allele = i % num_alleles;
                 
-                ss << "allele" << from_allele << "_" << to_allele << fits_constants::FILE_FIELD_DELIMITER;
+                ss << "allele" << from_allele << "_" << to_allele;
+                
+                if ( i< prior_distrib[0].size()-1 ) {
+                    ss << fits_constants::FILE_FIELD_DELIMITER;
+                }
             }
             ss << std::endl;
             break;
@@ -489,9 +499,14 @@ std::string ResultsStats::GetPrior( FactorToInfer factor_to_infer, const PRIOR_D
     
     for ( auto current_vec : prior_distrib ) {
         
-        for ( auto current_val : current_vec ) {
+        for ( auto i=0; i<current_vec.size(); ++i ) {
             
-            ss << current_val << fits_constants::FILE_FIELD_DELIMITER;
+            auto current_val = current_vec[i];
+            ss << current_val;
+            
+            if ( i< current_vec.size()-1 ) {
+                ss << fits_constants::FILE_FIELD_DELIMITER;
+            }
         }
         ss << std::endl;
     }

@@ -74,6 +74,7 @@ public:
     float GetFloat(const std::string paramName, const float defaultValue) ;
     double GetDouble(const std::string paramName, const double defaultValue) ;
     std::string GetString(const std::string paramName, const std::string defaultValue) ;
+    std::size_t GetSize_t(const std::string paramName, const std::size_t defaultValue) ;
     
     // TODO: unsigned for int, others
     // Note that conversion from singned to unsigned is well defined, so this is actually unnecessary.
@@ -83,6 +84,7 @@ public:
     
     /* These equivalent functions will throw exceptions instead of giving default values */
     int GetInt(const std::string paramName) ;
+    std::size_t GetSize_t(const std::string paramName) ;
     unsigned int GetUnsignedInt(const std::string paramName) ;
     unsigned long GetUnsignedLong(const std::string paramName) ;
     float GetFloat(const std::string paramName) ;

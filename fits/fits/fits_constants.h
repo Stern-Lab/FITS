@@ -43,7 +43,7 @@ enum FactorToInfer {
 namespace fits_constants {
     
     /* GENERAL */
-    const std::string current_version_str = "1.1.11";
+    const std::string current_version_str = "1.1.12";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
     const std::string FILE_FIELD_DELIMITER = "\t";
     
@@ -112,7 +112,7 @@ namespace fits_constants {
     
     //const std::string PARAM_SIM_ID = "name_of_run";
     const std::string PARAM_SIM_REPEATS = "num_samples_from_prior";
-    const int PARAM_SIM_REPEATS_DEFAULT = 100000;
+    const std::size_t PARAM_SIM_REPEATS_DEFAULT = 100000;
     
     const std::string PARAM_MANUAL_SEED = "manual_seed";
     
@@ -142,6 +142,8 @@ namespace fits_constants {
     // const int PARAM_SKIP_STOCHASTIC_STEP_DEFAULT = 0;
     
     // prior distributions
+    const std::string PARAM_PRIOR_FILENAME = "prior_file";
+    
     const std::string PARAM_FITNESS_PRIOR_DISTRIB = "fitness_prior";
     
     const std::string PARAM_PRIOR_DISTRIB_UNIFORM = "uniform";

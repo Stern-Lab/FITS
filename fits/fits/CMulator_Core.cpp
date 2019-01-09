@@ -161,11 +161,6 @@ int CMulator::EvolveToGeneration( int target_generation )
         */
         
         // normalize fitness
-        
-        //if ( _debug_mode ) {
-        //    std::cout << "Normalizing fitness." << std::endl;
-        //}
-        
         std::vector<FLOAT_TYPE> allele_fitness_bar(_num_alleles, 0.0f);
         std::vector<FLOAT_TYPE> allele_fitness_adjusted(_num_alleles, 0.0f);
         
@@ -186,23 +181,6 @@ int CMulator::EvolveToGeneration( int target_generation )
                         [wbar]( FLOAT_TYPE f){ return f / wbar; } );
         
         
-        /*
-        if ( _debug_mode ) {
-            std::cout << "fitness values: ";
-            for ( auto val : _allele_fitness ) std::cout << val << "\t";
-            std::cout << std::endl;
-            
-            std::cout << "fitness values bar: ";
-            for ( auto val : allele_fitness_bar ) std::cout << val << "\t";
-            std::cout << std::endl;
-            
-            std::cout << "adjusted fitnesss: ";
-            for ( auto val : allele_fitness_adjusted ) std::cout << val << "\t";
-            std::cout << std::endl;
-            std::cout << "wbar = " << wbar << std::endl;
-            std::cout << "Multiplications" << std::endl;
-        }
-         */
         // TODO: replace these nested for loops with matrix multiplication
         // vector of last generation X mutation_rate_matrix -> tmp1_vector
         // tmp1_vector X fitness_vector -> new_generation
@@ -228,6 +206,7 @@ int CMulator::EvolveToGeneration( int target_generation )
         FLOAT_TYPE sumall = std::accumulate( vec_after_deterministic.begin(),
                                              vec_after_deterministic.end(), 0.0f );
         
+        // std::cout << "sumall = " << sumall << std::endl;
         
         std::transform( vec_after_deterministic.begin(),
                         vec_after_deterministic.end(),

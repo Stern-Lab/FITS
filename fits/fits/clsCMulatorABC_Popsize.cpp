@@ -67,6 +67,18 @@ std::vector<SimulationResult> clsCMulatorABC::RunPopulationSizeInferenceBatch( c
     //for (auto current_popsize : prior_distrib) {
     for ( auto current_prior_sample_idx=start_idx; current_prior_sample_idx<end_idx; ++current_prior_sample_idx ) {
         
+        if ( _expected_prior_sample_size != prior_distrib[current_prior_sample_idx].size() ) {
+            std::string tmp_str = "Expected sample size is " + std::to_string(_expected_prior_sample_size)
+            + " but current sample size is " + std::to_string(prior_distrib[current_prior_sample_idx].size()) +
+            ". Sample: ";
+            
+            for ( auto val : prior_distrib[current_prior_sample_idx] ) {
+                tmp_str += std::to_string(val) + " ";
+            }
+            
+            throw tmp_str;
+        }
+        
         local_sim_object.Reset_Soft();
         //local_sim_object.SetPopulationSize( std::pow( 10, current_popsize[0]) );
         

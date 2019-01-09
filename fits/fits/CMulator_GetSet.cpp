@@ -427,7 +427,7 @@ INT_MATRIX CMulator::GetMaxMutationRateMatrix() const
 }
 
 
-int CMulator::GetRepeats() const
+std::size_t CMulator::GetRepeats() const
 {
     return _repeats;
 }

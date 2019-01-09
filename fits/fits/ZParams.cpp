@@ -513,3 +513,36 @@ bool ZParams::IsParameterFound( const std::string paramName )
     
     return true;
 }
+
+
+std::size_t ZParams::GetSize_t(const std::string paramName)
+{
+    std::string retreived_str;
+    
+    retreived_str = GetString(paramName);
+    
+    std::size_t tmp_value = 0;
+    try {
+        tmp_value = boost::lexical_cast<std::size_t>(retreived_str);
+    }
+    catch (...) {
+        std::string tmp_str = "Error: parameter " + paramName + " is not size_t (" + retreived_str + ")";
+        throw tmp_str;
+    }
+    
+    return tmp_value;
+}
+
+std::size_t ZParams::GetSize_t(const std::string paramName, const std::size_t defaultValue )
+{
+    std::size_t retreived_value = 0.0f;
+    
+    try {
+        retreived_value = GetSize_t(paramName);
+    }
+    catch (...) {
+        return defaultValue;
+    }
+    
+    return retreived_value;
+}

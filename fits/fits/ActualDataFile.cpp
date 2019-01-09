@@ -295,5 +295,42 @@ void ActualDataFile::LoadActualData( std::string filename )
         } // iterating through positions
     }
     
+    ValidateDataFile();
 }
 
+void ActualDataFile::ValidateDataFile()
+{
+    for ( auto current_position : _position_data ) {
+        
+        auto generation_vec = current_position.GetActualGenerations();
+        
+        for ( auto current_generation : generation_vec ) {
+            
+            float current_freq_sum = 0;
+            
+            for ( auto current_entry : current_position._actual_data ) {
+                
+                if ( current_entry.gen == current_generation ) {
+                    
+                    if ( current_entry.freq < 0 ) {
+                        std::string tmp_str = "negative frequency value (" + std::to_string(current_entry.freq)
+                        + ") in generation " + std::to_string(current_generation)
+                        + " at position " + std::to_string(current_position._position);
+                        
+                        throw tmp_str;
+                    }
+                    
+                    current_freq_sum += current_entry.freq;
+                }
+            }
+            
+            if ( current_freq_sum != 1.0f ) {
+                std::string tmp_str = "frequency values do not sum up to 1 (" + std::to_string(current_freq_sum)
+                + ") in generation " + std::to_string(current_generation)
+                + " at position " + std::to_string(current_position._position);
+                
+                throw tmp_str;
+            }
+        }
+    }
+}

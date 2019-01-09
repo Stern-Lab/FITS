@@ -22,7 +22,7 @@
 clsCMulatorABC::clsCMulatorABC()
 {}
 
-clsCMulatorABC::clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distribution_vec, const PRIOR_DISTRIB_MATRIX& prior_distribution_matrix  ) :
+clsCMulatorABC::clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distribution_vec, const PRIOR_DISTRIB_MATRIX& prior_distribution_matrix  ) :
 _zparams(sim_params),
 _total_running_time_sec(0),
 _prior_type(PriorDistributionType::UNIFORM),
@@ -37,9 +37,13 @@ _verbose_output(false)
 {
     ResetRejectionThreshold();
     
+    _wt_allele_idx = actual_data_position.GetWTIndex();
+    
     _verbose_output = ( sim_params.GetInt( fits_constants::PARAM_VERBOSE_SWITCH ) == fits_constants::PARAM_VERBOSE_SWITCH_ON );
     
-    _repeats = _zparams.GetInt( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
+    
+    // _repeats = _zparams.GetInt( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
+    _repeats = _zparams.GetSize_t( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
     if ( _repeats <= 0 ) {
         std::string tmp_str = "Error: Number of repoeats must be positive.";
         throw tmp_str;
@@ -69,10 +73,14 @@ _verbose_output(false)
     CMulator local_sim_object(_zparams);
     local_sim_object.SetWTAllele( _actual_data_position.GetWTIndex() );
     
+    _expected_prior_sample_size = 0;
+    
     switch (_factor_to_infer) {
         case Fitness: {
             auto tmp_prior = _zparams.GetString( fits_constants::PARAM_FITNESS_PRIOR_DISTRIB,
                                                 fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
+            
+            _expected_prior_sample_size = _zparams.GetSize_t( fits_constants::PARAM_NUM_ALLELES );
             
             if ( tmp_prior.compare( fits_constants::PARAM_PRIOR_DISTRIB_UNIFORM ) == 0 ) {
                 _prior_type = UNIFORM;
@@ -118,6 +126,8 @@ _verbose_output(false)
             std::vector<FLOAT_TYPE> minN {_zparams.GetDouble(fits_constants::PARAM_MIN_LOG_POPSIZE)};
             std::vector<FLOAT_TYPE> maxN {_zparams.GetDouble(fits_constants::PARAM_MAX_LOG_POPSIZE)};
             
+            _expected_prior_sample_size = 1;
+            
             if ( prior_distribution_vec.empty() ) {
                 if (_verbose_output) {
                     std::cout << "Sampling from prior... " << std::flush;
@@ -142,6 +152,8 @@ _verbose_output(false)
         case MutationRate: {
             auto min_matrix = local_sim_object.GetMinMutationRateMatrix();
             auto max_matrix = local_sim_object.GetMaxMutationRateMatrix();
+            
+            _expected_prior_sample_size = _zparams.GetSize_t( fits_constants::PARAM_NUM_ALLELES ) * _zparams.GetSize_t( fits_constants::PARAM_NUM_ALLELES );
             
             if ( prior_distribution_vec.empty() ) {
                 
@@ -341,8 +353,8 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
             }
         }
         catch (std::string str) {
-            std::cerr << "Exeption while running inference batch: " << str << std::endl;
-            throw;
+            std::string tmp_str = "Exeption while running inference batch: " + str;
+            throw tmp_str;
         }
         catch (...) {
             std::cerr << "Unknown exeption while running inference batch. ";
@@ -553,6 +565,7 @@ void clsCMulatorABC::SetImmediateRejection(bool new_val)
 // Assumes input valididty has been checked
 FLOAT_TYPE clsCMulatorABC::DistanceL1( const MATRIX_TYPE &actual_data, const MATRIX_TYPE &sim_data, const std::vector<FLOAT_TYPE> &scaling_vector )
 {
+    
     if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
         std::cout << "Calculating L1 distance:" << std::endl;
     }
@@ -576,6 +589,11 @@ FLOAT_TYPE clsCMulatorABC::DistanceL1( const MATRIX_TYPE &actual_data, const MAT
     // sum each allele
     FLOAT_TYPE sum_diff = 0.0f;
     for ( auto col=0; col<diff_matrix.size2(); ++col ) {
+        
+        if ( col == _wt_allele_idx ) {
+            // std::cout << " distance skipping allele " << col << std::endl;
+            continue;
+        }
         
         boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(diff_matrix, col);
         auto current_allele_sum = boost::numeric::ublas::sum(current_col);
@@ -613,6 +631,11 @@ FLOAT_TYPE clsCMulatorABC::DistanceL2( const MATRIX_TYPE &actual_data, const MAT
     // sum all squared differences
     FLOAT_TYPE sum_diff = 0.0f;
     for ( auto col=0; col<squared_diff_matrix.size2(); ++col ) {
+        
+        if ( col == _wt_allele_idx ) {
+            continue;
+        }
+        
         boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(squared_diff_matrix, col);
         auto current_allele_sum = boost::numeric::ublas::sum(current_col);
         

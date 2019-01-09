@@ -40,6 +40,7 @@
 #include "clsCMulatorABC.h"
 
 #include "PriorSampler.hpp"
+#include "PriorFile.hpp"
 #include "SimulationResult.hpp"
 #include "ResultsStats.hpp"
 #include "ActualDataFile.hpp"
@@ -166,7 +167,56 @@ int InferABC( FactorToInfer factor,
     if ( !my_zparams.IsParameterFound( fits_constants::PARAM_VERBOSE_SWITCH) ) {
         my_zparams.AddParameter( fits_constants::PARAM_VERBOSE_SWITCH, fits_constants::PARAM_VERBOSE_SWITCH_OFF );
     }
-    bool verbose_output = ( my_zparams.GetInt( fits_constants::PARAM_VERBOSE_SWITCH ) == fits_constants::PARAM_VERBOSE_SWITCH_ON );
+    //bool verbose_output = ( my_zparams.GetInt( fits_constants::PARAM_VERBOSE_SWITCH ) == fits_constants::PARAM_VERBOSE_SWITCH_ON );
+    
+    
+    // did the user define a custom prior?
+    PriorFile prior_file;
+    if ( my_zparams.IsParameterFound( fits_constants::PARAM_PRIOR_FILENAME ) ) {
+        try {
+            
+            std::cout << " prior file param found" << std::endl;
+            auto prior_filename = my_zparams.GetString( fits_constants::PARAM_PRIOR_FILENAME );
+            
+            std::cout << "Loading custom prior from: " << prior_filename << "... ";
+            
+            prior_file.ReadPriorFromFile( prior_filename );
+            
+            std::cout << "Done." << std::endl;
+            
+            auto user_prior_size = prior_file.GetPriorSize();
+            try {
+                auto repeats = my_zparams.GetSize_t( fits_constants::PARAM_SIM_REPEATS );
+                
+                if ( repeats != user_prior_size ) {
+                    std::cout << "Warning: user prior has size of " << std::to_string(user_prior_size)
+                    << " but requested " << std::to_string(repeats)
+                    << " samples. Resampling... ";
+                    
+                    prior_file.ResamplePriorAsVector( repeats, true );
+                    
+                    std::cout << "Done." << std::endl;
+                }
+            }
+            catch(...) {
+                // repeats not specified - update in parameter file
+                std::cout << "Number of repeats defined as prior size (" << user_prior_size << ")." << std::endl;
+                my_zparams.AddParameter( fits_constants::PARAM_SIM_REPEATS, std::to_string(user_prior_size) );
+            }
+        }
+        catch ( std::string str ) {
+            std::string tmp_str = "Error while loading prior: " + str;
+            throw tmp_str;
+        }
+        catch ( const char* str ) {
+            std::string tmp_str = "Error while loading prior: " + std::string(str);
+            throw tmp_str;
+        }
+        catch (...) {
+            std::cerr << "Unknown error while loading prior";
+            return 1;
+        }
+    }
     
     
     std::cout << std::endl << "Running simulations:" << std::endl;
@@ -207,6 +257,13 @@ int InferABC( FactorToInfer factor,
             PRIOR_DISTRIB_MATRIX global_matrix_prior; //currently dud. I want to avoid copying vactors into matrices all the time.
             
             remaining_positions = actual_positions_vec.size();
+            
+            // using the custom prior
+            if ( prior_file.IsInitialized() ) {
+                global_prior = prior_file.GetPriorAsVector();
+                
+                std::cout << " loaded prior size: " << global_prior.size() << std::endl;
+            }
             
             for ( auto current_position_num : actual_positions_vec ) {
                 
@@ -442,9 +499,17 @@ int InferABC( FactorToInfer factor,
                 my_zparams.UpdateParameter( fits_constants::PARAM_GENERATION_SHIFT, std::to_string(first_generation) );
             }
             
-            PRIOR_DISTRIB_VECTOR dud_prior;
+            PRIOR_DISTRIB_VECTOR local_prior;
             PRIOR_DISTRIB_MATRIX dud_matrix_prior;
-            clsCMulatorABC abc_object_sim( my_zparams, actual_data_file.GetFirstPosition(), factor, dud_prior, dud_matrix_prior );
+            
+            // using the custom prior
+            if ( prior_file.IsInitialized() ) {
+                local_prior = prior_file.GetPriorAsVector();
+                
+                std::cout << " loaded prior size: " << local_prior.size() << std::endl;
+            }
+            
+            clsCMulatorABC abc_object_sim( my_zparams, actual_data_file.GetFirstPosition(), factor, local_prior, dud_matrix_prior );
             
             prior_type = abc_object_sim.GetPriorType();
             

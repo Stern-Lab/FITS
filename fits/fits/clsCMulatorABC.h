@@ -69,6 +69,9 @@
 class clsCMulatorABC 
 {
 private:
+    
+    std::size_t _wt_allele_idx;
+    std::size_t _expected_prior_sample_size;
     std::size_t _total_running_time_sec;
     
     boost::mt19937 _boost_gen;
@@ -117,7 +120,7 @@ private:
 public:
     //clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
     clsCMulatorABC();
-    clsCMulatorABC( ZParams sim_params, const ActualDataPositionData& actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distribution_vec, const PRIOR_DISTRIB_MATRIX& prior_distribution_matrix );
+    clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distribution_vec, const PRIOR_DISTRIB_MATRIX& prior_distribution_matrix );
 
     // simulations/second
     double GetSimulationSpeed() { return _simulation_speed; }
