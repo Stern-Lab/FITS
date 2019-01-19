@@ -270,6 +270,8 @@ void clsCMulatorABC::NormalizePrior()
 
 void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_of_batches )
 {
+
+    
     
     _simulation_result_vector.clear();
     // _float_prior_archive.clear();
@@ -286,6 +288,8 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
     _simulation_result_vector.reserve(_repeats);
     
     _factor_to_infer = factor;
+    
+    _total_running_time_sec = 0;
     
     auto start_global = std::chrono::high_resolution_clock::now();
     
@@ -315,7 +319,8 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
         //prior_subset.resize(repeats_in_batch);
         
         if ( current_repeat > _global_prior.size() ) {
-            std::string tmp_str = "Error: current repeat is larger than prior size: " + std::to_string(current_repeat) + " " + std::to_string(_global_prior.size());
+            std::string tmp_str = "Error: current repeat (" + std::to_string(current_repeat) +
+            ") is larger than prior size (" + std::to_string(_global_prior.size()) + ")";
             throw tmp_str;
         }
         
@@ -353,11 +358,11 @@ void clsCMulatorABC::RunABCInference( FactorToInfer factor, std::size_t number_o
             }
         }
         catch (std::string str) {
-            std::string tmp_str = "Exeption while running inference batch: " + str;
+            std::string tmp_str = "Exception while running inference batch: " + str;
             throw tmp_str;
         }
         catch (...) {
-            std::cerr << "Unknown exeption while running inference batch. ";
+            std::cerr << "Unknown exception while running inference batch. ";
         }
         auto end = std::chrono::high_resolution_clock::now();
         
@@ -590,10 +595,10 @@ FLOAT_TYPE clsCMulatorABC::DistanceL1( const MATRIX_TYPE &actual_data, const MAT
     FLOAT_TYPE sum_diff = 0.0f;
     for ( auto col=0; col<diff_matrix.size2(); ++col ) {
         
-        if ( col == _wt_allele_idx ) {
+        //if ( col == _wt_allele_idx ) {
             // std::cout << " distance skipping allele " << col << std::endl;
-            continue;
-        }
+           // continue;
+        //}
         
         boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(diff_matrix, col);
         auto current_allele_sum = boost::numeric::ublas::sum(current_col);
@@ -632,9 +637,9 @@ FLOAT_TYPE clsCMulatorABC::DistanceL2( const MATRIX_TYPE &actual_data, const MAT
     FLOAT_TYPE sum_diff = 0.0f;
     for ( auto col=0; col<squared_diff_matrix.size2(); ++col ) {
         
-        if ( col == _wt_allele_idx ) {
-            continue;
-        }
+        //if ( col == _wt_allele_idx ) {
+          //  continue;
+        //}
         
         boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(squared_diff_matrix, col);
         auto current_allele_sum = boost::numeric::ublas::sum(current_col);

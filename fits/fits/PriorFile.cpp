@@ -82,16 +82,26 @@ void PriorFile::ReadPriorFromFile( std::string filename )
                 boost::trim( tmp_field );
                 
                 if ( tmp_field.empty() ) {
-                    continue;
+                    std::string tmp_str = "Missing value in line: " + std::to_string(current_line_num);
+                    throw tmp_str;
                 }
                 
-                auto tmp_val = boost::lexical_cast<double>( tmp_field );
-                tmp_prior_sample.push_back( tmp_val );
+                try {
+                    auto tmp_val = boost::lexical_cast<double>( tmp_field );
+                    tmp_prior_sample.push_back( tmp_val );
+                }
+                catch(...) {
+                    std::string tmp_str = "Invalid value (" + tmp_field +  ") in line: " + std::to_string(current_line_num);
+                    throw tmp_str;
+                }
             }
+        }
+        catch ( std::string str ) {
+            std::string tmp_str = "Error while parsing prior file to columns: " + str;
+            throw tmp_str;
         }
         catch (...) {
             std::string tmp_str = "Error while parsing prior file to columns. Line from file:\n" + tmp_line;
-            std::cerr << tmp_str << std::endl;
             throw tmp_str;
         }
         
@@ -132,6 +142,7 @@ PRIOR_DISTRIB_VECTOR PriorFile::GetPriorAsVector()
 
 PRIOR_DISTRIB_VECTOR PriorFile::ResamplePriorAsVector( std::size_t num_samples, bool overwrite_internal )
 {
+    std::cout << "num samples=" << num_samples;
     PRIOR_DISTRIB_VECTOR resampled_prior;
     
     if (!_is_initialized) {
@@ -144,9 +155,9 @@ PRIOR_DISTRIB_VECTOR PriorFile::ResamplePriorAsVector( std::size_t num_samples, 
         throw tmp_str;
     }
     
-    boost::random::uniform_int_distribution<std::size_t> sample_idx_distribution( 0, _prior_distribution.size() );
+    
+    boost::random::uniform_int_distribution<std::size_t> sample_idx_distribution( 0, _prior_distribution.size()-1 );
     for ( std::size_t sample_counter=0; sample_counter<num_samples; ++sample_counter ) {
-        
         auto rnd_idx = sample_idx_distribution(_rnd_gen);
         resampled_prior.push_back( _prior_distribution[rnd_idx] );
     }
@@ -157,3 +168,4 @@ PRIOR_DISTRIB_VECTOR PriorFile::ResamplePriorAsVector( std::size_t num_samples, 
     
     return resampled_prior;
 }
+

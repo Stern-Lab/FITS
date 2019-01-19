@@ -56,6 +56,7 @@ public:
     const int PRIOR_FILE_COLUMN_VALUE = 1;
     
     bool IsInitialized() { return _is_initialized; }
+    
 };
 
 #endif /* PriorFile_hpp */

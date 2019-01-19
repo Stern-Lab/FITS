@@ -912,15 +912,15 @@ void print_syntaxes(std::string exec_name)
 {
     // exec_name = "fits ";
     std::cout << "\t" << exec_name << " " << fits_constants::ARG_INFER_FITNESS
-    << " <parameters_file> <data_file> <posterior_file> <summary_file> (optional: <prior_file>)" << std::endl << std::endl;
+    << " <INPUT: parameters_file> <INPUT: data_file> <OUTPUT: posterior_file> <OUTPUT: summary_file> (optional OUTPUT: <prior_file>)" << std::endl << std::endl;
     
     std::cout << "\t" << exec_name << " " << fits_constants::ARG_INFER_MUTATION
-    << " <parameters_file> <data_file> <posterior_file> <summary_file> (optional: <prior_file>)" << std::endl << std::endl;
+    << " <INPUT: parameters_file> <INPUT: data_file> <OUTPUT: posterior_file> <OUTPUT: summary_file> (optional OUTPUT: <prior_file>)" << std::endl << std::endl;
     
     std::cout << "\t" << exec_name << " " << fits_constants::ARG_INFER_POPSIZE
-    << " <parameters_file> <data_file> <posterior_file> <summary_file> (optional: <prior_file>)" << std::endl << std::endl;
+    << " <INPUT: parameters_file> <INPUT: data_file> <OUTPUT: posterior_file> <OUTPUT: summary_file> (optional OUTPUT: <prior_file>)" << std::endl << std::endl;
     
-    std::cout << "\t" << exec_name << " " << "-simulate <parameters_file> <output_file>" << std::endl << std::endl;
+    std::cout << "\t" << exec_name << " " << "-simulate <INPUT: parameters_file> <OUTPUT: output_file>" << std::endl << std::endl;
 }
 
 

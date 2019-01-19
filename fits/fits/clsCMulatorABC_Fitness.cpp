@@ -56,24 +56,6 @@ std::vector<SimulationResult> clsCMulatorABC::RunFitnessInferenceBatch( const PR
     local_sim_object.SetWTAllele( _actual_data_position.GetWTIndex() );
     
     
-    if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-        std::cout << "BEGIN Debug: Prior distribution" << std::endl;
-        std::cout << "================================" << std::endl;
-        
-        for ( auto current_fitness_vector : prior_distrib ) {
-            
-            for ( auto current_fitness_val : current_fitness_vector ) {
-                
-                std::cout << current_fitness_val << fits_constants::FILE_FIELD_DELIMITER;
-            }
-            
-            std::cout << std::endl;
-        }
-        
-        std::cout << "END Debug: Prior distribution" << std::endl;
-        std::cout << "==============================" << std::endl;
-    }
-    
     std::vector<SimulationResult> tmp_res_vector;
     
     

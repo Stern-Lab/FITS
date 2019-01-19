@@ -34,7 +34,11 @@
 #include <string>
 #include <numeric>
 
+#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/odeint/util/ublas_wrapper.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
 //#include <boost/random/uniform_int_distribution.hpp>
@@ -212,6 +216,8 @@ private:
     bool IsValid_Generation( int generation ) const { return ( generation >=0  ); }
     
 	bool IsValid_Frequency( FLOAT_TYPE freq ) const { return freq >= 0 && freq <= 1.0; }
+    
+    bool IsValid_FrequencyVector( std::vector<FLOAT_TYPE> vec );
 	bool IsValid_Fitness( FLOAT_TYPE fitness ) const { return fitness >= 0; }
 	bool IsValid_PopulationSize( int N ) const { return N>0; }
 	

@@ -96,8 +96,26 @@ void CMulator::SetAlleleFitnessValue( int allele, FLOAT_TYPE fitness )
 
 void CMulator::SetAlleleInitFreqs( std::vector<FLOAT_TYPE> freqs )
 {
-    // todo: make sure sum to 1 but with epsilon
-    // FLOAT_TYPE tmp_sum = 0.0;
+    float current_freq_sum = 0;
+    
+    for ( auto tmp_idx=0; tmp_idx<freqs.size(); ++tmp_idx ) {
+        if ( freqs[tmp_idx] < 0 ) {
+            
+            std::string tmp_str = "Negative frequency value (" + std::to_string( freqs[tmp_idx] ) +
+            " for allele " + std::to_string(tmp_idx);
+            
+            throw tmp_str;
+        }
+        
+        current_freq_sum += freqs[tmp_idx];
+    }
+    
+    if ( current_freq_sum != 1.0f ) {
+        std::string tmp_str = "Setting initial frequencies for alleles, but they don't sum up to 1 (" +
+        std::to_string(current_freq_sum) + ")";
+        
+        throw tmp_str;
+    }
     
     _allele_init_freqs.resize( freqs.size() );
     _allele_init_freqs = freqs;
@@ -386,6 +404,19 @@ void CMulator::SetFitnessValues( const std::vector<FLOAT_TYPE> &_given_allele_fi
         throw tmp_str;
     }
     
+    // test that the fitness values are valid
+    for ( auto tmp_idx=0; tmp_idx<_given_allele_fitness.size(); ++tmp_idx ) {
+        
+        auto sampled_fitness = _given_allele_fitness[tmp_idx];
+        
+        if ( !IsValid_Fitness(sampled_fitness) ) {
+            std::string tmp_str = "Invalid fitness value sampled from prior for allele" +
+            std::to_string(tmp_idx) + ": " + std::to_string(sampled_fitness);
+            
+            throw tmp_str;
+        }
+    }
+    
     _allele_fitness = _given_allele_fitness;
     _available_fitness = true;
 }
@@ -405,11 +436,35 @@ void CMulator::SetRandomSeed(unsigned int new_seed)
 
 void CMulator::SetMutationRateMatrix( const MATRIX_TYPE& new_mutation_matrix )
 {
-    // TODO: check that rates are summed to 1
-    // TODO: update some dirty bit
+    
+    // not using matrix row because it cannot accept const matrix
+    for ( auto current_row=0; current_row<new_mutation_matrix.size1(); ++current_row ) {
+        
+        float sum_mutation_rates = 0;
+        
+        for ( auto current_col=0; current_col<new_mutation_matrix.size2(); ++current_col ) {
+            
+            auto tmp_mutrate = new_mutation_matrix(current_row, current_col);
+            
+            if ( tmp_mutrate < 0 ) {
+                std::string tmp_str = "Negative mutation rate from allele " +
+                std::to_string(current_row) + " to allele " + std::to_string(current_col);
+                
+                throw tmp_str;
+            }
+            
+            sum_mutation_rates += tmp_mutrate;
+        }
+        
+        if ( sum_mutation_rates != 1.0f ) {
+            std::string tmp_str = "Sum of mutation rates from allele " + std::to_string(current_row) + " is not 1 (" + std::to_string(sum_mutation_rates) + ")";
+            throw tmp_str;
+        }
+    }
+    
     _mutation_rates_matrix = new_mutation_matrix;
 }
-
+    
 
 MATRIX_TYPE CMulator::GetMutationRateMatrix() const
 {
