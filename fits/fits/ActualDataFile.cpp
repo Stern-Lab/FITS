@@ -306,7 +306,9 @@ void ActualDataFile::ValidateDataFile()
         
         for ( auto current_generation : generation_vec ) {
             
-            float current_freq_sum = 0;
+            // 2019-01-20
+            // tried to declare as float but I fail to reach exactly 1.00 for #alleles>2
+            FLOAT_TYPE current_freq_sum = 0;
             
             for ( auto current_entry : current_position._actual_data ) {
                 
@@ -324,7 +326,10 @@ void ActualDataFile::ValidateDataFile()
                 }
             }
             
-            if ( current_freq_sum != 1.0f ) {
+            
+            // cannot find a better way here.
+            if ( std::fabs(1.0 - current_freq_sum) > 2.0f * std::numeric_limits<float>::epsilon() ) {
+                
                 std::string tmp_str = "frequency values do not sum up to 1 (" + std::to_string(current_freq_sum)
                 + ") in generation " + std::to_string(current_generation)
                 + " at position " + std::to_string(current_position._position);
