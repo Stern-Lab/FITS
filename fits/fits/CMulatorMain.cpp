@@ -32,6 +32,8 @@
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/mean.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/median.hpp>
+#include <boost/accumulators/statistics/sum.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/random/bernoulli_distribution.hpp>
@@ -56,14 +58,80 @@ int InferABC( FactorToInfer factor,
     std::size_t remaining_positions = 0;
     //double simulation_speed = 0;
     
-    
     std::cout << "Parameter file: " << param_filename << std::endl;
+    try {
+        std::ifstream tmp_file( param_filename );
+        if ( !tmp_file.is_open() ) {
+            std::string str = "cannot open file";
+            throw str;
+        }
+        tmp_file.close();
+    }
+    catch (...) {
+        std::cerr << "Error: cannot open file " << param_filename << std::endl;
+        return 1;
+    }
+    
     std::cout << "Data file: " << actual_data_filename << std::endl;
+    try {
+        std::ifstream tmp_file( actual_data_filename );
+        if ( !tmp_file.is_open() ) {
+            std::string str = "cannot open file";
+            throw str;
+        }
+        tmp_file.close();
+    }
+    catch (...) {
+        std::cerr << "Error: cannot open file " << actual_data_filename << std::endl;
+        return 1;
+    }
+    
     std::cout << "Posterior distribution file: " << posterior_output_filename << std::endl;
+    try {
+        std::ofstream tmp_file( posterior_output_filename, std::ofstream::trunc );
+        if ( !tmp_file.is_open() ) {
+            std::string str = "cannot open file";
+            throw str;
+        }
+        tmp_file.close();
+    }
+    catch (...) {
+        std::cerr << "Error: cannot open file " << posterior_output_filename << std::endl;
+        return 1;
+    }
+    
+    
     std::cout << "Summary file: " << summary_output_filename << std::endl;
+    try {
+        std::ofstream tmp_file( summary_output_filename, std::ofstream::trunc );
+        if ( !tmp_file.is_open() ) {
+            std::string str = "cannot open file";
+            throw str;
+        }
+        tmp_file.close();
+    }
+    catch (...) {
+        std::cerr << "Error: cannot open file " << summary_output_filename << std::endl;
+        return 1;
+    }
+    
+    
     
     if ( prior_output_filename.compare("") != 0 ) {
         std::cout << "Prior distribution file: " << prior_output_filename << std::endl;
+        
+        try {
+            std::ofstream tmp_file( prior_output_filename, std::ofstream::trunc );
+            if ( !tmp_file.is_open() ) {
+                std::string str = "cannot open file";
+                throw str;
+            }
+            tmp_file.close();
+        }
+        catch (...) {
+            std::cerr << "Error: cannot open file " << prior_output_filename << std::endl;
+            return 1;
+        }
     }
     
     
@@ -186,6 +254,11 @@ int InferABC( FactorToInfer factor,
             
             auto user_prior_size = prior_file.GetPriorSize();
             try {
+                
+                
+                if ( user_prior_size < 2 ) {
+                    std::cerr << "Error: user prior has to include more than one unique value";
+                }
                 auto repeats = my_zparams.GetSize_t( fits_constants::PARAM_SIM_REPEATS );
                 
                 if ( repeats != user_prior_size ) {
@@ -206,11 +279,13 @@ int InferABC( FactorToInfer factor,
         }
         catch ( std::string str ) {
             std::string tmp_str = "Error while loading prior: " + str;
-            throw tmp_str;
+            std::cerr << tmp_str << std::endl;
+            return 1;
         }
         catch ( const char* str ) {
             std::string tmp_str = "Error while loading prior: " + std::string(str);
-            throw tmp_str;
+            std::cerr << tmp_str << std::endl;
+            return 1;
         }
         catch (...) {
             std::cerr << "Unknown error while loading prior";
@@ -243,6 +318,7 @@ int InferABC( FactorToInfer factor,
             boost::accumulators::accumulator_set<
             FLOAT_TYPE,
             boost::accumulators::stats<
+            boost::accumulators::tag::sum,
             boost::accumulators::tag::median,
             boost::accumulators::tag::variance,
             boost::accumulators::tag::mean,
@@ -459,6 +535,16 @@ int InferABC( FactorToInfer factor,
             std::cout << "all values found. Done." << std::endl;
             
             std::cout << "Sorting data from multiple positions... " << std::flush;
+            
+            for ( auto current_pos_idx=0; current_pos_idx<accepted_results_vector.size(); ++current_pos_idx ) {
+                // accepted_results_vector[current_pos_idx].sum_distance = boost::accumulators::sum(distance_accumulator_vector[current_pos_idx]);
+                std::cout << " before: " << accepted_results_vector[current_pos_idx].sum_distance;
+                accepted_results_vector[current_pos_idx].sum_distance = boost::accumulators::median(distance_accumulator_vector[current_pos_idx]);
+                
+                std::cout << " after: " << accepted_results_vector[current_pos_idx].sum_distance << std::endl;
+                
+            }
+            
             std::nth_element(accepted_results_vector.begin(),
                              accepted_results_vector.begin() + results_to_accept,
                              accepted_results_vector.end());
@@ -466,6 +552,8 @@ int InferABC( FactorToInfer factor,
             accepted_results_vector.erase( accepted_results_vector.begin() + results_to_accept, accepted_results_vector.end() );
             
             std::sort( accepted_results_vector.begin(), accepted_results_vector.end() );
+            
+            used_prior_distrib = global_prior;
             
             std::cout << "Done." << std::endl;
         }
@@ -566,7 +654,7 @@ int InferABC( FactorToInfer factor,
         /* --------------------- */
         std::cout << "Processing results (" <<  accepted_results_vector.size() << " simulations):" << std::endl;
         
-        
+        std::cout << " prior size: " << used_prior_distrib.size() << " accepted results: " << accepted_results_vector.size() << std::endl;
         
         ResultsStats result_stats( my_zparams, prior_type, used_prior_distrib, accepted_results_vector );
         

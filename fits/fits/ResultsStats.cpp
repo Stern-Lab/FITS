@@ -186,7 +186,8 @@ FLOAT_TYPE ResultsStats::LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vect
     //auto numerator = static_cast<float>( (N-k)*( N1*(Z1-Z0)*(Z1-Z0) + N2*(Z2-Z0)*(Z2-Z0) ) );
     auto numerator = static_cast<FLOAT_TYPE>( (N-k)*( N1*std::pow(Z1-Z0, 2) + N2*std::pow(Z2-Z0, 2) ) );
     if ( numerator <= 0 ) {
-        std::string tmp_str = "Error in Levene's test - numerator is not positive (" + std::to_string(numerator) + ")";
+        std::string tmp_str = "Error in Levene's test - numerator is not positive (" +
+        std::to_string(numerator) + ") - verify that prior has more than one unique value";
         throw tmp_str;
     }
     
@@ -239,9 +240,9 @@ std::string ResultsStats::GetSummaryHeader()
     ss << "Alleles: " << _num_alleles << std::endl;
     
     if ( _running_time_sec > 0 ) {
-        auto running_hours = _running_time_sec / 360;
+        auto running_hours = _running_time_sec / 60 / 60;
         auto running_minutes = (_running_time_sec / 60) - (running_hours * 60);
-        auto running_seconds = _running_time_sec - (running_minutes * 60) - (running_hours * 360);
+        auto running_seconds = _running_time_sec - (running_minutes * 60) - (running_hours * 60 * 60);
         
         ss << "Total running time "
         << std::setfill('0') << std::setw(2) << running_hours << ":"

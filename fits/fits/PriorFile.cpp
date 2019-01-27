@@ -38,6 +38,11 @@ void PriorFile::ReadPriorFromFile( std::string filename )
         
         ++current_line_num;
         
+        if ( tmp_line.length() < 1 ) {
+            std::string tmp_str = "Error in prior file: found an empty line (line " + std::to_string(current_line_num) + ")";
+            throw tmp_str;
+        }
+        
         if (is_first_line) {
             
             std::vector<std::string> line_fields;
@@ -107,10 +112,15 @@ void PriorFile::ReadPriorFromFile( std::string filename )
         
         _prior_distribution.push_back( tmp_prior_sample );
     }
+     // 1 header 2 first line of data
+    if ( current_line_num < 2 ) {
+        std::string tmp_str = "Prior file apppears to be empty.";
+        throw tmp_str;
+    }
     
     
     if ( _prior_distribution.empty() ) {
-        std::string tmp_str = "No entries found in prior file.";
+        std::string tmp_str = "No valid entries found in prior file.";
         throw tmp_str;
     }
     
@@ -142,7 +152,7 @@ PRIOR_DISTRIB_VECTOR PriorFile::GetPriorAsVector()
 
 PRIOR_DISTRIB_VECTOR PriorFile::ResamplePriorAsVector( std::size_t num_samples, bool overwrite_internal )
 {
-    std::cout << "num samples=" << num_samples;
+    // std::cout << "num samples=" << num_samples;
     PRIOR_DISTRIB_VECTOR resampled_prior;
     
     if (!_is_initialized) {

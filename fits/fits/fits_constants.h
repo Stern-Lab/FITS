@@ -43,7 +43,7 @@ enum FactorToInfer {
 namespace fits_constants {
     
     /* GENERAL */
-    const std::string current_version_str = "1.1.13";
+    const std::string current_version_str = "1.1.14";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
     const std::string FILE_FIELD_DELIMITER = "\t";
     
