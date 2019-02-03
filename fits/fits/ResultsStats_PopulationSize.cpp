@@ -172,17 +172,22 @@ std::string ResultsStats::GetSummaryPopSize( bool table_only )
         ss << std::endl;
         
         if ( levenes_pval[0] < fits_constants::LEVENES_SIGNIFICANCE ) {
-            ss << _pop_median << fits_constants::FILE_FIELD_DELIMITER;
+            ss << boost::format("%-.2e") % _pop_median << fits_constants::FILE_FIELD_DELIMITER;
         }
         else {
             // add asterisk
-            ss << "*" << _pop_median << fits_constants::FILE_FIELD_DELIMITER;
+            ss << "*" << boost::format("%-.2e") % _pop_median << fits_constants::FILE_FIELD_DELIMITER;
         }
         
-        ss << _pop_mad << fits_constants::FILE_FIELD_DELIMITER;
-        ss << _pop_min << fits_constants::FILE_FIELD_DELIMITER;
-        ss << _pop_max << fits_constants::FILE_FIELD_DELIMITER;
-        ss << levenes_pval[0];
+        ss << boost::format("%-.2e") % _pop_mad << fits_constants::FILE_FIELD_DELIMITER;
+        ss << boost::format("%-.2e") % _pop_min << fits_constants::FILE_FIELD_DELIMITER;
+        ss << boost::format("%-.2e") % _pop_max << fits_constants::FILE_FIELD_DELIMITER;
+        ss << boost::format("%-.2e") % levenes_pval[0];
+        
+        //ss << _pop_mad << fits_constants::FILE_FIELD_DELIMITER;
+        //ss << _pop_min << fits_constants::FILE_FIELD_DELIMITER;
+        //ss << _pop_max << fits_constants::FILE_FIELD_DELIMITER;
+        //ss << levenes_pval[0];
         
         return ss.str();
     }

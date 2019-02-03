@@ -276,10 +276,12 @@ std::string ResultsStats::GetPosterior( bool is_multi_position, FactorToInfer fa
         throw tmp_str;
     }
     
+    /* 2019-01-03 No longer keeping per-position posterior to save memory (8>GB for 10 positions)
     if ( all_results_vec.empty() && is_multi_position ) {
         std::string tmp_str = "Error in WriteMultiPositionPosterior: all-results vector is empty.";
         throw tmp_str;
     }
+    */
     
     std::stringstream ss;
     
@@ -351,6 +353,10 @@ std::string ResultsStats::GetPosterior( bool is_multi_position, FactorToInfer fa
     } // end of accepted results
     
     
+    return ss.str();
+    
+    /* 2019-01-03 No longer keeping per-position posterior to save memory (8>GB for 10 positions)
+    
     // only single position, we're done writing
     if ( !is_multi_position ) {
         return ss.str();
@@ -388,8 +394,8 @@ std::string ResultsStats::GetPosterior( bool is_multi_position, FactorToInfer fa
         }
         ss << std::endl;
     } // end of all results
-    
-    return ss.str();
+    */
+    // return ss.str();
 }
 
 

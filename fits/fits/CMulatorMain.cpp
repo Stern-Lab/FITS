@@ -442,7 +442,8 @@ int InferABC( FactorToInfer factor,
                         // accepted_results_vector[result_idx] = tmp_accepted_results_vec[result_idx];
                         
                         
-                        results_from_all_positions.push_back( current_result );
+                        // 2019-02-03 no longer keeping that to save memory
+                        // results_from_all_positions.push_back( current_result );
                     }
                 }
                 else {
@@ -467,7 +468,8 @@ int InferABC( FactorToInfer factor,
                         current_result.pos = current_position_num;
                         accepted_results_vector[result_idx].sum_distance += current_result.distance_from_actual;
                         
-                        results_from_all_positions.push_back( current_result );
+                        // 2019-02-03 no longer keeping that to save memory
+                        // results_from_all_positions.push_back( current_result );
                         
                         //tmp_accepted_results_vec[result_idx].SetMultiPosition(true);
                         //tmp_accepted_results_vec[result_idx].pos = current_position_num;
