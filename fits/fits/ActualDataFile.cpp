@@ -301,13 +301,14 @@ void ActualDataFile::LoadActualData( std::string filename )
 void ActualDataFile::ValidateDataFile()
 {
     for ( auto current_position : _position_data ) {
+ 
+        auto position_wt_idx = current_position.GetWTIndex();
         
         auto generation_vec = current_position.GetActualGenerations();
         
+        // verify non-negative frequency and sum up mutant alleles
         for ( auto current_generation : generation_vec ) {
             
-            // 2019-01-20
-            // tried to declare as float but I fail to reach exactly 1.00 for #alleles>2
             FLOAT_TYPE current_freq_sum = 0;
             
             for ( auto current_entry : current_position._actual_data ) {
@@ -322,12 +323,28 @@ void ActualDataFile::ValidateDataFile()
                         throw tmp_str;
                     }
                     
-                    current_freq_sum += current_entry.freq;
+                    if ( current_entry.allele != position_wt_idx ) {
+                        current_freq_sum += current_entry.freq;
+                    }
                 }
             }
             
+            // update wt allele
+            for ( auto &current_entry : current_position._actual_data ) {
+                
+                if ( current_entry.gen == current_generation ) {
+                    
+                    if ( current_entry.allele == position_wt_idx ) {
+                        // std::cout << "before = " << current_entry.freq;
+                        current_entry.freq = 1 - current_freq_sum;
+                        // std::cout << " ; after = " << current_entry.freq << std::endl;
+                    }
+                }
+                
+            }
             
-            // cannot find a better way here.
+            
+            /*
             if ( std::fabs(1.0 - current_freq_sum) > 2.0f * std::numeric_limits<float>::epsilon() ) {
                 
                 std::string tmp_str = "frequency values do not sum up to 1 (" + std::to_string(current_freq_sum)
@@ -336,6 +353,7 @@ void ActualDataFile::ValidateDataFile()
                 
                 throw tmp_str;
             }
+            */
         }
     }
 }
