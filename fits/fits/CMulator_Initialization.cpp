@@ -382,14 +382,16 @@ bool CMulator::InitFitnessRange( ZParams zparams )
         
         // if missing, use default. if wrongly specify throw an error
         if ( !zparams.IsParameterFound( current_allele_min_fitness ) ) {
-            _allele_min_fitness[current_allele_num] = fits_constants::ALLELE_FITNESS_DEFAULT_MIN;
+            // _allele_min_fitness[current_allele_num] = fits_constants::ALLELE_FITNESS_DEFAULT_MIN;
+            return false;
         }
         else {
             _allele_min_fitness[current_allele_num] = zparams.GetDouble( current_allele_min_fitness );
         }
         
         if ( !zparams.IsParameterFound( current_allele_max_fitness ) ) {
-            _allele_max_fitness[current_allele_num] = fits_constants::ALLELE_FITNESS_DEFAULT_MAX;
+            // _allele_max_fitness[current_allele_num] = fits_constants::ALLELE_FITNESS_DEFAULT_MAX;
+            return false;
         }
         else {
             _allele_max_fitness[current_allele_num] = zparams.GetDouble( current_allele_max_fitness );
