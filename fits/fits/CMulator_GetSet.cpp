@@ -456,7 +456,7 @@ void CMulator::SetMutationRateMatrix( const MATRIX_TYPE& new_mutation_matrix )
             sum_mutation_rates += tmp_mutrate;
         }
         
-        if ( sum_mutation_rates != 1.0f ) {
+        if ( std::fabs(1.0 - sum_mutation_rates) > 2.0f * std::numeric_limits<float>::epsilon() ) {
             std::string tmp_str = "Sum of mutation rates from allele " + std::to_string(current_row) + " is not 1 (" + std::to_string(sum_mutation_rates) + ")";
             throw tmp_str;
         }
