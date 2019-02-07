@@ -1,4 +1,4 @@
-FITS Ouptut
+FITS ouptut
 ===========
 
 General
