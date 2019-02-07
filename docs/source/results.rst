@@ -1,4 +1,4 @@
-FITS ouptut
+FITS output
 ===========
 
 General
