@@ -1,0 +1,14 @@
+N 100000
+num_generations 100
+
+num_alleles 2
+
+fitness_allele0 1.0
+fitness_allele1 1.02
+
+mutation_rate0_1 0.001
+mutation_rate1_0 0.001
+
+init_freq_allele0 1
+init_freq_allele1 0
+

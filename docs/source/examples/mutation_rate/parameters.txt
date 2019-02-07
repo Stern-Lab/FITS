@@ -1,0 +1,21 @@
+verbose 1
+
+# basic parameters
+N 100000
+
+# mutation rates
+min_log_mutation_rate0_0 -7
+min_log_mutation_rate0_1 -7
+min_log_mutation_rate1_0 -7
+min_log_mutation_rate1_1 -7
+
+max_log_mutation_rate0_0 -3
+max_log_mutation_rate0_1 -3
+max_log_mutation_rate1_0 -3
+max_log_mutation_rate1_1 -3
+
+fitness_allele0 1.0
+fitness_allele1 1.0
+
+num_samples_from_prior 100000
+acceptance_rate 0.01

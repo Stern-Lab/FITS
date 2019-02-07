@@ -1,0 +1,19 @@
+# Infer fitness for a given data set
+
+verbose 1
+
+N 100000
+
+fitness_prior smoothed_composite
+
+mutation_rate0_1 1e-05
+mutation_rate1_0 1e-05
+
+min_fitness_allele0 1.0
+max_fitness_allele0 1.0
+
+min_fitness_allele1 0.0
+max_fitness_allele1 2.0
+
+num_samples_from_prior 100000
+acceptance_rate 0.01
