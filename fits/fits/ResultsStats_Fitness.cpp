@@ -32,6 +32,8 @@ void ResultsStats::CalculateStatsFitness()
     MATRIX_TYPE posterior_matrix( _num_results, _num_alleles );
     MATRIX_TYPE prior_matrix( _num_results, _num_alleles );
     
+    
+    
     boost::accumulators::accumulator_set<
     FLOAT_TYPE,
     boost::accumulators::stats<
@@ -45,6 +47,7 @@ void ResultsStats::CalculateStatsFitness()
     boost::accumulators::stats<
     boost::accumulators::tag::variance,
     boost::accumulators::tag::mean,
+    boost::accumulators::tag::median,
     boost::accumulators::tag::min,
     boost::accumulators::tag::max> > > acc_vec_fitness(_num_alleles);
 
@@ -63,11 +66,13 @@ void ResultsStats::CalculateStatsFitness()
     deleterious_counter.resize(_num_alleles, 0.0f);
     neutral_counter.resize(_num_alleles, 0.0f);
     advantageous_counter.resize(_num_alleles, 0.0f);
+    //unassigned_counter(_num_alleles, 0.0f);
     
     lethal_percent.resize(_num_alleles, 0.0f);
     deleterious_percent.resize(_num_alleles, 0.0f);
     neutral_percent.resize(_num_alleles, 0.0f);
     advantageous_percent.resize(_num_alleles, 0.0f);
+    unassigned_percent.resize(_num_alleles, 0.0f);
     
     allele_category.resize(_num_alleles, AlleleCategory::Undefined);
     
@@ -87,10 +92,10 @@ void ResultsStats::CalculateStatsFitness()
     }
     
     
-    // Boost does not calculate Median well, so doing it manually
+    
     std::vector< std::vector<FLOAT_TYPE> > allele_fitness_storage( _num_alleles );
     
-    for (auto current_sim_index=0; current_sim_index<_num_results; ++current_sim_index ) {
+    for (auto current_sim_index=0; current_sim_index<_result_vector.size(); ++current_sim_index ) {
         
         auto current_sim_data = _result_vector[current_sim_index];
         
@@ -138,7 +143,9 @@ void ResultsStats::CalculateStatsFitness()
         allele_max_fitness[current_allele] = boost::accumulators::max(acc_vec_fitness[current_allele]);
         allele_min_fitness[current_allele] = boost::accumulators::min(acc_vec_fitness[current_allele]);
         
-        allele_median_fitness[current_allele] = GetMedian( allele_fitness_storage[current_allele] );
+        
+        // allele_median_fitness[current_allele] = GetMedian( allele_fitness_storage[current_allele] );
+        allele_median_fitness[current_allele] = boost::accumulators::median(acc_vec_fitness[current_allele]);
         
         // calculate Bayesian pval - P(w<1|data)
         allele_pval[current_allele] =
@@ -151,17 +158,22 @@ void ResultsStats::CalculateStatsFitness()
     // Calculate MAD for the alleles
     
     // start with distances
-    std::vector< std::vector<FLOAT_TYPE> > allele_distance_vec( _num_alleles );
+    //std::vector< std::vector<FLOAT_TYPE> > allele_distance_vec( _num_alleles );
     
-    for ( auto current_allele=0; current_allele<allele_distance_vec.size(); ++current_allele ) {
-        for ( auto val : allele_fitness_storage[current_allele] ) {
-            allele_distance_vec[current_allele].push_back( std::fabs(val - allele_median_fitness[current_allele] ) );
+    for ( auto current_allele=0; current_allele<allele_median_fitness.size(); ++current_allele ) {
+        
+        boost::accumulators::accumulator_set<
+        FLOAT_TYPE,
+        boost::accumulators::stats<
+        boost::accumulators::tag::median > > acc_distance_for_mad;
+        
+        for ( auto current_fitness : allele_fitness_storage[current_allele] ) {
+            // allele_distance_vec[current_allele].push_back( std::fabs(current_fitness - allele_median_fitness[current_allele] ) );
+            // allele_MAD[current_allele] = GetMedian( allele_distance_vec[current_allele] );
+            acc_distance_for_mad( std::fabs(current_fitness - allele_median_fitness[current_allele] ) );
         }
-    }
-    
-    // calculate median distance
-    for ( auto current_allele=0; current_allele<allele_distance_vec.size(); ++current_allele ) {
-        allele_MAD[current_allele] = GetMedian( allele_distance_vec[current_allele] );
+        
+        allele_MAD[current_allele] = boost::accumulators::median(acc_distance_for_mad);
     }
 
     
@@ -176,23 +188,25 @@ void ResultsStats::CalculateStatsFitness()
          else if (lethal_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
          allele_category[current_allele] = AlleleCategory::Possible_lethal;
          */
-        deleterious_percent[current_allele] = deleterious_counter[current_allele] * 100 / _result_vector.size();
+        deleterious_percent[current_allele] = deleterious_counter[current_allele] * 100.0f / static_cast<double>(_result_vector.size());
         if (deleterious_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Deleterious;
         else if (deleterious_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Possible_deleterious;
         
-        neutral_percent[current_allele] = neutral_counter[current_allele] * 100 / _result_vector.size();
+        neutral_percent[current_allele] = neutral_counter[current_allele] * 100.0f / static_cast<double>(_result_vector.size());
         if (neutral_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Neutral;
         else if (neutral_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Possible_neutral;
         
-        advantageous_percent[current_allele] = advantageous_counter[current_allele] * 100 / _result_vector.size();
+        advantageous_percent[current_allele] = advantageous_counter[current_allele] * 100.0f / static_cast<double>(_result_vector.size());
         if (advantageous_percent[current_allele] >= CATEGORY_INCLUSION_STRICT_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Adventageous;
         else if (advantageous_percent[current_allele] >= CATEGORY_INCLUSION_RELAXED_THRESHOLD)
             allele_category[current_allele] = AlleleCategory::Possible_advantageous;
+        
+        //unassigned_percent[current_allele] = unassigned_counter[current_allele] * 100 / _result_vector.size();
         
         // last in order to override any fitness value assignments
         if (current_allele == wt_allele) {
@@ -202,6 +216,7 @@ void ResultsStats::CalculateStatsFitness()
     
                                                                                                             
     // get settings for min and max fitness limits for prior
+    /*
     MATRIX_TYPE fitness_limits_matrix(2, _num_alleles);
     for ( auto current_allele=0; current_allele<_num_alleles; ++current_allele ) {
         std::string current_allele_fitness_str = fits_constants::PARAM_ALLELE_FITNESS + std::to_string(current_allele);
@@ -217,6 +232,7 @@ void ResultsStats::CalculateStatsFitness()
             throw "Missing fitness value for allele " + std::to_string(current_allele);
         }
     }
+     */
     
     // auto num_prior_samples = _zparams.GetInt(fits_constants::PARAM_SIM_REPEATS);
     
@@ -284,22 +300,82 @@ void ResultsStats::CalculateStatsFitness()
         //auto partial_allele_prior_vec = whole_allele_prior_vec;
         //auto partial_allele_prior_vec = DownsampleVector( whole_allele_prior_vec, current_allele_posterior_vec.size() );
         //std::cout << "size of partial prior vec: " << current_allele_prior_vec.size() << "  posterior vec: " << current_allele_posterior_vec.size() << std::endl;
-        
-        auto levenes_p = LevenesTest2( current_allele_posterior_vec, current_allele_prior_vec );
+        FLOAT_TYPE levenes_p = -1.0f;
+        try {
+            levenes_p = LevenesTest2( current_allele_posterior_vec, current_allele_prior_vec );
+        }
+        catch ( const char* str ) {
+            std::string tmp_str = "Error while calculating Levene's test: " + std::string(str);
+            throw tmp_str;
+        }
+        catch ( std::string str ) {
+            std::string tmp_str = "Error while calculating Levene's test: " + str;
+            throw tmp_str;
+        }
+        catch (...) {
+            std::string tmp_str = "Unknown error while calculating Levene's test.";
+            throw tmp_str;
+        }
         
         levenes_pval[current_allele] = levenes_p;
     }
-    
-    
-    
 }
 
 
-std::string ResultsStats::GetSummaryFitness()
+std::string ResultsStats::GetSummaryFitness( bool table_only )
 {
     
     std::stringstream ss;
     
+    if (table_only) {
+        
+        ss << "allele" << "\t";
+        ss << "median" << "\t";
+        ss << "MAD" << "\t";
+        ss << "low" << "\t";
+        ss << "high" << "\t";
+        ss << "DEL(%)" << "\t";
+        ss << "NEU(%)" << "\t";
+        ss << "ADV(%)" << "\t";
+        ss << "category" << "\t";
+        ss << "pval";
+        ss << std::endl;
+        
+        for ( auto current_allele=0; current_allele<_num_alleles; ++current_allele ) {
+            
+            if ( _allele_Nu[current_allele] >= 1.0 &&
+                levenes_pval[current_allele] < fits_constants::LEVENES_SIGNIFICANCE ) {
+                ss << current_allele << "\t";
+            }
+            else {
+                ss << "*" << current_allele << "\t";
+            }
+            
+            ss << boost::format("%-.3f") % allele_median_fitness[current_allele] << "\t";
+            ss << boost::format("%-.3f") % allele_MAD[current_allele] << "\t";
+            
+            ss << boost::format("%-.3f") % allele_min_fitness[current_allele] << "\t";
+            ss << boost::format("%-.3f") % allele_max_fitness[current_allele] << "\t";
+            ss << boost::format("%-.1f") % deleterious_percent[current_allele] << "\t";
+            ss << boost::format("%-.1f") % neutral_percent[current_allele] << "\t";
+            ss << boost::format("%-.1f") % advantageous_percent[current_allele] << "\t";
+            ss << AlleleCategory2String(allele_category[current_allele]) << "\t";
+            
+            if ( allele_category[current_allele] == WT ) {
+                ss << "N/A";
+            }
+            else {
+                ss << boost::format("%-.1f") % levenes_pval[current_allele];
+            }
+            
+            if ( current_allele < _num_alleles-1 ) {
+                ss << std::endl;
+            }
+        }
+        
+        return ss.str();
+    }
+    /*
     ss << "Quick Report - Fitness" << std::endl;
     ss << "=============================" << std::endl;
 
@@ -310,10 +386,10 @@ std::string ResultsStats::GetSummaryFitness()
 
     for ( auto current_allele=0; current_allele<_num_alleles; ++current_allele ) {
 
-        /*
-         Changed 2018-07-03
-         Adding insignificant pval to the warning
-         */
+     
+         // Changed 2018-07-03
+         // Adding insignificant pval to the warning
+     
         if ( _allele_Nu[current_allele] >= 1.0 &&
             levenes_pval[current_allele] < fits_constants::LEVENES_SIGNIFICANCE ) {
             ss << boost::format(" %-10d") % current_allele;
@@ -330,38 +406,45 @@ std::string ResultsStats::GetSummaryFitness()
     }
 
     ss << std::endl;
-    ss << "Full Report - Fitness" << std::endl;
-    ss << "=============================" << std::endl;
-    ss << GetSummaryHeader();
-    
-    
-    auto tmp_size = _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1);
-    ss << "Population size (N) is " << tmp_size;
-    
-    if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
-        ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")";
+    */
+
+    if ( !table_only ) {
+        ss << "Fitness Report" << std::endl;
+        ss << "===============" << std::endl;
+        ss << GetSummaryHeader();
+        
+        
+        auto tmp_size = _zparams.GetInt(fits_constants::PARAM_POPULATION_SIZE, -1);
+        ss << "Population size (N) is " << tmp_size;
+        
+        if ( _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) > 0 ) {
+            ss << " (sampled " << _zparams.GetInt(fits_constants::PARAM_SAMPLE_SIZE, 0) << ")";
+        }
+        ss << std::endl;
+        
+        
+        auto tmp_scaling_str = _zparams.GetString( fits_constants::PARAM_SCALING,
+                                                  fits_constants::PARAM_SCALING_DEFAULT );
+        
+        if ( tmp_scaling_str.compare(fits_constants::PARAM_SCALING_OFF) == 0 ) {
+            // ss << "Data has not been scaled" << std::endl;
+        }
+        else {
+            ss << "Data was scaled using " << tmp_scaling_str << std::endl;
+        }
+        
+        
+        if ( _single_mutrate_used ) {
+            ss << "Used a single mutation rate." << std::endl;
+        }
+        else {
+            ss << "Used individual mutation rates." << std::endl;
+        }
+        
+        ss << "Distance metric: " << _distance_metric << std::endl;
+        
     }
-    ss << std::endl;
     
-    
-    auto tmp_scaling_str = _zparams.GetString( fits_constants::PARAM_SCALING,
-                                              fits_constants::PARAM_SCALING_DEFAULT );
-    
-    if ( tmp_scaling_str.compare(fits_constants::PARAM_SCALING_OFF) == 0 ) {
-        ss << "Data has not been scaled" << std::endl;
-    }
-    else {
-        ss << "Data was scaled using " << tmp_scaling_str << std::endl;
-    }
-    
-    if ( _single_mutrate_used ) {
-        ss << "Used a single mutation rate." << std::endl;
-    }
-    else {
-        ss << "Used individual mutation rates." << std::endl;
-    }
-    
-    ss << "Distance metric: " << _distance_metric << std::endl;
     
     // warning for Nu
     std::vector<int> bad_alleles_vec;
@@ -371,30 +454,37 @@ std::string ResultsStats::GetSummaryFitness()
         }
     }
     
-    auto tmp_str = _zparams.GetString( fits_constants::PARAM_PRIOR_DISTRIB,
-                                      fits_constants::PARAM_PRIOR_DISTRIB_DEFAULT );
-    ss << "Prior used: " << tmp_str << std::endl;
-    
-    if ( !bad_alleles_vec.empty() ) {
-        ss << "** WARNING: inference may be unreliable (Nu<1) for alleles (*): ";
+    if ( !table_only ) {
+        auto prior_str = _zparams.GetString( fits_constants::PARAM_FITNESS_PRIOR_DISTRIB,
+                                          fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
         
-        for ( auto allele_num : bad_alleles_vec ) {
-            ss << allele_num << " ";
+        ss << "Prior used: " << prior_str << std::endl;
+        
+        if ( !bad_alleles_vec.empty() ) {
+            ss << "** WARNING: inference may be unreliable (Nu<1) for alleles (*): ";
+            
+            for ( auto allele_num : bad_alleles_vec ) {
+                ss << allele_num << " ";
+            }
+            
+            ss << " **" << std::endl << std::endl;
         }
         
-        ss << " **" << std::endl << std::endl;
+        if ( _rejection_threshold > 0.0f ) {
+            ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
+        }
+        
+        ss << "--------------------" << std::endl;
     }
     
-    if ( _rejection_threshold > 0.0f ) {
-        ss << "Rejection threshold set to " << boost::format("%-10d") % _rejection_threshold << std::endl;
-    }
+    // allele_MAD
     
-    
-    ss << "--------------------" << std::endl;
+    // TABLE PRINTING
     
     ss << boost::format("%-10s") % "allele";
     ss << boost::format("%-10s") % "median";
-    ss << boost::format("%-10s") % "mean";
+    ss << boost::format("%-10s") % "MAD";
+    // ss << boost::format("%-10s") % "mean";
     ss << boost::format("%-10s") % "low";
     ss << boost::format("%-10s") % "high";
     ss << boost::format("%-10s") % "DEL(%)";
@@ -403,7 +493,7 @@ std::string ResultsStats::GetSummaryFitness()
     ss << boost::format("%-10s") % "category";
     //ss << boost::format("%-10s") % "minldist";
     //ss << boost::format("%-10s") % "maxldist";
-    //ss << boost::format("%-10s") % "MAD";
+    //
     ss << boost::format("%-10s") % "pval";
     ss << std::endl;
     
@@ -417,19 +507,24 @@ std::string ResultsStats::GetSummaryFitness()
         if ( _allele_Nu[current_allele] >= 1.0 &&
             levenes_pval[current_allele] < fits_constants::LEVENES_SIGNIFICANCE ) {
             ss << boost::format("%-10d") % current_allele;
+            //ss << boost::format("%.2e") % current_allele;
+            
         }
         else {
             ss << boost::format("*%-9d") % current_allele;
+            //ss << boost::format("*%.2e") % current_allele;
+            
             //Nu_flag = true;
         }
         
-        ss << boost::format("%-10.3d") % allele_median_fitness[current_allele];
-        ss << boost::format("%-10.3d") % allele_mean_fitness[current_allele];
-        ss << boost::format("%-10.3d") % allele_min_fitness[current_allele];
-        ss << boost::format("%-10.3d") % allele_max_fitness[current_allele];
-        ss << boost::format("%-10s") % deleterious_percent[current_allele];
-        ss << boost::format("%-10s") % neutral_percent[current_allele];
-        ss << boost::format("%-10s") % advantageous_percent[current_allele];
+        ss << boost::format("%-10.3f") % allele_median_fitness[current_allele];
+        ss << boost::format("%-10.3f") % allele_MAD[current_allele];
+         // ss << boost::format("%-10.3f") % allele_mean_fitness[current_allele];
+        ss << boost::format("%-10.3f") % allele_min_fitness[current_allele];
+        ss << boost::format("%-10.3f") % allele_max_fitness[current_allele];
+        ss << boost::format("%-10.1f") % deleterious_percent[current_allele];
+        ss << boost::format("%-10.1f") % neutral_percent[current_allele];
+        ss << boost::format("%-10.1f") % advantageous_percent[current_allele];
         ss << boost::format("%-10s") % AlleleCategory2String(allele_category[current_allele]);
         //ss << boost::format("%-10.3d") % _distance_min;
         //ss << boost::format("%-10.3d") % _distance_max;
@@ -439,16 +534,18 @@ std::string ResultsStats::GetSummaryFitness()
             ss << boost::format("%-10s") % "N/A";
         }
         else {
-            ss << boost::format("%-10.3d") % levenes_pval[current_allele];
+            //ss << boost::format("%-10.3d") % levenes_pval[current_allele];
+            ss << boost::format("%.2e") % levenes_pval[current_allele];
+            
         }
         
         ss << std::endl;
     }
     
-    ss << std::endl;
-    
-    if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
-        ss << _zparams.GetAllParameters() << std::endl;
+    if ( !table_only ) {
+        if ( _zparams.GetInt( fits_constants::PARAM_DUMP_PARAMETERS, 0) > 1 ) {
+            ss << _zparams.GetAllParameters() << std::endl;
+        }
     }
     
     return ss.str();

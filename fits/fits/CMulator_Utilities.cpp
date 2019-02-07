@@ -49,9 +49,10 @@ void CMulator::Reset_Soft()
     _current_generation = 0;
 }
 
-
+/*
 void CMulator::Reset_Soft( std::string new_sim_uid )
 {
     Reset_Soft();
     SetSimUID( new_sim_uid );
 }
+*/

@@ -34,10 +34,14 @@
 #include <string>
 #include <numeric>
 
+#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/odeint/util/ublas_wrapper.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
+
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
+//#include <boost/random/uniform_int_distribution.hpp>
 
 
 #include "ZParams.h"
@@ -65,9 +69,9 @@ private:
 	int _N;		// current population size
 	int _N0; 	// founding population size
     
-    int _alt_N; // alternative population size to introduce noise to simulation
+    //int _alt_N; // alternative population size to introduce noise to simulation
     int _old_N; // the original value, to revert from altenative value
-    int _alt_generation; // if given, in this generation the popsize will alter; otherwise it would be random.
+    //int _alt_generation; // if given, in this generation the popsize will alter; otherwise it would be random.
     
 	int _num_generations;
 	int _num_alleles;
@@ -78,14 +82,14 @@ private:
 	int _generation_shift;
     
     // 2017-02-26 changed _uid to _name_of_run
-	std::string _name_of_run;
+	// std::string _name_of_run;
     
 	//bool _no_init_freqs_as_parameters; // init freqs will be taken later
 	bool _logistic_growth;
 	int _logistic_growth_K;		// population capacity
 	int _logistic_growth_t;		// time; couples to number of generations but may be reset following bottleneck
 	FLOAT_TYPE _logistic_growth_r;	// growth rate
-	int _repeats;
+    std::size_t _repeats;
 
 	int _wt_allele_index;
 	//bool _infer_wt_automatically;		// don't expect min and max values for each alleles. infer the wt, assign 1 to min and max, and assign arbitrary min and max for rest of alleles
@@ -113,7 +117,9 @@ private:
     bool _available_essential;
     bool _available_inference;
     bool _available_init_freqs;
-    bool _available_generation_range;
+    bool _available_num_alleles;
+    bool _available_num_generations;
+    bool _available_bottleneck; //interval + size
 	
 	// store a single simulation - column for allele, row for generation
 	// TODO: maybe switch to matrix data type to enable matrix multiplications?
@@ -153,24 +159,32 @@ private:
 	
 	/* Assisting Functions */
 	
-    void WarnAgainstDeprecatedParameters(ZParams zparams);
+    //void WarnAgainstDeprecatedParameters(ZParams zparams);
     
     void PerformChecksBeforeEvolution();
     void InitBasicVariables( ZParams zparams );
-    void InitInitialAlleleFreqs( ZParams zparams );
+    
     
     void InitGeneralInferenceVariables( ZParams zparams );
     
     void InitPopulationSizeInference( ZParams zparams );
     
     // boolean flag to know whether we should be expecting the mutation rate at all (or the range was given)
-    void InitMutationRates( ZParams zparams, bool available_mutrate_range );
+    bool InitMutationRates( ZParams zparams );
+    bool InitFitnessValues( ZParams zparams );
+    bool InitPopulationSize( ZParams zparams );
+    bool InitInitialAlleleFreqs( ZParams zparams );
+    bool InitSampleSize( ZParams zparams );
+    bool InitRepeats( ZParams zparams );
     
-    void InitMutationInferenceVariables( ZParams zparams );
+    bool InitMutatioRateRange( ZParams zparams );
+    bool InitFitnessRange( ZParams zparams );
+    bool InitPopulationSizeRange( ZParams zparams );
+    //void InitMutationInferenceVariables( ZParams zparams );
     
-    void InitFitnessValues( ZParams zparams );
-    void InitFitnessInference( ZParams zparams );
-    void InitGenerationInference( ZParams zparams );
+    
+    
+    // void InitGenerationInference( ZParams zparams );
     
     std::vector<FLOAT_TYPE> Freqs2Binomial2Freqs( const std::vector<FLOAT_TYPE> &freqs_vec, int popsize );
     
@@ -190,7 +204,7 @@ private:
 	bool _initialized_with_parameters;
 	
 	// to mitigate floating point rounding errors
-	FLOAT_TYPE _epsilon_float_compare;
+	// FLOAT_TYPE _epsilon_float_compare;
 	/* END Technical Parameters */
 	
 	
@@ -202,6 +216,8 @@ private:
     bool IsValid_Generation( int generation ) const { return ( generation >=0  ); }
     
 	bool IsValid_Frequency( FLOAT_TYPE freq ) const { return freq >= 0 && freq <= 1.0; }
+    
+    bool IsValid_FrequencyVector( std::vector<FLOAT_TYPE> vec );
 	bool IsValid_Fitness( FLOAT_TYPE fitness ) const { return fitness >= 0; }
 	bool IsValid_PopulationSize( int N ) const { return N>0; }
 	
@@ -217,72 +233,73 @@ public:
     bool IsObservedDataUsed() { return _use_observed_data; }
     bool IsSingleMutrateUsed() { return _use_single_mutation_rate; }
     
+    
     // using the available data, is the simulator able to do that
-    bool IsAbleToInferFitness() const {
-        if (!_available_mutrate) std::cerr << "mutrate not available" << std::endl;
-        if (!_available_popsize) std::cerr << "popsize not available" << std::endl;
-        if (!_available_essential) std::cerr << "essential not available" << std::endl;
-        if (!_available_fitness_range) std::cerr << "fitness range not available" << std::endl;
-        return _available_mutrate && _available_popsize && _available_essential && _available_fitness_range;
-    }
-    bool IsAbleToInferGeneration() const {
-        if (!_available_mutrate) std::cerr << "mutrate not available" << std::endl;
-        if (!_available_popsize) std::cerr << "popsize not available" << std::endl;
-        if (!_available_fitness) std::cerr << "fitness not available" << std::endl;
-        if (!_available_essential) std::cerr << "essential not available" << std::endl;
-        if (!_available_generation_range) std::cerr << "generation range not available" << std::endl;
-        return _available_mutrate && _available_fitness && _available_popsize && _available_essential && _available_generation_range;
-    }
-    bool IsAbleToInferPopulationSize() const {
-        if (!_available_mutrate) std::cerr << "mutrate not available" << std::endl;
-        if (!_available_fitness) std::cerr << "fitness not available" << std::endl;
-        if (!_available_essential) std::cerr << "essential not available" << std::endl;
-        if (!_available_popsize_range) std::cerr << "popsize range not available" << std::endl;
-        return _available_mutrate && _available_fitness && _available_essential && _available_popsize_range;
-    }
-    bool IsAbleToInferMutationRate() const {
-        if (!_available_mutrate_range) std::cerr << "mutrate range not available" << std::endl;
-        if (!_available_popsize) std::cerr << "popsize not available" << std::endl;
-        if (!_available_essential) std::cerr << "essential not available" << std::endl;
-        if (!_available_fitness) std::cerr << "fitness not available" << std::endl;
-        return _available_fitness && _available_popsize && _available_essential && _available_mutrate_range;
-    }
-    bool IsAbleToSimulate() const {
-        if (!_available_mutrate) std::cerr << "mutrate rates not available" << std::endl;
-        if (!_available_popsize) std::cerr << "popsize not available" << std::endl;
-        if (!_available_essential) std::cerr << "essential not available" << std::endl;
-        if (!_available_fitness) std::cerr << "fitness not available" << std::endl;
-        if (!_available_init_freqs) std::cerr << "initial frequencies not available" << std::endl;
-        if ( _num_generations < 1 ) std::cerr << "zero generations to simulate" << std::endl;
+    void AssertAbleToInferFitness() const {
+        std::string tmp_str;
+        if (!_available_num_generations) tmp_str = "number of generations not available";
+        if (!_available_fitness_range) tmp_str = "fitness range not available";
+        if (!_available_mutrate) tmp_str = "mutation rate not available";
+        if (!_available_popsize) tmp_str = "population size not available";
         
-        return _available_mutrate && _available_popsize &&_available_essential && _available_fitness && _available_init_freqs && ( _num_generations >= 1 );
+        if ( !tmp_str.empty() ) throw tmp_str;
+    }
+    
+    void AssertAbleToInferPopulationSize() const {
+        std::string tmp_str;
+        if (!_available_num_generations) tmp_str = "number of generations not available";
+        if (!_available_fitness) tmp_str = "fitness not available";
+        if (!_available_mutrate) tmp_str = "mutation rate not available";
+        if (!_available_popsize_range) tmp_str = "population size range not available";
+        
+        if ( !tmp_str.empty() ) throw tmp_str;
+    }
+    
+    void AssertAbleToInferMutationRate() const {
+        std::string tmp_str;
+        if (!_available_num_generations) tmp_str = "number of generations not available";
+        if (!_available_fitness) tmp_str = "fitness not available";
+        if (!_available_mutrate_range) tmp_str = "mutation rate range not available";
+        if (!_available_popsize) tmp_str = "population size not available";
+        
+        if ( !tmp_str.empty() ) throw tmp_str;
+    }
+    
+    void AssertAbleToSimulate() const {
+        std::string tmp_str;
+        if (!_available_num_generations) tmp_str = "number of generations not available";
+        if (!_available_fitness) tmp_str = "fitness not available";
+        if (!_available_mutrate) tmp_str = "mutation rate not available";
+        if (!_available_popsize) tmp_str = "population size not available";
+        if (!_available_init_freqs) tmp_str = "initial frequencies not available";
+        
+        if ( !tmp_str.empty() ) throw tmp_str;
     }
 private:
     // Past Set functions
     
-    void SetAlleleNumber( int alleles );
-    void SetBottleneckInterval( int interval );
-    void SetBottleneckSize( int size );
+    //void SetAlleleNumber( int alleles );
+    //void SetBottleneckInterval( int interval );
+    //void SetBottleneckSize( int size );
     
-    void SetSamplingSize( int sampling_size );
-    void SetSkipStochasticStep(bool skip);
+    //void SetSamplingSize( int sampling_size );
+    //void SetSkipStochasticStep(bool skip);
     
     
-    void SetRepeats( int repeats );
-    void SetTopPercentToKeep(unsigned int new_percent);
-    void SetTopSimsToKeep(unsigned int new_sims);
+    //void SetRepeats( int repeats );
+    //void SetTopPercentToKeep(unsigned int new_percent);
+    //void SetTopSimsToKeep(unsigned int new_sims);
     
-    void EnableLogisticGrowth();
-    void EnableLogisticGrowth( int k, FLOAT_TYPE r );
-    void DisableLogisticGrowth();
-    bool GetLogisticGrowth( int &k, FLOAT_TYPE &r ) const;
+    //void EnableLogisticGrowth();
+    //void EnableLogisticGrowth( int k, FLOAT_TYPE r );
+    //void DisableLogisticGrowth();
+    //bool GetLogisticGrowth( int &k, FLOAT_TYPE &r ) const;
     
     void SetAlleleMinFitness( int allele, FLOAT_TYPE fitness );
     void SetAlleleMaxFitness( int allele, FLOAT_TYPE fitness );
-    void SetAlleleFitnessValue( int allele, FLOAT_TYPE fitness );
+    //void SetAlleleFitnessValue( int allele, FLOAT_TYPE fitness );
     
-    
-    void SetMutationRate( int from, int to, FLOAT_TYPE rate );
+    //void SetMutationRate( int from, int to, FLOAT_TYPE rate );
     
 public:
 	/* Constructors */
@@ -290,7 +307,7 @@ public:
 	//CMulator( std::string param_filename );
     
 	CMulator( const CMulator &original );
-    CMulator( const ZParams &zparams );
+    CMulator( const ZParams zparams );
     
     //TODO: move ctor
 	/* END Constructors */
@@ -299,7 +316,7 @@ public:
 	/* Get/Set Functions */
     
     // functions relying on actual data
-    void SetGenerationShift( int shift );
+    //void SetGenerationShift( int shift );
     void SetAlleleInitFreq( int allele, FLOAT_TYPE freq );
     void SetNumOfGeneration( int generations );
     void SetWTAllele( int wt_index, FLOAT_TYPE min_fitness_nonwt, FLOAT_TYPE max_fitness_nonwt );
@@ -310,7 +327,7 @@ public:
     
 	// to be used only when the object is still uninitialized (default ctor used)
     
-	void SetSimUID( std::string new_name_of_run );
+	//void SetSimUID( std::string new_name_of_run );
 	int GetPopulationSize() const;
 	void SetPopulationSize( int N );
     
@@ -326,7 +343,7 @@ public:
 	
 	int GetGenerationShift() const;
 	
-	std::string GetSimUID() const;
+	//std::string GetSimUID() const;
 
 	bool GetSkipStochasticStep() const;
 	
@@ -336,7 +353,7 @@ public:
 	
 	// this shouldn't be here.. but rather in a wrapping class
 	// but I can't afford any other thread calling parameters class
-	int GetRepeats() const;
+    std::size_t GetRepeats() const;
 	
 	FLOAT_TYPE GetInitAlleleFreq(int allele) const;
 	
@@ -354,7 +371,7 @@ public:
 	
 	FLOAT_TYPE GetMutationRate( int from, int to ) const;
     
-    void SetMutationRateMatrix( MATRIX_TYPE new_mutation_matrix );
+    void SetMutationRateMatrix( const MATRIX_TYPE& new_mutation_matrix );
     MATRIX_TYPE GetMutationRateMatrix() const;
     INT_MATRIX GetMinMutationRateMatrix() const;
     INT_MATRIX GetMaxMutationRateMatrix() const;
@@ -376,10 +393,10 @@ public:
     
 	/* Output Functions */
     std::string GetAllOutputAsTextForR( bool header = true ) const;
-    std::string GetAllOutputAsText( bool header = true, std::string delimiter = "\t" ) const;
+    std::string GetAllOutputAsText( bool header = true, std::string delimiter = fits_constants::FILE_FIELD_DELIMITER ) const;
     
     MATRIX_TYPE GetAllOutputAsMatrix() const;
-    MATRIX_TYPE GetAllOutputAsMatrix( std::vector<int> actual_generations ) const;
+    MATRIX_TYPE GetAllOutputAsMatrix( const std::vector<int>& actual_generations ) const;
     
 
     std::vector<FLOAT_TYPE> GetRawFrequencyData();
@@ -391,7 +408,7 @@ public:
 	/* Reset */
 	// delete simulated data, set current generation to 0.
 	void Reset_Soft();
-	void Reset_Soft( std::string new_name_of_run );
+	//void Reset_Soft( std::string new_name_of_run );
 	/* END Reset */	
 	
 };

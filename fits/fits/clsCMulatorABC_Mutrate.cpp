@@ -18,8 +18,12 @@
 
 #include "clsCMulatorABC.h"
 
-std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib )
+
+std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const PRIOR_DISTRIB_VECTOR &prior_distrib, std::size_t start_idx, std::size_t end_idx )
 {
+    VerifyIndece( prior_distrib, start_idx, end_idx );
+    
+    
     // initialize sim object
     CMulator local_sim_object(_zparams);
     
@@ -32,10 +36,13 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
     }
     */
     
+    local_sim_object.AssertAbleToInferMutationRate();
+    /*
     if ( !local_sim_object.IsAbleToInferMutationRate() ) {
-        std::cerr << "Not enough parameters to infer mutation rate" << std::endl;
-        throw "Not enough parameters to infer mutation rate";
+        std::string tmp_str = "Not enough parameters to infer mutation rate";
+        throw tmp_str;
     }
+    */
     
     // set initial frequencies from actual data
     auto init_freq_vec = _actual_data_position.GetInitFreqs();
@@ -43,11 +50,11 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
         local_sim_object.SetAlleleInitFreq(i, init_freq_vec[i]);
     }
     
-    auto first_generation = _actual_data_position.GetFirstGeneration();
-    auto last_generation = _actual_data_position.GetLastGeneration();
-    auto num_generations = last_generation - first_generation + 1;
-    local_sim_object.SetGenerationShift(first_generation);
-    local_sim_object.SetNumOfGeneration(num_generations);
+    //auto first_generation = _actual_data_position.GetFirstGeneration();
+    // auto last_generation = _actual_data_position.GetLastGeneration();
+    // auto num_generations = last_generation - first_generation + 1;
+    //local_sim_object.SetGenerationShift(first_generation);
+    //local_sim_object.SetNumOfGeneration(num_generations);
     
     // identify wt
     auto wt_allele_it = std::max_element(init_freq_vec.begin(), init_freq_vec.end());
@@ -70,9 +77,23 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
     }
     
     // simulation for each set of parameters
-    for (auto current_mutrate_idx=0; current_mutrate_idx<prior_distrib.size(); ++current_mutrate_idx ) {
+    //for (auto current_mutrate_idx=0; current_mutrate_idx<prior_distrib.size(); ++current_mutrate_idx ) {
+    for (auto current_prior_sample_idx=start_idx; current_prior_sample_idx<end_idx; ++current_prior_sample_idx ) {
         
-        auto current_mutrate_vector = prior_distrib[current_mutrate_idx];
+        if ( _expected_prior_sample_size != prior_distrib[current_prior_sample_idx].size() ) {
+            std::string tmp_str = "Expected sample size is " + std::to_string(_expected_prior_sample_size)
+            + " but current sample size is " + std::to_string(prior_distrib[current_prior_sample_idx].size()) +
+            ". Sample: ";
+            
+            for ( auto val : prior_distrib[current_prior_sample_idx] ) {
+                tmp_str += std::to_string(val) + " ";
+            }
+            
+            throw tmp_str;
+        }
+        
+        
+        auto current_mutrate_vector = prior_distrib[current_prior_sample_idx];
         
         local_sim_object.Reset_Soft();
         
@@ -82,7 +103,7 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
             std::cout << "Putting sampled mutation rates in matrix." << std::endl;
         }
         
-        std::vector<FLOAT_TYPE> tmp_line_sum( tmp_mutrates_matrix.size1(), 0.0f );
+        // std::vector<FLOAT_TYPE> tmp_line_sum( tmp_mutrates_matrix.size1(), 0.0f );
         
         // if it were 0, then it would be overridden
         auto current_single_mutation_rate = current_mutrate_vector[1];
@@ -91,6 +112,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
             std::cout << "Single mutation rate:" << current_single_mutation_rate << std::endl;
         }
 
+        // we want to pass the mutation rates to the simulator object
+        // so the values need to be 10 by the power of the given samples value
         for ( auto i=0; i<current_mutrate_vector.size(); ++i ) {
             
             auto row = i / local_sim_object.GetAlleleNumber();
@@ -109,20 +132,17 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
             
          
             // to normalize such that row sums up to 1.0
-            if ( row != col ) {
-                tmp_line_sum[row] += tmp_mutrates_matrix(row, col);
-            }
+            //if ( row != col ) {
+             //   tmp_line_sum[row] += tmp_mutrates_matrix(row, col);
+            //}
         }
         
         // normalize
-        for ( auto row=0; row<tmp_mutrates_matrix.size1(); ++row ) {
-            tmp_mutrates_matrix(row,row) = 1.0f - tmp_line_sum[row];
-        }
         
-        if ( _zparams.GetInt( "Debug", 0 ) > 0 ) {
-            std::cout << "Mutation matrix processing finished:" << std::endl;
-            std::cout << tmp_mutrates_matrix << std::endl;
-        }
+        //for ( auto row=0; row<tmp_mutrates_matrix.size1(); ++row ) {
+            //tmp_mutrates_matrix(row,row) = 1.0f - tmp_line_sum[row];
+        //}
+        
         
         local_sim_object.SetMutationRateMatrix(tmp_mutrates_matrix);
         
@@ -136,6 +156,8 @@ std::vector<SimulationResult> clsCMulatorABC::RunMutationInferenceBatch( const P
         // keep only the generations we need to conserve memory
         auto tmp_actual_generations = _actual_data_position.GetActualGenerations();
         SimulationResult sim_result(local_sim_object, tmp_actual_generations);
+        
+        sim_result.prior_sample_index = current_prior_sample_idx;
         
         //tmp_res_vector.push_back(std::move(sim_result));
         tmp_res_vector.push_back(sim_result);

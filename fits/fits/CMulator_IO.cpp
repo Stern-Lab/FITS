@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 #include "CMulator.h"
 
@@ -44,7 +45,7 @@ MATRIX_TYPE CMulator::GetAllOutputAsMatrix() const
 }
 
 
-MATRIX_TYPE CMulator::GetAllOutputAsMatrix( std::vector<int> actual_generations ) const
+MATRIX_TYPE CMulator::GetAllOutputAsMatrix( const std::vector<int>& actual_generations ) const
 {
     auto rows_to_return = actual_generations.size();
     
@@ -72,7 +73,8 @@ MATRIX_TYPE CMulator::GetAllOutputAsMatrix( std::vector<int> actual_generations 
 std::string CMulator::GetAllOutputAsText(bool header, std::string delimiter) const
 {
 	if (!_initialized_with_parameters) {
-		throw " GetAllOutputAsText: object not initialized with parameters.";
+        std::string tmp_str = "GetAllOutputAsText: object not initialized with parameters.";
+        throw tmp_str;
 	}
 	
     std::string tmp_str = "";
@@ -95,10 +97,10 @@ std::string CMulator::GetAllOutputAsText(bool header, std::string delimiter) con
 			for (auto myAllele=0; myAllele<_num_alleles; ++myAllele) {
             
                 if (_use_observed_data) {
-                    tmp_str += std::to_string( _observed_simulated_data( myGeneration, myAllele)) + "\t";
+                    tmp_str += std::to_string( _observed_simulated_data( myGeneration, myAllele)) + fits_constants::FILE_FIELD_DELIMITER;
                 }
                 else {
-                    tmp_str += std::to_string( _all_simulated_data( myGeneration, myAllele)) + "\t";
+                    tmp_str += std::to_string( _all_simulated_data( myGeneration, myAllele)) + fits_constants::FILE_FIELD_DELIMITER;
                 }
                 
 			}
@@ -111,20 +113,26 @@ std::string CMulator::GetAllOutputAsText(bool header, std::string delimiter) con
 }
 
 
+
 std::string CMulator::GetAllOutputAsTextForR( bool header ) const
 {
     if (!_initialized_with_parameters) {
         throw " GetAllOutputAsText: object not initialized with parameters.";
     }
     
-    std::string tmp_str = "";
+    
     if (_current_generation==0) {
+        std::string tmp_str = "";
         return tmp_str;
     }
+ 
+    std::stringstream ss;
     
     // header
     if (header) {
-        tmp_str += "gen\tallele\tfreq\n";
+        // tmp_str += "gen" + fits_constants::FILE_FIELD_DELIMITER + "allele" + fits_constants::FILE_FIELD_DELIMITER + "freq\n";
+        ss << "gen" << fits_constants::FILE_FIELD_DELIMITER <<
+        "allele" << fits_constants::FILE_FIELD_DELIMITER << "freq" << std::endl;
     }
     
     if (_current_generation>1) {
@@ -133,13 +141,19 @@ std::string CMulator::GetAllOutputAsTextForR( bool header ) const
             
             for (auto myAllele=0; myAllele<_num_alleles; ++myAllele) {
                 
-                tmp_str += std::to_string(myGeneration) + "\t";
-                tmp_str += std::to_string(myAllele) + "\t";
+                //tmp_str += std::to_string(myGeneration) + fits_constants::FILE_FIELD_DELIMITER;
+                //tmp_str += std::to_string(myAllele) + fits_constants::FILE_FIELD_DELIMITER;
                 
-                tmp_str += std::to_string( _all_simulated_data(myGeneration,myAllele) ) + "\n";
+                //tmp_str += std::to_string( _all_simulated_data(myGeneration,myAllele) ) + "\n";
+                
+                ss << myGeneration << fits_constants::FILE_FIELD_DELIMITER;
+                ss << myAllele << fits_constants::FILE_FIELD_DELIMITER;
+                
+                // fixed provides "rounding" with the specified precision
+                ss << std::fixed << std::setprecision(10) << _all_simulated_data( myGeneration, myAllele ) << std::endl;
             }
         }
     }
     
-    return tmp_str;
+    return ss.str();
 }

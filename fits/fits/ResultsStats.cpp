@@ -19,7 +19,7 @@
 #include "ResultsStats.hpp"
 
 // ResultsStats::ResultsStats(ZParams zparams)
-ResultsStats::ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB &prior_distrib, const std::vector<SimulationResult>& result_vector )
+ResultsStats::ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB_VECTOR &prior_distrib, const std::vector<SimulationResult>& result_vector )
 :
 _is_multi_position(false),
 _running_time_sec(0),
@@ -80,37 +80,7 @@ std::string ResultsStats::GetPrintCommonHeaderStr()
     return tmp_str;
 }
 
-void ResultsStats::WritePriorDistribToFile( const PRIOR_DISTRIB& prior_distrib, std::string filename )
-{
-    std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
-    
-    if (!outfile.is_open()) {
-        std::cerr << "unable to open file for writing: " << filename << std::endl;
-        throw "unable to open file for writing: " + filename;
-    }
-    
 
-    // 2016-09-04 adding sanity check to report problem
-    if ( prior_distrib.empty() ) {
-        std::cerr << "Error in writing prior: result_vector is empty. Filename: " << filename << std::endl;
-        std::string my_err = "";
-        my_err = "Error in writing prior: result_vector is empty. Filename: ";
-        my_err += filename;
-        throw my_err.c_str();
-    }
- 
-    
-    for ( auto current_vec : prior_distrib ) {
-        
-        for ( auto current_val : current_vec ) {
-            
-            outfile << current_val << "\t";
-        }
-        outfile << std::endl;
-    }
-    
-    outfile.close();
-}
 
 /*
 void ResultsStats::WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename )
@@ -211,10 +181,15 @@ FLOAT_TYPE ResultsStats::LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vect
     auto k = 2.0f; // prior & posterior
     
     //auto alpha = 0.05;
-    auto alpha = 0.01f;
+    // auto alpha = 0.01f;
     
     //auto numerator = static_cast<float>( (N-k)*( N1*(Z1-Z0)*(Z1-Z0) + N2*(Z2-Z0)*(Z2-Z0) ) );
     auto numerator = static_cast<FLOAT_TYPE>( (N-k)*( N1*std::pow(Z1-Z0, 2) + N2*std::pow(Z2-Z0, 2) ) );
+    if ( numerator <= 0 ) {
+        std::string tmp_str = "Error in Levene's test - numerator is not positive (" +
+        std::to_string(numerator) + ") - verify that prior has more than one unique value";
+        throw tmp_str;
+    }
     
     // sum for each group
     FLOAT_TYPE sum_diff_group1 = 0.0f;
@@ -229,7 +204,10 @@ FLOAT_TYPE ResultsStats::LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vect
     
     // final result
     auto denominator = static_cast<FLOAT_TYPE>(k-1.0f)*( sum_diff_group1 + sum_diff_group2 );
-    
+    if ( denominator <= 0 ) {
+        std::string tmp_str = "Error in Levene's test - denominator is not positive (" + std::to_string(denominator) + ")";
+        throw tmp_str;
+    }
     auto W = numerator / denominator;
     
     // quantile of the F distribution is F( alpha=0.05, k-1 degrees, N-k degrees )
@@ -262,10 +240,15 @@ std::string ResultsStats::GetSummaryHeader()
     ss << "Alleles: " << _num_alleles << std::endl;
     
     if ( _running_time_sec > 0 ) {
-        auto running_minutes = _running_time_sec / 60;
-        auto running_seconds = _running_time_sec % 60;
+        auto running_hours = _running_time_sec / 60 / 60;
+        auto running_minutes = (_running_time_sec / 60) - (running_hours * 60);
+        auto running_seconds = _running_time_sec - (running_minutes * 60) - (running_hours * 60 * 60);
         
-        ss << "Total running time " << running_minutes << ":" << running_seconds << " (minutes:seconds)" << std::endl;
+        ss << "Total running time "
+        << std::setfill('0') << std::setw(2) << running_hours << ":"
+        << std::setfill('0') << std::setw(2) << running_minutes << ":"
+        << std::setfill('0') << std::setw(2) << running_seconds
+        << " (hh:mm:ss)" << std::endl;
     }
     
     if ( _rejection_threshold > 0.0f ) {
@@ -277,11 +260,13 @@ std::string ResultsStats::GetSummaryHeader()
     return ss.str();
 }
 
+
 FLOAT_TYPE ResultsStats::GetMedian( std::vector<FLOAT_TYPE> vec )
 {
     auto median_idx = std::floor(vec.size() / 2);
     
-    std::nth_element( vec.begin(), vec.begin()+median_idx, vec.end() );
+    std::partial_sort( vec.begin(), vec.begin()+median_idx+1, vec.end() );
+    //std::nth_element( vec.begin(), vec.begin()+median_idx, vec.end() );
     
     if ( vec.size() % 2 == 0 ) {
         return ( vec[median_idx] + vec[median_idx-1] ) / 2;
@@ -294,10 +279,10 @@ int ResultsStats::GetMedian( std::vector<int> vec )
 {
     auto median_idx = std::floor(vec.size() / 2);
     
-    
     //std::cout << " median idx=" << median_idx << std::endl;
     
-    std::nth_element( vec.begin(), vec.begin()+median_idx, vec.end() );
+    std::partial_sort( vec.begin(), vec.begin()+median_idx+1, vec.end() );
+    //std::nth_element( vec.begin(), vec.begin()+median_idx, vec.end() );
     
     if ( vec.size() % 2 == 0 ) {
         //std::cout << " median value=" << ( vec[median_idx] + vec[median_idx-1] ) / 2 << std::endl;
@@ -326,3 +311,5 @@ std::vector<FLOAT_TYPE> ResultsStats::DownsampleVector( const std::vector<FLOAT_
     
     return result_vec;
 }
+
+

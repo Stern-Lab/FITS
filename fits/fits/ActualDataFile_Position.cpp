@@ -87,7 +87,8 @@ int ActualDataPositionData::GetLastGeneration()
 int ActualDataPositionData::GetNumberOfAlleles()
 {
     if ( _actual_data.size() <= 1 ) {
-        throw "Get number of alleles - actual data vector contains only 1 entry.";
+        std::string tmp_str = "Get number of alleles - no data found.";
+        throw tmp_str;
     }
     
     if ( _num_alleles > 0 ) {

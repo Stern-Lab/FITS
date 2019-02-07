@@ -43,6 +43,7 @@
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/statistics/max.hpp>
 #include <boost/accumulators/statistics/min.hpp>
+#include <boost/accumulators/statistics/median.hpp>
 #include <boost/format.hpp>
 #include <boost/locale.hpp>
 
@@ -94,12 +95,12 @@ class ResultsStats {
     
     bool _is_multi_position;
     
-    PRIOR_DISTRIB _prior_distrib;
+    PRIOR_DISTRIB_VECTOR _prior_distrib;
     PriorDistributionType _prior_type;
     std::vector<SimulationResult> _result_vector;
     
 public:
-    ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB &prior_distrib, const std::vector<SimulationResult>& result_vector );
+    ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB_VECTOR &prior_distrib, const std::vector<SimulationResult>& result_vector );
     
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );
     int GetMedian( std::vector<int> vec );
@@ -115,7 +116,7 @@ public:
     //std::string _prior_type_str;
     
     void SetPriorType( PriorDistributionType prior_type ) { _prior_type = prior_type; }
-    void SetPriorDistrib( PRIOR_DISTRIB prior_distrib ) { _prior_distrib = prior_distrib; }
+    void SetPriorDistrib( PRIOR_DISTRIB_VECTOR prior_distrib ) { _prior_distrib = prior_distrib; }
     
     bool _single_mutrate_inferred;
     void SetSingleMutrateInferred( bool is_single_inferred ) { _single_mutrate_inferred=is_single_inferred; }
@@ -138,12 +139,10 @@ public:
     void CalculateStatsFitness();
     void CalculateStatsPopulationSize();
     void CalculateStatsMutation();
-    void CalculateStatsGenerations();
      
-    std::string GetSummaryFitness();
-    std::string GetSummaryPopSize();
-    std::string GetSummaryMutRate();
-    std::string GetSummaryGenerations();
+    std::string GetSummaryFitness( bool table_only = false );
+    std::string GetSummaryPopSize( bool table_only = false );
+    std::string GetSummaryMutRate( bool table_only = false );
     
     void SetRejectionThreshold(FLOAT_TYPE new_val);
     FLOAT_TYPE GetRejectionThreshold();
@@ -152,6 +151,7 @@ public:
     double _pop_min;
     double _pop_max;
     double _pop_mean;
+    double _pop_mad;
     double _pop_sd;
     double _pop_median;
     
@@ -187,6 +187,7 @@ public:
     std::vector<FLOAT_TYPE> allele_mean_fitness;
     std::vector<FLOAT_TYPE> allele_sd_fitness;
     std::vector<FLOAT_TYPE> allele_median_fitness;
+    std::vector<FLOAT_TYPE> allele_mad;
     
     std::vector<FLOAT_TYPE> allele_min_fitness;
     std::vector<FLOAT_TYPE> allele_max_fitness;
@@ -205,11 +206,13 @@ public:
     std::vector<unsigned int> deleterious_counter;
     std::vector<unsigned int> neutral_counter;
     std::vector<unsigned int> advantageous_counter;
+    std::vector<unsigned int> unassigned_counter;
     
-    std::vector<unsigned int> lethal_percent;
-    std::vector<unsigned int> deleterious_percent;
-    std::vector<unsigned int> neutral_percent;
-    std::vector<unsigned int> advantageous_percent;
+    std::vector<double> lethal_percent;
+    std::vector<double> deleterious_percent;
+    std::vector<double> neutral_percent;
+    std::vector<double> advantageous_percent;
+    std::vector<double> unassigned_percent;
     
     std::vector<FLOAT_TYPE> levenes_pval;
     boost::numeric::ublas::matrix<FLOAT_TYPE> levenes_pval_matrix;
@@ -222,6 +225,7 @@ public:
     boost::numeric::ublas::matrix<FLOAT_TYPE> min_mutation_rates;
     boost::numeric::ublas::matrix<FLOAT_TYPE> max_mutation_rates;
     boost::numeric::ublas::matrix<FLOAT_TYPE> mean_mutation_rates;
+    boost::numeric::ublas::matrix<FLOAT_TYPE> mad_mutation_rates;
     boost::numeric::ublas::matrix<FLOAT_TYPE> median_mutation_rates;
     boost::numeric::ublas::matrix<FLOAT_TYPE> normalized_median_mutation_rates;
     
@@ -230,20 +234,25 @@ public:
     int min_population_size;
     int mean_population_size;
     int median_population_size;
+    int mad_population_size;
     int normalized_median_population_size;
     
     void WriteStringToFile( std::string filename, std::string str );
     
-    std::string GetMutrateDistrib(const std::vector<SimulationResult>& result_vector);
-    std::string GetFitnessDistrib(const std::vector<SimulationResult>& result_vector);
-    std::string GetPopsizeDistrib(const std::vector<SimulationResult>& result_vector);
+    // std::string GetMutrateDistrib(const std::vector<SimulationResult>& result_vector);
+    // std::string GetFitnessDistrib(const std::vector<SimulationResult>& result_vector);
+    // std::string GetPopsizeDistrib(const std::vector<SimulationResult>& result_vector);
     
-    void WriteFitnessDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
-    void WriteMutRateDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
-    void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
-    void WriteGenerationsDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
+    // void WriteFitnessDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
+    // void WriteMutRateDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
+    // void WritePopSizeDistribToFile(const std::vector<SimulationResult>& result_vector, std::string filename);
     
-    void WritePriorDistribToFile( const PRIOR_DISTRIB& prior_distrib, std::string filename );
+    std::string GetPosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec );
+    
+    void WritePosterior( bool is_multi_position, FactorToInfer factor, const std::vector<SimulationResult>& accepted_results_vec, const std::vector<SimulationResult>& all_results_vec, std::string filename );
+    
+    std::string GetPrior( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib );
+    void WritePriorDistribToFile( FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distrib, std::string filename );
     
     // void WritePriorDistribToFile( const std::vector<std::vector<int>>& prior_distrib, std::string filename );
     
@@ -251,6 +260,7 @@ public:
     std::vector<FLOAT_TYPE> GetMaxFitnessVec() { return allele_max_fitness; }
     
     FLOAT_TYPE LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vector<FLOAT_TYPE> group2 );
+    
     
     
 private: // here for init-order - require the public vars to be initialize

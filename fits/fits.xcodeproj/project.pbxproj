@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		990BAF2321CE9FDC00E2B355 /* PriorFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 990BAF2121CE9FDC00E2B355 /* PriorFile.cpp */; };
 		993357C5219D84B40086239E /* ResultsStats_Fitness.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357A3219D84B10086239E /* ResultsStats_Fitness.cpp */; };
 		993357C6219D84B40086239E /* CMulator_GetSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357A4219D84B10086239E /* CMulator_GetSet.cpp */; };
 		993357C7219D84B40086239E /* CMulator_IO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 993357A5219D84B10086239E /* CMulator_IO.cpp */; };
@@ -48,6 +49,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		990BAF2121CE9FDC00E2B355 /* PriorFile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PriorFile.cpp; sourceTree = "<group>"; };
+		990BAF2221CE9FDC00E2B355 /* PriorFile.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PriorFile.hpp; sourceTree = "<group>"; };
 		99335799219D83F40086239E /* fits */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fits; sourceTree = BUILT_PRODUCTS_DIR; };
 		993357A3219D84B10086239E /* ResultsStats_Fitness.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResultsStats_Fitness.cpp; sourceTree = "<group>"; };
 		993357A4219D84B10086239E /* CMulator_GetSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CMulator_GetSet.cpp; sourceTree = "<group>"; };
@@ -139,6 +142,8 @@
 				993357AC219D84B10086239E /* fits_constants.h */,
 				9966661921B96B1300CC107B /* FITS_Tests.cpp */,
 				993357DE219D94C90086239E /* gpl.txt */,
+				990BAF2121CE9FDC00E2B355 /* PriorFile.cpp */,
+				990BAF2221CE9FDC00E2B355 /* PriorFile.hpp */,
 				993357A7219D84B10086239E /* PriorSampler.cpp */,
 				993357C4219D84B40086239E /* PriorSampler.hpp */,
 				993357A3219D84B10086239E /* ResultsStats_Fitness.cpp */,
@@ -223,6 +228,7 @@
 				993357D0219D84B40086239E /* CMulator_Constructors.cpp in Sources */,
 				993357C6219D84B40086239E /* CMulator_GetSet.cpp in Sources */,
 				993357CE219D84B40086239E /* ResultsStats.cpp in Sources */,
+				990BAF2321CE9FDC00E2B355 /* PriorFile.cpp in Sources */,
 				993357D2219D84B40086239E /* clsCMulatorABC.cpp in Sources */,
 				993357C8219D84B40086239E /* clsCMulatorABC_Utilities.cpp in Sources */,
 				993357CD219D84B40086239E /* ResultsStats_PopulationSize.cpp in Sources */,
@@ -341,6 +347,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -359,9 +366,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = /Users/talzinger/Downloads/boost_1_61_0;
-				"HEADER_SEARCH_PATHS[arch=*]" = /Users/talzinger/Downloads/boost_1_61_0;
-				LIBRARY_SEARCH_PATHS = /Users/talzinger/Downloads/boost_1_61_0/libs;
+				HEADER_SEARCH_PATHS = /Users/talzinger/boost_1_69_0;
+				"HEADER_SEARCH_PATHS[arch=*]" = /Users/talzinger/boost_1_69_0;
+				LIBRARY_SEARCH_PATHS = /Users/talzinger/boost_1_69_0/libs;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -371,8 +378,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				HEADER_SEARCH_PATHS = /Users/talzinger/Downloads/boost_1_61_0;
-				LIBRARY_SEARCH_PATHS = /Users/talzinger/Downloads/boost_1_61_0/libs;
+				HEADER_SEARCH_PATHS = /Users/talzinger/boost_1_69_0;
+				LIBRARY_SEARCH_PATHS = /Users/talzinger/boost_1_69_0/libs;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

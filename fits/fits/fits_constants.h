@@ -30,14 +30,22 @@
 #define FLOAT_TYPE double
 #define MATRIX_TYPE boost::numeric::ublas::matrix<FLOAT_TYPE>
 #define INT_MATRIX boost::numeric::ublas::matrix<int>
-#define PRIOR_DISTRIB std::vector< std::vector<FLOAT_TYPE> >
+#define PRIOR_DISTRIB_VECTOR std::vector< std::vector<FLOAT_TYPE> >
+#define PRIOR_DISTRIB_MATRIX std::vector< std::vector<FLOAT_TYPE> >
+
+enum FactorToInfer {
+    Fitness,
+    MutationRate,
+    PopulationSize
+};
+
 
 namespace fits_constants {
     
-    
     /* GENERAL */
-    const std::string current_version_str = "1.1.1";
-    const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05;
+    const std::string current_version_str = "1.1.15";
+    const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
+    const std::string FILE_FIELD_DELIMITER = "\t";
     
     /* COMMAND LINE ARGUMANTS */
     const std::string ARG_INFER_FITNESS = "-fitness";
@@ -56,70 +64,66 @@ namespace fits_constants {
     /* PARAMETERS */
     
     /* General */
-    const std::string PARAM_INFERENCE_ARG = "infer"; // will be used instead of command line args
-    const std::string PARAM_INFERENCE_ARG_FITNESS = "fitness";
-    const std::string PARAM_INFERENCE_ARG_MUTATION = "mutation";
-    const std::string PARAM_INFERENCE_ARG_POPSIZE = "popsize";
-    const std::string PARAM_INFERENCE_ARG_EMPTY = "";
-    
-    const std::string PARAM_DUMP_PARAMETERS = "_dump_all_parameteres";
+    const std::string PARAM_DUMP_PARAMETERS = "dump_all_parameteres";
     
     /* Population Size */
-    const std::string PARAM_POPULATION_SIZE = "_N";
-    const std::string PARAM_SAMPLE_SIZE = "_sample_size";
+    const std::string PARAM_POPULATION_SIZE = "N";
+    const std::string PARAM_SAMPLE_SIZE = "sample_size";
     const int PARAM_SAMPLE_SIZE_DEFAULT = 0;
     
-    const std::string PARAM_MIN_LOG_POPSIZE = "_Nlog_min";
-    const std::string PARAM_MAX_LOG_POPSIZE = "_Nlog_max";
+    const std::string PARAM_MIN_LOG_POPSIZE = "Nlog_min";
+    const std::string PARAM_MAX_LOG_POPSIZE = "Nlog_max";
     
-    const std::string PARAM_ALT_POPULATION_SIZE = "_alt_N";
-    const std::string PARAM_ALT_GENERATION = "_alt_generation";
+    //const std::string PARAM_ALT_POPULATION_SIZE = "alt_N";
+    //const std::string PARAM_ALT_GENERATION = "alt_generation";
     
-    const std::string PARAM_BOTTLENECK_SIZE = "_bottleneck_size";
-    const std::string PARAM_BOTTLENECK_INTERVAL = "_bottleneck_interval";
+    const std::string PARAM_BOTTLENECK_SIZE = "bottleneck_size";
+    const std::string PARAM_BOTTLENECK_INTERVAL = "bottleneck_interval"; // if size is defined, interval must be too
+    const int PARAM_BOTTLENECK_NOT_DEFINED = -1;
     
-    const std::string PARAM_REJECTION_THRESHOLD = "_rejection_threshold";
+    const std::string PARAM_REJECTION_THRESHOLD = "rejection_threshold";
     
+    // const std::string PARAM_IMEMDIATE_REJECTION = "immediate_rejection";
+    
+    const std::string PARAM_GENERATION_SHIFT = "generation_shift";
     
     /* Number of generations */
-    const std::string PARAM_NUM_GENERATIONS = "_num_generations";
+    const std::string PARAM_NUM_GENERATIONS = "num_generations";
     
-    const std::string PARAM_MIN_FIXED_INT_GENERATION = "_min_fixed_generation_interval";
-    const std::string PARAM_MAX_FIXED_INT_GENERATION = "_max_fixed_generation_interval";
-    const std::string PARAM_MIN_INT_GENERATION = "_min_generation_interval";
-    const std::string PARAM_MAX_INT_GENERATION = "_max_generation_interval";
     
-    const std::string PARAM_NUM_ALLELES = "_num_alleles";
+    const std::string PARAM_NUM_ALLELES = "num_alleles";
+    const int PARAM_NUM_ALLELES_DEFAULT = -1;
     
-    const std::string PARAM_ALLELE_INIT_FREQ = "_allele_init_freq";
-    //const std::string PARAM_ALLELE_NO_INIT_FREQS = "_no_init_freqs_as_parameters"; // assume it will be provided later
+    const std::string PARAM_ALLELE_INIT_FREQ = "init_freq_allele";
     
     
     /* Mutation Rates */
-    const std::string PARAM_MUTATION_RATE = "_mutation_rate";
-    const std::string PARAM_MIN_LOG_MUTATION_RATE = "_min_log_mutation_rate";
-    const std::string PARAM_MAX_LOG_MUTATION_RATE = "_max_log_mutation_rate";
+    const std::string PARAM_MUTATION_RATE = "mutation_rate";
+    const std::string PARAM_MIN_LOG_MUTATION_RATE = "min_log_mutation_rate";
+    const std::string PARAM_MAX_LOG_MUTATION_RATE = "max_log_mutation_rate";
     
-    const std::string PARAM_SINGLE_MUTATION_RATE = "_single_mutation_rate";
-    const std::string PARAM_MIN_LOG_SINGLE_MUTATION_RATE = "_min_log_single_mutation_rate";
-    const std::string PARAM_MAX_LOG_SINGLE_MUTATION_RATE = "_max_log_single_mutation_rate";
+    const std::string PARAM_SINGLE_MUTATION_RATE = "single_mutation_rate";
+    const std::string PARAM_MIN_LOG_SINGLE_MUTATION_RATE = "min_log_single_mutation_rate";
+    const std::string PARAM_MAX_LOG_SINGLE_MUTATION_RATE = "max_log_single_mutation_rate";
     
-    const std::string PARAM_ALLELE_FITNESS = "_allele_fitness";
-    const std::string PARAM_ALLELE_MAX_FITNESS = "_allele_max_fitness";
-    const std::string PARAM_ALLELE_MIN_FITNESS = "_allele_min_fitness";
+    const std::string PARAM_ALLELE_FITNESS = "fitness_allele";
+    const std::string PARAM_ALLELE_MAX_FITNESS = "max_fitness_allele";
+    const std::string PARAM_ALLELE_MIN_FITNESS = "min_fitness_allele";
     
-    const std::string PARAM_SIM_ID = "_name_of_run";
-    const std::string PARAM_SIM_REPEATS = "_num_repeats";
+    //const std::string PARAM_SIM_ID = "name_of_run";
+    const std::string PARAM_SIM_REPEATS = "num_samples_from_prior";
+    const std::size_t PARAM_SIM_REPEATS_DEFAULT = 100000;
     
-    const std::string PARAM_MANUAL_SEED = "_manual_seed";
+    const std::string PARAM_MANUAL_SEED = "manual_seed";
     
-    const std::string PARAM_LOGISTIC_GROWTH = "_logistic_growth";
-    const std::string PARAM_LOGISTIC_GROWTH_K = "_logistic_growth_K";
-    const std::string PARAM_LOGISTIC_GROWTH_r = "_logistic_growth_r";
+    const std::string PARAM_LOGISTIC_GROWTH = "logistic_growth";
+    const std::string PARAM_LOGISTIC_GROWTH_K = "logistic_growth_K";
+    const std::string PARAM_LOGISTIC_GROWTH_r = "logistic_growth_r";
     const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MIN = 0.0f;
     const FLOAT_TYPE ALLELE_FITNESS_DEFAULT_MAX = 2.0f;
+    const FLOAT_TYPE ALLELE_FITNESS_WT = 1.0f;
     
-    const std::string PARAM_EPSILON_FLOAT_COMPARE = "_epsilon_float_compare";
+    // const std::string PARAM_EPSILON_FLOAT_COMPARE = "epsilon_float_compare";
     
     const FLOAT_TYPE PARAM_EPSILON_SIM_DEFAULT = 0.001f; // default range within actual data to accept simulations
     
@@ -128,30 +132,40 @@ namespace fits_constants {
     const FLOAT_TYPE PARAM_DEFAULT_NEGATIVE_FLOAT = -1.0f;
     const std::string PARAM_DEFAULT_VAL_STRING = "NA";
     
-    const std::string PARAM_ACCEPTANCE_RATE = "_acceptance_rate";
+    const std::string PARAM_ACCEPTANCE_RATE = "acceptance_rate";
     const FLOAT_TYPE ACCEPTANCE_RATE_DEFAULT = 0.01f;
     
-    const std::string PARAM_ACCEPTANCE_LIMIT = "_acceptance_limit";
+    const std::string PARAM_ACCEPTANCE_LIMIT = "acceptance_limit";
     const std::size_t ACCEPTANCE_LIMIT_DEFAULT = 0;
     
-    //const std::string PARAM_SKIP_STOCHASTIC_STEP = "_skip_stochastic_step";
-    //const int PARAM_SKIP_STOCHASTIC_STEP_DEFAULT = 0;
+    // const std::string PARAM_SKIP_STOCHASTIC_STEP = "skip_stochastic_step";
+    // const int PARAM_SKIP_STOCHASTIC_STEP_DEFAULT = 0;
     
     // prior distributions
-    const std::string PARAM_PRIOR_DISTRIB = "_prior_distribution";
+    const std::string PARAM_PRIOR_FILENAME = "prior_file";
+    
+    const std::string PARAM_FITNESS_PRIOR_DISTRIB = "fitness_prior";
+    
     const std::string PARAM_PRIOR_DISTRIB_UNIFORM = "uniform";
     const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL = "log_normal";
+    const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL_SIGMA = "log_normal_sigma";
+    const FLOAT_TYPE PARAM_PRIOR_DISTRIB_LOGNORMAL_SIGMA_DEFAULT = 0.149f;
+    const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL_MU = "log_normal_mu";
+    const FLOAT_TYPE PARAM_PRIOR_DISTRIB_LOGNORMAL_MU_DEFAULT = -0.248f;
+    const std::string PARAM_PRIOR_DISTRIB_LOGNORMAL_LETHAL = "log_normal_lethal";
+    const FLOAT_TYPE PARAM_PRIOR_DISTRIB_LOGNORMAL_LETHAL_DEFAULT = 0.045f;
+    
     const std::string PARAM_PRIOR_DISTRIB_COMPOSITE = "fitness_composite";
     const std::string PARAM_PRIOR_DISTRIB_SMOOTHED_COMPOSITE = "smoothed_composite";
-    const std::string PARAM_PRIOR_DISTRIB_DEFAULT = "uniform";
+    const std::string PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT = "smoothed_composite";
     
     // composite prior for fitness inference
     // if one is manually chosen - all rest must be also
-    const std::string PARAM_PRIOR_FRACTION_LTH = "_prior_fraction_lth";
-    const std::string PARAM_PRIOR_FRACTION_DEL = "_prior_fraction_del";
-    const std::string PARAM_PRIOR_FRACTION_NEU = "_prior_fraction_neu";
-    const std::string PARAM_PRIOR_FRACTION_ADV = "_prior_fraction_adv";
-    const FLOAT_TYPE PARAM_PRIOR_FRACTION_DEFAULT = -1.0f;
+    // const std::string PARAM_PRIOR_FRACTION_LTH = "prior_fraction_lth";
+    // const std::string PARAM_PRIOR_FRACTION_DEL = "prior_fraction_del";
+    // const std::string PARAM_PRIOR_FRACTION_NEU = "prior_fraction_neu";
+    // const std::string PARAM_PRIOR_FRACTION_ADV = "prior_fraction_adv";
+    // const FLOAT_TYPE PARAM_PRIOR_FRACTION_DEFAULT = -1.0f;
     
     const std::string PARAM_DISTANCE = "distance_metric";
     const std::string PARAM_DISTANCE_L1 = "L1";
@@ -163,8 +177,12 @@ namespace fits_constants {
     const std::string PARAM_SCALING_DEFAULT = "off";
     const std::string PARAM_SCALING_OFF = "off";
     
-    const std::string PARAM_COVERAGE_SWITCH = "_coverage";
-    const int PARAM_DEFAULT_COVERAGE_SWITCH = 0;
+    const std::string PARAM_VERBOSE_SWITCH = "verbose";
+    const int PARAM_VERBOSE_SWITCH_ON = 1;
+    const int PARAM_VERBOSE_SWITCH_OFF = 0;
+    
+    // const std::string PARAM_COVERAGE_SWITCH = "coverage";
+    //const int PARAM_DEFAULT_COVERAGE_SWITCH = 0;
     /* END Constants */
 
 }

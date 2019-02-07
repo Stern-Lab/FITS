@@ -22,13 +22,13 @@
 void CMulator::PerformChecksBeforeEvolution()
 {
     if (!_initialized_with_parameters) {
-        std::cerr << " EvolveToGeneration: object not initialized with parameters." << std::endl;
-        throw " EvolveToGeneration: object not initialized with parameters.";
+        std::string tmp_str = "EvolveToGeneration: object not initialized with parameters.";
+        throw tmp_str;
     }
     
     if ( _allele_init_freqs.empty() ) {
-        std::cerr << " EvolveToGeneration: initial frequencies not provided." << std::endl;
-        throw " EvolveToGeneration: initial frequencies not provided.";
+        std::string tmp_str = "EvolveToGeneration: initial frequencies not provided.";
+        throw tmp_str;
     }
     
     /*
@@ -39,14 +39,14 @@ void CMulator::PerformChecksBeforeEvolution()
     */
     
     if ( _all_simulated_data.size1() < 1 || _all_simulated_data.size2() < 1 ) {
-        std::cerr <<	" EvolveToGeneration: sim_data uninitialized." << std::endl;
-        throw " EvolveToGeneration: _all_simulated_data uninitialized.";
+        std::string tmp_str = "EvolveToGeneration: _all_simulated_data uninitialized.";
+        throw tmp_str;
     }
     
     if ( _allele_fitness.empty() ) {
         if ( _allele_max_fitness.empty() || _allele_min_fitness.empty() ) {
-            std::cerr <<	" EvolveToGeneration: fitness data empty but so are min or max." << std::endl;
-            throw " EvolveToGeneration: fitness data empty but so are min and max.";
+            std::string tmp_str = "EvolveToGeneration: fitness data empty but so are min and max.";
+            throw tmp_str;
         }
     }
 }
@@ -54,10 +54,9 @@ void CMulator::PerformChecksBeforeEvolution()
 std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_TYPE> &freqs_vec, int popsize )
 {
     if ( freqs_vec.size() != _num_alleles ) {
-        std::cerr << "Freqs2Binomial2Freqs: mismatch in size, freqs_vec is " <<
-        freqs_vec.size() << " while _num_alleles is " << _num_alleles << std::endl;
-        
-        throw "Freqs2Binomial2Freqs: size mismatch between vector of values to number of alleles.";
+        std::string tmp_str = "Freqs2Binomial2Freqs: mismatch in size, freqs_vec is " +
+        std::to_string(freqs_vec.size()) + " while _num_alleles is " + std::to_string( _num_alleles );
+        throw tmp_str;
     }
     
     auto currentSum = 0.0f;
@@ -65,7 +64,6 @@ std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_
     std::vector<FLOAT_TYPE> newvals(freqs_vec);
     
     // perform binomial sampling, keep in mind actually selected individuals may be !=N
-    
     for (auto allele_i = 0; allele_i<_num_alleles; ++allele_i) {
         
         auto currentP = freqs_vec[allele_i];
@@ -75,8 +73,6 @@ std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_
         newvals[allele_i] = static_cast<FLOAT_TYPE>(local_bin_distrib(_boost_gen));
     
         currentSum += newvals[allele_i];
-        
-        
     }
     
     // Normalize frequencies
@@ -91,17 +87,21 @@ std::vector<FLOAT_TYPE> CMulator::Freqs2Binomial2Freqs( const std::vector<FLOAT_
 
 int CMulator::EvolveToGeneration( int target_generation )
 {
+    if (  !IsValid_NumAlleles(_num_alleles) ) {
+        std::string tmp_str = "Parameters: Missing or invalid number of alleles (must be >=2)";
+        throw tmp_str;
+    }
     
     // this distribution is unique - it takes a closed range [inclusive]
     //if ( _debug_mode ) {
      //   std::cout << "Initializing local int distribution for alt N to max generation " << target_generation-1 << std::endl;
     //}
     
-    boost::random::uniform_int_distribution<int> local_int_distrib(1, target_generation-1);
+    //boost::random::uniform_int_distribution<int> local_int_distrib(1, target_generation-1);
     
-    if ( _alt_N > 0 && _alt_generation < 0) {
-        _alt_generation = local_int_distrib(_boost_gen);
-    }
+    //if ( _alt_N > 0 && _alt_generation < 0) {
+    //    _alt_generation = local_int_distrib(_boost_gen);
+    //}
     
     PerformChecksBeforeEvolution();
     
@@ -113,7 +113,7 @@ int CMulator::EvolveToGeneration( int target_generation )
     //FLOAT_TYPE currentSum = 0.0;
     
     // should we revert to original population size
-    bool alt_popsize_flag = false;
+    // bool alt_popsize_flag = false;
     
     //if ( _debug_mode ) {
     //    std::cout << "Starting evolution for loop" << std::endl;
@@ -136,42 +136,31 @@ int CMulator::EvolveToGeneration( int target_generation )
         }
         */
         
+        /*
         if ( _alt_generation == _current_generation ) {
             _old_N = GetPopulationSize();
             SetPopulationSize(_alt_N);
             alt_popsize_flag = true;
-            /*
-            if (_debug_mode) {
-                std::cout << "Generation "
-                << _current_generation
-                << ": changed to alt popsize "
-                << _N << " instead of "
-                << _old_N << std::endl;
-            }
-             */
+            
+            //if (_debug_mode) {
+             //   std::cout << "Generation "
+             //   << _current_generation
+             //   << ": changed to alt popsize "
+              //  << _N << " instead of "
+             //   << _old_N << std::endl;
+           // }
+            
         }
+         */
         
+        /*
         if ( alt_popsize_flag ) {
             SetPopulationSize(_old_N);
             alt_popsize_flag = false;
-            
-            /*
-            if (_debug_mode) {
-                std::cout << "Generation "
-                << _current_generation
-                << ": reverted popsize to "
-                << _N << std::endl;
-            }
-             */
         }
-        
+        */
         
         // normalize fitness
-        
-        //if ( _debug_mode ) {
-        //    std::cout << "Normalizing fitness." << std::endl;
-        //}
-        
         std::vector<FLOAT_TYPE> allele_fitness_bar(_num_alleles, 0.0f);
         std::vector<FLOAT_TYPE> allele_fitness_adjusted(_num_alleles, 0.0f);
         
@@ -192,23 +181,6 @@ int CMulator::EvolveToGeneration( int target_generation )
                         [wbar]( FLOAT_TYPE f){ return f / wbar; } );
         
         
-        /*
-        if ( _debug_mode ) {
-            std::cout << "fitness values: ";
-            for ( auto val : _allele_fitness ) std::cout << val << "\t";
-            std::cout << std::endl;
-            
-            std::cout << "fitness values bar: ";
-            for ( auto val : allele_fitness_bar ) std::cout << val << "\t";
-            std::cout << std::endl;
-            
-            std::cout << "adjusted fitnesss: ";
-            for ( auto val : allele_fitness_adjusted ) std::cout << val << "\t";
-            std::cout << std::endl;
-            std::cout << "wbar = " << wbar << std::endl;
-            std::cout << "Multiplications" << std::endl;
-        }
-         */
         // TODO: replace these nested for loops with matrix multiplication
         // vector of last generation X mutation_rate_matrix -> tmp1_vector
         // tmp1_vector X fitness_vector -> new_generation
@@ -234,6 +206,7 @@ int CMulator::EvolveToGeneration( int target_generation )
         FLOAT_TYPE sumall = std::accumulate( vec_after_deterministic.begin(),
                                              vec_after_deterministic.end(), 0.0f );
         
+        // std::cout << "sumall = " << sumall << std::endl;
         
         std::transform( vec_after_deterministic.begin(),
                         vec_after_deterministic.end(),
@@ -307,7 +280,8 @@ int CMulator::EvolveToGeneration( int target_generation )
 int CMulator::EvolveAllGenerations()
 {
     if (!_initialized_with_parameters) {
-        throw " EvolveAllGenerations: object not initialized with parameters.";
+        std::string tmp_str = "EvolveAllGenerations: object not initialized with parameters.";
+        throw tmp_str;
     }
     
     return EvolveToGeneration(_num_generations);

@@ -23,8 +23,8 @@ void clsCMulatorABC::WriteStringToFile( std::string filename, std::string str )
     std::ofstream outfile(filename, std::ofstream::out | std::ofstream::trunc);
     
     if (!outfile.is_open()) {
-        std::cerr << "unable to open file for writing: " << filename << std::endl;
-        throw "unable to open file for writing: " + filename;
+        std::string tmp_str = "unable to open file for writing: " + filename;
+        throw tmp_str;
     }
     
     outfile << str;
@@ -41,7 +41,7 @@ void clsCMulatorABC::WriteSimDataToFile( std::string filename, SimulationResult 
     for ( auto gen=0; gen<tmp_matrix.size1(); ++gen ) {
         for ( auto allele=0; allele<tmp_matrix.size2(); ++allele ) {
             
-            outfile << std::to_string( tmp_matrix(gen,allele) ) << "\t";
+            outfile << std::to_string( tmp_matrix(gen,allele) ) << fits_constants::FILE_FIELD_DELIMITER;
         }
         outfile << std::endl;
     }

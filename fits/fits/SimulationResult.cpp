@@ -24,7 +24,8 @@ N(0),
 wt_index(-1),
 sim_id(""),
 distance_metric(""),
-distance_from_actual(-1.0),
+distance_from_actual(-1.0f),
+sum_distance(-1.0f),
 actual_generations(),
 generation_shift(0),
 prior_sample_index(0),
@@ -44,6 +45,7 @@ wt_index(original.wt_index),
 sim_id(original.sim_id),
 distance_metric(original.distance_metric),
 distance_from_actual(original.distance_from_actual),
+sum_distance(original.sum_distance),
 actual_generations(original.actual_generations),
 generation_shift(original.generation_shift),
 prior_sample_index(original.prior_sample_index),
@@ -58,8 +60,9 @@ _is_multi_position(false)
 
 SimulationResult::SimulationResult(const CMulator& sim_object)
 : pos(-1),
-sim_id(sim_object.GetSimUID()),
+//sim_id(sim_object.GetSimUID()),
 distance_from_actual(-1.0f),
+sum_distance(-1.0f),
 distance_metric(""),
 fitness_values(sim_object.GetAlleleFitnessValues()),
 wt_index(sim_object.GetWTAllele()),
@@ -75,8 +78,9 @@ _is_multi_position(false)
 
 SimulationResult::SimulationResult(const CMulator& sim_object, std::vector<int> actual_gens)
 : pos(-1),
-sim_id(sim_object.GetSimUID()),
+//sim_id(sim_object.GetSimUID()),
 distance_from_actual(-1.0f),
+sum_distance(-1.0f),
 distance_metric(""),
 fitness_values(sim_object.GetAlleleFitnessValues()),
 wt_index(sim_object.GetWTAllele()),
@@ -89,8 +93,8 @@ num_generations(sim_object.GetNumOfGenerations()),
 _is_multi_position(false)
 {
     if ( actual_generations.empty() ) {
-        std::cerr << "Actual Generation list is empty" << std::endl;
-        throw "Actual Generation list is empty";
+        std::string tmp_str = "Actual Generation list is empty";
+        throw tmp_str;
     }
     
     sim_data_matrix = sim_object.GetAllOutputAsMatrix( actual_generations );
@@ -109,6 +113,11 @@ SimulationResult::SimulationResult( SimulationResult&& other ) noexcept
 // the less-than is the only one used for comparisons
 bool SimulationResult::operator<(const SimulationResult& result) const
 {
+    // if we have multi-position data
+    if ( sum_distance>0 && result.sum_distance>0 ) {
+        return sum_distance < result.sum_distance;
+    }
+    
     return distance_from_actual < result.distance_from_actual;
 }
 
@@ -124,6 +133,8 @@ void SimulationResult::swap( SimulationResult& other )
     
     std::swap(distance_metric,other.distance_metric);
     std::swap(distance_from_actual, other.distance_from_actual);
+    std::swap(sum_distance, other.sum_distance);
+    
     actual_generations.swap(other.actual_generations);
     std::swap(generation_shift, other.generation_shift);
     
@@ -140,20 +151,43 @@ void SimulationResult::swap( SimulationResult& other )
 
 void SimulationResult::swap(SimulationResult& res1, SimulationResult& res2)
 {
-    std::cerr << std::endl << " Swap with references is used but not implemented!" << std::endl;
-    throw " Swap with references is used but not implemented!";
+    std::string tmp_str = "SimulationResult: Swap with references is used but not implemented!";
+    throw tmp_str;
 }
 
 
 void SimulationResult::swap(SimulationResult *res1, SimulationResult *res2)
 {
-    std::cerr << std::endl << " Swap *res is used but not implemented!" << std::endl;
-    throw " Swap *res is used but not implemented!";
+    std::string tmp_str = "SimulationResult: Swap *res is used but not implemented!";
+    throw tmp_str;
 }
 
 
-SimulationResult& SimulationResult::operator=(SimulationResult other)
+SimulationResult& SimulationResult::operator=( SimulationResult other)
 {
+    /*
+    _is_multi_position = other._is_multi_position;
+    pos = other.pos;
+    N = other.N;
+    wt_index = other.wt_index;
+    
+    distance_metric = other.distance_metric;
+    distance_from_actual = other.distance_from_actual;
+    sum_distance = other.sum_distance;
+    
+    actual_generations = other.actual_generations;
+    generation_shift = other.generation_shift;
+    
+    prior_sample_index = other.prior_sample_index;
+    
+    fitness_values = other.fitness_values;
+    sim_data_matrix = other.sim_data_matrix;
+    mutation_rates = other.mutation_rates;
+    
+    generation_interval = other.generation_interval;
+    num_generations = other.num_generations;
+    */
+    
     swap(other);
     return *this;
 }
@@ -171,7 +205,7 @@ std::vector<FLOAT_TYPE> SimulationResult::GetSDForEachAllele()
         boost::accumulators::accumulator_set<
         FLOAT_TYPE,
         boost::accumulators::stats<
-        //boost::accumulators::tag::median,
+        boost::accumulators::tag::median,
         boost::accumulators::tag::variance,
         boost::accumulators::tag::mean,
         boost::accumulators::tag::min,

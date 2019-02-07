@@ -57,7 +57,13 @@ public:
 private:
     std::vector<C> _min_vector;
     std::vector<C> _max_vector;
+    
+    boost::numeric::ublas::matrix<C> _min_matrix;
+    boost::numeric::ublas::matrix<C> _max_matrix;
+    
     PriorDistributionType _distrib_type;
+    
+    FLOAT_TYPE _log_normal_sigma, _log_normal_mu, _log_normal_lethal;
     
     // this is meant to be used with a posterior distribution
     // loaded as a new prior for this iteration
@@ -72,7 +78,7 @@ private:
     
     void InitializeDistribMatrix() {
         _distrib_matrix(0,0) = 0.1f;     _distrib_matrix(0,1) = 0.00f;
-        _distrib_matrix(1,0) = 0.005f;   _distrib_matrix(1,1) = 0.05f;
+        _distrib_matrix(1,0) = 0.005f;   _distrib_matrix(1,1) = 0.00f + std::numeric_limits<FLOAT_TYPE>::epsilon(); // used to be 0.05
         _distrib_matrix(2,0) = 0.005f;   _distrib_matrix(2,1) = 0.10f;
         _distrib_matrix(3,0) = 0.01f;    _distrib_matrix(3,1) = 0.15f;
         _distrib_matrix(4,0) = 0.01f;    _distrib_matrix(4,1) = 0.20f;
@@ -114,19 +120,39 @@ private:
         _distrib_matrix(39,0) = 0.001;   _distrib_matrix(39,1) = 1.95f;
     }
     
+    void LoadDistribMatrix( std::string filename )
+    {
+        std::string tmp_str = "PriorSampler LoadDistribMatrix unimplemented.";
+        throw tmp_str;
+    }
+    
 public:
     PriorSampler() :
     _min_vector(0),
     _max_vector(0),
     _distrib_matrix(40,2),
-    _distrib_type(PriorDistributionType::UNIFORM)
+    _distrib_type(PriorDistributionType::UNIFORM),
+    _log_normal_mu(-0.248f), _log_normal_sigma(0.149f), _log_normal_lethal(0.045f)
     {
         _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
         _rnd_gen.seed(_rnd_seed);
         InitializeDistribMatrix();
     }
     
+    PriorSampler( std::string filename ) :
+    _min_vector(0),
+    _max_vector(0),
+    _distrib_matrix(1,1),
+    _distrib_type(PriorDistributionType::CUSTOM_FILE),
+    _log_normal_mu(0), _log_normal_sigma(0), _log_normal_lethal(0)
+    {
+        _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+        _rnd_gen.seed(_rnd_seed);
+        LoadDistribMatrix();
+    }
+    
     PriorSampler( std::vector<C> min_values, std::vector<C> max_values, PriorDistributionType distrib_type ) :
+    _log_normal_mu(-0.248f), _log_normal_sigma(0.149f), _log_normal_lethal(0.045f),
     _distrib_type(distrib_type),
     _distrib_matrix(40,2)
     {
@@ -146,6 +172,7 @@ public:
     PriorSampler( boost::numeric::ublas::matrix<C> min_matrix,
                   boost::numeric::ublas::matrix<C> max_matrix,
                   PriorDistributionType distrib_type ) :
+    _log_normal_mu(-0.248f), _log_normal_sigma(0.149f), _log_normal_lethal(0.045f),
     _min_vector(0),
     _max_vector(0),
     _distrib_type(distrib_type)
@@ -157,6 +184,9 @@ public:
             throw "Prior sampler: size of matrices do not match.";
         }
         
+        _max_matrix = max_matrix;
+        _min_matrix = min_matrix;
+        
         for ( auto row=0; row<min_matrix.size1(); ++row ) {
             for ( auto col=0; col<min_matrix.size2(); ++col ) {
                 _min_vector.push_back( min_matrix(row,col) );
@@ -165,7 +195,9 @@ public:
         }
     }
     
+    
     PriorSampler( PriorSampler<C> &original ) :
+    _log_normal_mu(original._log_normal_mu), _log_normal_sigma(original._log_normal_sigma), _log_normal_lethal(original._log_normal_lethal),
     _min_vector(original._min_vector),
     _max_vector(original._max_vector),
     _rnd_gen(0),
@@ -173,6 +205,51 @@ public:
     {
         _rnd_seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
         _rnd_gen.seed(_rnd_seed);
+    }
+    
+    
+    std::vector< boost::numeric::ublas::matrix<C> > SamplePriorAsMatrix( std::size_t num_samples, bool sum1_diagonal )
+    {
+        std::vector< boost::numeric::ublas::matrix<C> > tmp_matrix_vector;
+        
+        for ( auto current_sample=0; current_sample<num_samples; ++current_sample ) {
+            
+            boost::numeric::ublas::matrix<C> tmp_matrix( _min_matrix.size1(), _min_matrix.size2() );
+            
+            for ( auto current_row=0; current_row<tmp_matrix.size1(); ++current_row ) {
+                
+                for ( auto current_col=0; current_col<tmp_matrix.size2(); ++current_col ) {
+                    
+                    auto min_val = _min_matrix(current_row, current_col);
+                    auto max_val = _max_matrix(current_row, current_col);
+                    
+                    tmp_matrix(current_row, current_col) = SampleFromDistribution( min_val, max_val );
+                }
+                
+                if (sum1_diagonal) {
+                    
+                    boost::numeric::ublas::matrix_row<MATRIX_TYPE> current_mutrate_row( tmp_matrix, current_row );
+                    
+                    auto sum_mutation_rates = sum(current_mutrate_row) - current_mutrate_row[current_row];
+                    
+                    if ( sum_mutation_rates > 1.0f ) {
+                        std::string tmp_str = "Sum of mutation rates from allele " + std::to_string(current_row) + " is greater than 1 (" + std::to_string(sum_mutation_rates) + ")";
+                        throw tmp_str;
+                    }
+                    
+                    // if the samples mutation rate sum up to a value smaller than 1
+                    // then we need to make sure non-mutation event probability would
+                    // complement to 1.0
+                    if ( sum_mutation_rates < 1.0f ) {
+                        current_mutrate_row[current_row] = 1.0f - sum_mutation_rates;
+                    }
+                }
+            }
+            
+            tmp_matrix_vector.push_back( tmp_matrix );
+        }
+        
+        return tmp_matrix_vector;
     }
     
     // TODO: write special method for matrix/vector/single sampling
@@ -218,19 +295,19 @@ private:
             case PriorDistributionType::FITNESS_LOGNORMAL: {
                 
                 // values and algorithm inspired by Bons et al. doi: 10.1093/ve/vey029
-                FLOAT_TYPE sigma = 0.149f;
-                FLOAT_TYPE mu = -0.248f;
-                FLOAT_TYPE lethal_fraction = 0.045f;
+                //FLOAT_TYPE sigma =
+                //FLOAT_TYPE mu = -0.248f;
+                //FLOAT_TYPE lethal_fraction = 0.045f;
                 
                 // not using the uniform01 for consistency with other distributions, e.g. () oprator
                 boost::random::uniform_real_distribution<FLOAT_TYPE> lethal_distrib(0.0f, 1.0f);
                 
                 auto tmp_lethal_prob = lethal_distrib(_rnd_gen);
-                if ( tmp_lethal_prob <= lethal_fraction ) {
+                if ( tmp_lethal_prob <= _log_normal_lethal ) {
                     tmp_val = 0.0f;
                 }
                 else {
-                    boost::random::lognormal_distribution<FLOAT_TYPE> lognorm_distrib(mu, sigma);
+                    boost::random::lognormal_distribution<FLOAT_TYPE> lognorm_distrib( _log_normal_mu, _log_normal_sigma );
                     do {
                         tmp_val = lognorm_distrib(_rnd_gen);
                     } while ( tmp_val < min || tmp_val > max );
@@ -270,7 +347,8 @@ private:
                             auto tmp_min = fitness_composite_val_col(tmp_idx);
                             auto tmp_max = fitness_composite_val_col(tmp_idx+1);
                             
-                            if ( tmp_min == tmp_max ) {
+                            // it's important that we'll sample Lethals and Neutral as exactly 0 and 1 to provide informative inference
+                            if ( tmp_min == tmp_max || tmp_min == 0.0f ) {
                                 tmp_val = tmp_min;
                             }
                             else {

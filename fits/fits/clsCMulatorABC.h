@@ -38,6 +38,16 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
 
+#include <boost/accumulators/numeric/functional.hpp>
+#include <boost/accumulators/statistics.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/framework/features.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/moment.hpp>
+#include <boost/accumulators/statistics/median.hpp>
+#include <boost/accumulators/statistics/variance.hpp>
+#include <boost/accumulators/statistics/max.hpp>
+#include <boost/accumulators/statistics/min.hpp>
 
 
 
@@ -54,16 +64,14 @@
 #include "PriorSampler.hpp"
 #include "ActualDataFile.hpp"
 
-enum FactorToInfer {
-    Fitness,
-    MutationRate,
-    PopulationSize
-};
 
 
 class clsCMulatorABC 
 {
 private:
+    
+    std::size_t _wt_allele_idx;
+    std::size_t _expected_prior_sample_size;
     std::size_t _total_running_time_sec;
     
     boost::mt19937 _boost_gen;
@@ -84,7 +92,6 @@ private:
     
     PriorDistributionType _prior_type;
     
-
 	std::vector<SimulationResult> _simulation_result_vector;
     
     //ActualDataFile _actual_data_file;
@@ -95,19 +102,32 @@ private:
     std::vector<int> _selected_actual_generations;
     
     // stores samples from the prior
-    PRIOR_DISTRIB _float_prior_archive;
-    PRIOR_DISTRIB _global_prior;
-    //std::vector< std::vector<int> > _int_prior_archive;
+    PRIOR_DISTRIB_VECTOR _float_prior_archive;
+    PRIOR_DISTRIB_VECTOR _global_prior;
+    // std::vector< std::vector<int> > _int_prior_archive;
+    
+    void VerifyIndece( const PRIOR_DISTRIB_VECTOR &prior_distrib, std::size_t start_idx, std::size_t end_idx );
+    
+    // simulations/second
+    double _simulation_speed;
+    
+    // make sure each vector sums to 1
+    void NormalizePrior();
+    
+    bool _verbose_output;
+    // bool verbose_output = ( my_zparams.GetInt( fits_constants::PARAM_VERBOSE_SWITCH ) == fits_constants::PARAM_VERBOSE_SWITCH_ON );
     
 public:
-    
     //clsCMulatorABC( ZParams sim_params, ActualDataFile actual_data_file );
     clsCMulatorABC();
-    clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position, FactorToInfer factor_to_infer );
+    clsCMulatorABC( ZParams sim_params, ActualDataPositionData actual_data_position, FactorToInfer factor_to_infer, const PRIOR_DISTRIB_VECTOR& prior_distribution_vec, const PRIOR_DISTRIB_MATRIX& prior_distribution_matrix );
 
+    // simulations/second
+    double GetSimulationSpeed() { return _simulation_speed; }
+    
     FLOAT_TYPE GetMedian( std::vector<FLOAT_TYPE> vec );
     
-    std::vector<int> GetUniqueIndexSet( int num_items );
+    //std::vector<int> GetUniqueIndexSet( int num_items );
 
     std::size_t GetTotalRunningTimeSec() { return _total_running_time_sec; }
     
@@ -128,23 +148,24 @@ public:
     void RunABCInference( FactorToInfer factor, std::size_t number_of_batches );
     
     
-    //std::vector<SimulationResult> RunFitnessInferenceBatch( std::size_t num_simulations );
-    //std::vector<SimulationResult> RunPopulationSizeInferenceBatch( std::size_t num_simulations );
-    //std::vector<SimulationResult> RunMutationInferenceBatch( std::size_t num_simulations );
+    // std::vector<SimulationResult> RunFitnessInferenceBatch( std::size_t num_simulations );
+    // std::vector<SimulationResult> RunPopulationSizeInferenceBatch( std::size_t num_simulations );
+    // std::vector<SimulationResult> RunMutationInferenceBatch( std::size_t num_simulations );
 
-    std::vector<SimulationResult> RunFitnessInferenceBatch( const PRIOR_DISTRIB &prior_distrib );
-    std::vector<SimulationResult> RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB &prior_distrib );
-    std::vector<SimulationResult> RunMutationInferenceBatch( const PRIOR_DISTRIB &prior_distrib );
+    std::vector<SimulationResult> RunFitnessInferenceBatch( const PRIOR_DISTRIB_VECTOR &prior_distrib, std::size_t start_idx, std::size_t end_idx );
+    std::vector<SimulationResult> RunPopulationSizeInferenceBatch( const PRIOR_DISTRIB_VECTOR &prior_distrib, std::size_t start_idx, std::size_t end_idx );
+    std::vector<SimulationResult> RunMutationInferenceBatch( const PRIOR_DISTRIB_VECTOR &prior_distrib, std::size_t start_idx, std::size_t end_idx );
 
     
     std::vector<FLOAT_TYPE> GetSDPerAllele( std::size_t start_idx, std::size_t end_idx );
+    
     std::vector<FLOAT_TYPE> GetMADPerAllele( std::size_t start_idx, std::size_t end_idx );
-    void DivideEachAllele( std::size_t start_idx, std::size_t end_idx, std::vector<FLOAT_TYPE> value_vector );
+    // void DivideEachAllele( std::size_t start_idx, std::size_t end_idx, std::vector<FLOAT_TYPE> value_vector );
     
     void CalculateResultsDistances( FLOAT_TYPE scaling_factor = 1.0f );
     
-    PRIOR_DISTRIB GetPriorFloat();
-    void SetPriorFloat( PRIOR_DISTRIB given_prior );
+    PRIOR_DISTRIB_VECTOR GetPriorFloat();
+    void SetPriorFloat( PRIOR_DISTRIB_VECTOR given_prior );
     PriorDistributionType GetPriorType() { return _prior_type; }
     bool _use_stored_prior;
     //std::vector< std::vector<int>> GetPriorInt();

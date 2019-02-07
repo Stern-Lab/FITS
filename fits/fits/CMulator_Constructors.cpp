@@ -39,7 +39,7 @@ _use_single_mutation_rate(false)
 
 
 // Constructor using parameters object
-CMulator::CMulator( const ZParams &zparams ) :
+CMulator::CMulator( const ZParams zparams ) :
 _initialized_with_parameters(false),
 _all_simulated_data(),
 _observed_simulated_data(),
@@ -75,15 +75,15 @@ _wt_allele_index(original._wt_allele_index),
 _current_generation(original._current_generation),
 _allele_max_fitness(original._allele_max_fitness),
 _initialized_with_parameters(original._initialized_with_parameters),
-_epsilon_float_compare(original._epsilon_float_compare),
+//_epsilon_float_compare(original._epsilon_float_compare),
 _allele_init_freqs(original._allele_init_freqs),
 _acceptance_rate(original._acceptance_rate),
 _use_observed_data(original._use_observed_data),
 _use_single_mutation_rate(original._use_single_mutation_rate),
 _all_simulated_data(original._all_simulated_data),
 _observed_simulated_data(original._observed_simulated_data),
-_mutation_rates_matrix(original._mutation_rates_matrix),
-_name_of_run(original._name_of_run)
+_mutation_rates_matrix(original._mutation_rates_matrix)
+//_name_of_run(original._name_of_run)
 {
     // do not copy seed so random numbers won't repeat
     _time_for_seeding = static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count());
