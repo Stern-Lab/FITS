@@ -1,0 +1,14 @@
+verbose 1
+
+Nlog_min 4
+Nlog_max 7
+
+# mutation rates
+mutation_rate0_1 0.00001
+mutation_rate1_0 0.00001
+
+fitness_allele0 1.0
+fitness_allele1 1.0
+
+num_samples_from_prior 100000
+acceptance_rate 0.01

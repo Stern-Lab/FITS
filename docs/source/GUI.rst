@@ -11,33 +11,28 @@ After opening FITS, the following screen will be visible:
 	
     FITS main screen.
 	
-Click the ``Browse...`` button near the parameters file. Load a parameters file (example :ref:`parameters_file`). 
-Upon loading a parameters file, the parameters will be printed in the ``Parameters`` section to the bottom left:
+Click the ``Browse...`` button near the ``Parameters`` label to load a parameters file (example :ref:`parameters_file`). 
 
-.. figure:: screens/parameters_loaded.png
-    :scale: 80%
-    :align: center
-    :alt: FITS main screen
-    :figclass: align-center
-	
-    Parameters are presented on the bottom left area of FITS GUI.
+.. note:: The loaded parameters may be viewed using the ``View`` button.
 
-From the given parameters, FITS will automatically identify the missing parameter in the file and will set its inference mode to this parameter (in the above example, Mutation rate inference mode). 
+From the given parameters, FITS will automatically identify the possible inference mode (in the example below, Fitness inference mode). 
 
-To load the actual data file, click ``Browse...`` near the ``Actual data file`` label just below the ``Parameters file`` label. Locate and open the :ref:`data_file`. 
+To load the data file, click ``Browse...`` near the ``Data`` label just below the ``Parameters`` label. Locate and select the :ref:`data_file`. 
 
+.. note:: FITS expects the data file to be tab-delimited. If using Office Excel, save your worksheet as ``tab delimited`` file. 
+	Verify the content and the format of the file if FITS fails to run.
+
+Within the ``Actions`` area, FITS will automatically suggest available actions according to the parameters available in the parameters file. 
 Press ``Go!`` to perform the selected action. FITS will show a progress bar and estimated time to completion. 
 
-The inference is given in the bottom right area, under ``Output console`` label. It can be exported to a text file, or the posterior distribution may be exported as well for a deeper analysis. 
+The inference results are given in the ``Output`` area. It may be copied to the clipboard (for example, to be pasted into a spreadsheet). Inference output, prior and posterior distributions may be exported to text files. 
 
 .. figure:: screens/inference_made.png
     :scale: 80%
     :align: center
     :alt: FITS main screen
     :figclass: align-center
+    
+    FITS after making an inference. 
 	
-    Inference results is located at the lower right area of FITS GUI.
-
-.. note:: FITS expects the data file to be tab-delimited. If using Office Excel, save your worksheet as ``tab delimited`` file. 
-	Verify the content and format of the file if FITS fails to run.
-.. note:: Parameter value may be changed by pressing the ``Edit file`` button.
+The inference results are explained in the :ref:`introduction` page. 
