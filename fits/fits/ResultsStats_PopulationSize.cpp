@@ -166,8 +166,8 @@ std::string ResultsStats::GetSummaryPopSize( bool table_only )
         
         ss << "median" << fits_constants::FILE_FIELD_DELIMITER;
         ss << "MAD" << fits_constants::FILE_FIELD_DELIMITER;
-        ss << "low" << fits_constants::FILE_FIELD_DELIMITER;
-        ss << "high" << fits_constants::FILE_FIELD_DELIMITER;
+        ss << "min" << fits_constants::FILE_FIELD_DELIMITER;
+        ss << "max" << fits_constants::FILE_FIELD_DELIMITER;
         ss << "pval";
         ss << std::endl;
         
@@ -229,8 +229,8 @@ std::string ResultsStats::GetSummaryPopSize( bool table_only )
     ss << boost::format("%-12s") % "median";
     ss << boost::format("%-12s") % "MAD";
     //ss << boost::format("%-12s") % "mean";
-    ss << boost::format("%-12s") % "low";
-    ss << boost::format("%-12s") % "high";
+    ss << boost::format("%-12s") % "min";
+    ss << boost::format("%-12s") % "max";
     //ss << boost::format("%-10s") % "minldist";
     //ss << boost::format("%-10s") % "maxldist";
     ss << boost::format("%-12s") % "pval";

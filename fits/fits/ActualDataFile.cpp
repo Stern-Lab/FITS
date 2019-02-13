@@ -1,20 +1,20 @@
 /*
-    FITS - Flexible Inference from Time-Series data
-    (c) 2016-2018 by Tal Zinger
-    tal.zinger@outlook.com
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ FITS - Flexible Inference from Time-Series data
+ (c) 2016-2018 by Tal Zinger
+ tal.zinger@outlook.com
+ 
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License.
+ 
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 
 #include "ActualDataFile.hpp"
@@ -259,7 +259,7 @@ void ActualDataFile::LoadActualData( std::string filename )
         
         // at least one data entry is stored
         _is_initialized = true;
-    
+        
     } // iterating all entries
     
     // add the final (or only) position
@@ -301,7 +301,7 @@ void ActualDataFile::LoadActualData( std::string filename )
 void ActualDataFile::ValidateDataFile()
 {
     for ( auto current_position : _position_data ) {
- 
+        
         auto position_wt_idx = current_position.GetWTIndex();
         
         auto generation_vec = current_position.GetActualGenerations();
@@ -310,6 +310,7 @@ void ActualDataFile::ValidateDataFile()
         for ( auto current_generation : generation_vec ) {
             
             FLOAT_TYPE current_freq_sum = 0;
+            FLOAT_TYPE current_freq_sum_wt = 0;
             
             for ( auto current_entry : current_position._actual_data ) {
                 
@@ -326,7 +327,24 @@ void ActualDataFile::ValidateDataFile()
                     if ( current_entry.allele != position_wt_idx ) {
                         current_freq_sum += current_entry.freq;
                     }
+                    
+                    current_freq_sum_wt += current_entry.freq;
                 }
+            }
+            
+            if ( std::fabs(1.0 - current_freq_sum_wt) > fits_constants::EPSILON_FLOAT_TOLERANCE ) {
+                
+                std::string tmp_str = "frequency values do not sum up to 1 (" + std::to_string(current_freq_sum)
+                + ") in generation " + std::to_string(current_generation)
+                + " at position " + std::to_string(current_position._position)
+                + " with epsilon=" + std::to_string(fits_constants::EPSILON_FLOAT_TOLERANCE);
+                
+                throw tmp_str;
+            }
+            
+            if ( std::fabs(1.0 - current_freq_sum_wt) > 2.0f * std::numeric_limits<float>::epsilon() ) {
+                std::cerr << "Warning: allele frequencies do not sum up to 1.0, but are within accepted tolerance (<"
+                << fits_constants::EPSILON_FLOAT_TOLERANCE << "). Rounding to 1.0." << std::endl;
             }
             
             // update wt allele
@@ -344,16 +362,6 @@ void ActualDataFile::ValidateDataFile()
             }
             
             
-            /*
-            if ( std::fabs(1.0 - current_freq_sum) > 2.0f * std::numeric_limits<float>::epsilon() ) {
-                
-                std::string tmp_str = "frequency values do not sum up to 1 (" + std::to_string(current_freq_sum)
-                + ") in generation " + std::to_string(current_generation)
-                + " at position " + std::to_string(current_position._position);
-                
-                throw tmp_str;
-            }
-            */
         }
     }
 }

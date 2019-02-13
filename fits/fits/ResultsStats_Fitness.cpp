@@ -332,8 +332,8 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
         ss << "allele" << "\t";
         ss << "median" << "\t";
         ss << "MAD" << "\t";
-        ss << "low" << "\t";
-        ss << "high" << "\t";
+        ss << "min" << "\t";
+        ss << "max" << "\t";
         ss << "DEL(%)" << "\t";
         ss << "NEU(%)" << "\t";
         ss << "ADV(%)" << "\t";
@@ -485,8 +485,8 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
     ss << boost::format("%-10s") % "median";
     ss << boost::format("%-10s") % "MAD";
     // ss << boost::format("%-10s") % "mean";
-    ss << boost::format("%-10s") % "low";
-    ss << boost::format("%-10s") % "high";
+    ss << boost::format("%-10s") % "min";
+    ss << boost::format("%-10s") % "max";
     ss << boost::format("%-10s") % "DEL(%)";
     ss << boost::format("%-10s") % "NEU(%)";
     ss << boost::format("%-10s") % "ADV(%)";

@@ -43,7 +43,7 @@ enum FactorToInfer {
 namespace fits_constants {
     
     /* GENERAL */
-    const std::string current_version_str = "1.1.15";
+    const std::string current_version_str = "1.1.16";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
     const std::string FILE_FIELD_DELIMITER = "\t";
     
@@ -82,6 +82,9 @@ namespace fits_constants {
     const int PARAM_BOTTLENECK_NOT_DEFINED = -1;
     
     const std::string PARAM_REJECTION_THRESHOLD = "rejection_threshold";
+    
+    const std::string PARAM_WT_ALLELE = "wt_allele";
+    
     
     // const std::string PARAM_IMEMDIATE_REJECTION = "immediate_rejection";
     
@@ -126,6 +129,8 @@ namespace fits_constants {
     // const std::string PARAM_EPSILON_FLOAT_COMPARE = "epsilon_float_compare";
     
     const FLOAT_TYPE PARAM_EPSILON_SIM_DEFAULT = 0.001f; // default range within actual data to accept simulations
+    
+    const FLOAT_TYPE EPSILON_FLOAT_TOLERANCE = 0.0001;
     
     const int PARAM_DEFAULT_VAL_INT = -1;
     const FLOAT_TYPE PARAM_DEFAULT_VAL_FLOAT = -1.0f;
