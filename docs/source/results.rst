@@ -1,6 +1,6 @@
 .. _results:
 
-FITS ouptut
+FITS output
 ===========
 
 General
