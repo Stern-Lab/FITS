@@ -1,3 +1,5 @@
+.. _results:
+
 FITS ouptut
 ===========
 
@@ -42,13 +44,13 @@ ADV(%)				  The proportion of the posterior distribution with values above 1.
 category			  A possible classification of the allele into {LETHAL,DEL,NEU,ADV}, based on the inferred fitness value. 
 ===================== ================================ 
 
-.. note :: Some fitness priors rarely choose the exact value of 1 and therefore **NEU(%)** will approach zero, even for neutral alleles. 
+.. note :: Some `fitness priors <_static/priors.png>`_ rarely choose the exact value of 1 and therefore **NEU(%)** will approach zero, even for neutral alleles. 
 
 Mutation rate inference results
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 FITS infers the mutation rates between all defined alleles. Accordingly, the output table contains the target allele in the first row and the source allele in the first column.
 
-.. note :: In E&R studies, when the population is homogeneous at first generation, 
+.. note :: In Evolve & Resequence (E&R) studies, when the population is homogeneous at first generation, 
            in the absence of more information the inference of the rates between the minor allele to the major will be insignificant, so the **pval** should be taken into account.   
 
 Population size inference results
