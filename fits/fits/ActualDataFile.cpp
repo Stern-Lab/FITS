@@ -332,13 +332,7 @@ void ActualDataFile::ValidateDataFile()
                 }
             }
             
-            if ( current_freq_sum_wt > 1.0 || current_freq_sum_wt > 1.0 ) {
-                std::string tmp_str = "allele frequencies sum up to more than 1.0 in generation " + std::to_string(current_generation)
-                + " at position " + std::to_string(current_position._position);
-                
-                throw tmp_str;
-            }
-            
+            // this captures both >1 and <1
             if ( std::fabs(1.0 - current_freq_sum_wt) > fits_constants::EPSILON_FLOAT_TOLERANCE ) {
                 
                 std::string tmp_str = "frequency values do not sum up to 1 (" + std::to_string(current_freq_sum)
