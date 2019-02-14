@@ -5,8 +5,8 @@ Use cases
 
 .. _EnR:
 
-Evolve & Resequence (E&R)
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Fitness inference
+^^^^^^^^^^^^^^^^^
 | In Evolve & Resequence (E&R) studies, a population is grown for a period of time under a given condition and sampled at several time points. 
   The frequencies of genetic variants or phenotypes for the different time points are measured, and we'd like to infer the fitness that is associated with each specific variant (or phenotype).
   An example for such frequency data, sampled for 15 generations and determined for frequency is described here: 
@@ -32,7 +32,7 @@ The inferred fitness value by FITS was practically 1:
     :alt: Fitness 1 inferred
     :figclass: align-center
 	
-    FITS inferred a fitness value of 1.007 for a simulated neutral allele. 
+    FITS inferred a fitness value of 1.004 for a simulated neutral allele. 
 
 
 Mutation rate inference 
@@ -52,22 +52,13 @@ Mutation rate inference
    
 The data file for a simulated neutral alleles (fitness of 1) under these populations sizes and mutation rate is available :download:`here <examples/mutation_rate/data.txt>`. The corresponding parameters file is available :download:`here <examples/mutation_rate/parameters.txt>`.
 
-.. figure:: screens/mutation_rate_0_inferred.png
-    :scale: 68%
-    :align: left
-    :alt: Fitness 1 inferred
-    :figclass: align-center
-        
-    FITS inferred 1 |rarr| 0 mutation rate of 1.02*10\ :sup:`-5`\. 
-        
-
-.. figure:: screens/mutation_rate_1_inferred.png
-    :scale: 68%
-    :align: right
-    :alt: Fitness 1 inferred
+.. figure:: screens/mutation_rate_inferred.png
+    :scale: 80%
+    :align: center
+    :alt: Mutation rate inferred
     :figclass: align-center
 
-    FITS Inferred 0 |rarr| 1 mutation rate of 8.74*10\ :sup:`-6`\. 
+    FITS inferred 0 |rarr| 1 mutation rate of 8.67*10\ :sup:`-6`\, and 1 |rarr| 0 mutation rate of 1.15*10\ :sup:`-5`\. 
 
 
 Population size inference
@@ -85,6 +76,14 @@ Population size inference
    
 | Other parameters such as mutation rates, number of simulations and the sampling rate are similar to the :ref:`EnR` example. 
   The example data file is available :download:`here <examples/pop_size/data.txt>`. The corresponding parameters file is available :download:`here <examples/pop_size/parameters.txt>`.
+
+.. figure:: screens/pop_size_after.png
+    :scale: 80%
+    :align: center
+    :alt: Population size inferred
+    :figclass: align-center
+	
+    FITS inferred a population size of 5.18*10\ :sup:`5`\. 
 
 Trajectory simulations
 ^^^^^^^^^^^^^^^^^^^^^^

@@ -27,7 +27,7 @@ Press ``Go!`` to perform the selected action. FITS will show a progress bar and 
 
 The inference results are given in the ``Output`` area. It may be copied to the clipboard (for example, to be pasted into a spreadsheet). Inference output, prior and posterior distributions may be exported to text files. 
 
-.. figure:: screens/inference_made.png
+.. figure:: screens/fitness_1_inferred.png
     :scale: 80%
     :align: center
     :alt: FITS main screen
@@ -35,4 +35,4 @@ The inference results are given in the ``Output`` area. It may be copied to the 
     
     FITS after making an inference. 
 	
-The inference results are explained in the :ref:`introduction` page. 
+The inference results are explained in the :ref:`results` page. 
