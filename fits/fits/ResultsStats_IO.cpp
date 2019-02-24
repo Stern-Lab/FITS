@@ -345,7 +345,7 @@ std::string ResultsStats::GetPosterior( bool is_multi_position, FactorToInfer fa
             }
                 
             case PopulationSize: {
-                ss << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.N << std::endl;
+                ss << fits_constants::FILE_FIELD_DELIMITER << tmp_entry.N;
                 break;
             }
         }
