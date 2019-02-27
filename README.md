@@ -1,4 +1,4 @@
-*Download FITS from here:*
+# Download FITS from here:
 https://github.com/SternLabTAU/FITS/releases
 
 *Pre-print of the paper describing this software is now published on bioRxiv:*  
