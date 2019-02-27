@@ -22,7 +22,7 @@ Fitness inference
 | We want the ABC framework to perform 100,000 simulations, and accept the fitness value from the best 1,000 simulations. 
   Therefore the parameter ``num_samples_from_prior 100000`` was set, to indicate 100,000 simulations, and the parameter ``acceptance_rate 0.01`` was set, to indicate that the top 1% simulations will be used to decide on the fitness value of this allele. 
      
-The data file for a simulated neutral allele (fitness of 1) under a populations size of 10\ :sup:`5`\ and a mutation rate of 10\ :sup:`-5`\ is available :download:`here <examples/fitness/data.txt>`. The corresponding parameters file is available :download:`here <examples/fitness/parameters.txt>`.
+The data file for a simulated neutral allele (fitness of 1) under a populations size of 10\ :sup:`5`\  and a mutation rate of 10\ :sup:`-5`\  is available :download:`here <examples/fitness/data.txt>`. The corresponding parameters file is available :download:`here <examples/fitness/parameters.txt>`.
 
 The inferred fitness value by FITS was practically 1:
 
