@@ -1,5 +1,8 @@
 .. include:: <isonum.txt>
 
+.. |POP_SIZE| replace:: 10\ :sup:`5`
+.. |MUT_RATE| replace:: 10\ :sup:`-5`
+
 Use cases
 =========
 
@@ -22,7 +25,7 @@ Fitness inference
 | We want the ABC framework to perform 100,000 simulations, and accept the fitness value from the best 1,000 simulations. 
   Therefore the parameter ``num_samples_from_prior 100000`` was set, to indicate 100,000 simulations, and the parameter ``acceptance_rate 0.01`` was set, to indicate that the top 1% simulations will be used to decide on the fitness value of this allele. 
      
-The data file for a simulated neutral allele (fitness of 1) under these populations sizes and mutation rate is available :download:`here <examples/fitness/data.txt>`. The corresponding parameters file is available :download:`here <examples/fitness/parameters.txt>`.
+The data file for a simulated neutral allele (fitness of 1) under a populations size of |POP_SIZE| and a mutation rate of |MUT_RATE| is available :download:`here <examples/fitness/data.txt>`. The corresponding parameters file is available :download:`here <examples/fitness/parameters.txt>`.
 
 The inferred fitness value by FITS was practically 1:
 
@@ -50,7 +53,7 @@ Mutation rate inference
   
 | We used neutral alleles and therefore set the wildtype and mutant alleles' fitness to be one: ``fitness_allele0 1.0`` and ``fitness_allele1 1.0``. 
    
-The data file for a simulated neutral alleles (fitness of 1) under these populations sizes and mutation rate is available :download:`here <examples/mutation_rate/data.txt>`. The corresponding parameters file is available :download:`here <examples/mutation_rate/parameters.txt>`.
+The data file for simulated neutral alleles (fitness of 1) under a populations size of |POP_SIZE| and a mutation rate of |MUT_RATE| is available :download:`here <examples/mutation_rate/data.txt>`. The corresponding parameters file is available :download:`here <examples/mutation_rate/parameters.txt>`.
 
 .. figure:: screens/mutation_rate_inferred.png
     :scale: 80%
