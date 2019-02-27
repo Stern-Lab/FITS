@@ -1,13 +1,12 @@
-# Download FITS from here:
+# Download FITS
 https://github.com/SternLabTAU/FITS/releases
 
-*Pre-print of the paper describing this software is now published on bioRxiv:*  
+# Paper describing FITS (pre-print)
 Zinger T., Pennings P.S., Stern A., Inferring Population Genetics Parameters of Evolving Viruses Using Time-series Data
 https://www.biorxiv.org/content/early/2018/10/07/437483
 
-Full documentation is available here:
+# Full documentation of FITS
 http://fits.rtfd.io
-
 
 
 # License
