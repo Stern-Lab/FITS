@@ -595,10 +595,12 @@ FLOAT_TYPE clsCMulatorABC::DistanceL1( const MATRIX_TYPE &actual_data, const MAT
     FLOAT_TYPE sum_diff = 0.0f;
     for ( auto col=0; col<diff_matrix.size2(); ++col ) {
         
-        //if ( col == _wt_allele_idx ) {
-            // std::cout << " distance skipping allele " << col << std::endl;
-           // continue;
-        //}
+        /*
+        if ( col == _wt_allele_idx ) {
+             std::cout << " distance skipping allele " << col << std::endl;
+            continue;
+        }
+         */
         
         boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(diff_matrix, col);
         auto current_allele_sum = boost::numeric::ublas::sum(current_col);
@@ -637,9 +639,11 @@ FLOAT_TYPE clsCMulatorABC::DistanceL2( const MATRIX_TYPE &actual_data, const MAT
     FLOAT_TYPE sum_diff = 0.0f;
     for ( auto col=0; col<squared_diff_matrix.size2(); ++col ) {
         
-        //if ( col == _wt_allele_idx ) {
-          //  continue;
-        //}
+        /*
+        if ( col == _wt_allele_idx ) {
+            continue;
+        }
+        */
         
         boost::numeric::ublas::matrix_column<MATRIX_TYPE> current_col(squared_diff_matrix, col);
         auto current_allele_sum = boost::numeric::ublas::sum(current_col);

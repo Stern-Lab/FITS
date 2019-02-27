@@ -150,7 +150,6 @@ int InferABC( FactorToInfer factor,
         else {
             std::cout << "Done." << std::endl;
         }
-        
     }
     catch (std::string str) {
         std::cerr << std::endl << "Exception while loading data: " << str << std::endl;
@@ -348,6 +347,15 @@ int InferABC( FactorToInfer factor,
                 auto current_position_data = actual_data_file.GetPosition(current_position_num);
                 std::cout << "-- Position " << current_position_num << " --" << std::endl;
                 
+                auto current_wt_allele = current_position_data.GetWTIndex();
+                if ( current_wt_allele != 0 ) {
+                    std::cout << std::endl
+                    << "**" << std::endl
+                    << "Warning: WT allele set to " << current_wt_allele << "." << std::endl
+                    <<"* FITS considers the most prevalent allele at the first generation as WT. Please consider defining allele 0 as the WT." << std::endl
+                    << "**" << std::endl;
+                }
+                
                 /* ----------------- */
                 /*  Run simulations  */
                 /* ----------------- */
@@ -540,10 +548,10 @@ int InferABC( FactorToInfer factor,
             
             for ( auto current_pos_idx=0; current_pos_idx<accepted_results_vector.size(); ++current_pos_idx ) {
                 // accepted_results_vector[current_pos_idx].sum_distance = boost::accumulators::sum(distance_accumulator_vector[current_pos_idx]);
-                std::cout << " before: " << accepted_results_vector[current_pos_idx].sum_distance;
+                //std::cout << " before: " << accepted_results_vector[current_pos_idx].sum_distance;
                 accepted_results_vector[current_pos_idx].sum_distance = boost::accumulators::median(distance_accumulator_vector[current_pos_idx]);
                 
-                std::cout << " after: " << accepted_results_vector[current_pos_idx].sum_distance << std::endl;
+                //std::cout << " after: " << accepted_results_vector[current_pos_idx].sum_distance << std::endl;
                 
             }
             
@@ -562,6 +570,16 @@ int InferABC( FactorToInfer factor,
         else {
             
             // single position
+            
+            auto current_wt_allele = actual_data_file.GetWTIndex();
+            if ( current_wt_allele != 0 ) {
+                std::cout << std::endl
+                << "*****" << std::endl
+                << "Warning: WT allele set to " << current_wt_allele << "." << std::endl
+                << "FITS considers the most prevalent allele at the first generation as WT. Please consider defining allele 0 as the WT." << std::endl
+                << "*****" << std::endl;
+            }
+            
             
             /* ----------------- */
             /*  Run simulations  */

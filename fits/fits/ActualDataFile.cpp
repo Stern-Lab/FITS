@@ -230,6 +230,9 @@ void ActualDataFile::LoadActualData( std::string filename )
     // not catching any exceptions from here, should be transparent that I use helper functions
     auto all_data_entries_vec = DataFileToEntries( filename );
     
+    
+    // TODO: make sure that all alleles - zero based consecutive
+    
     std::sort( all_data_entries_vec.begin(), all_data_entries_vec.end() );
     
     
