@@ -5,5 +5,9 @@ https://www.biorxiv.org/content/early/2018/10/07/437483
 Full documentation is available here:
 http://fits.rtfd.io
 
+Download FITS from here:
+https://github.com/SternLabTAU/FITS/releases
+
+
 # License
 FITS is distributed under the [GPLv3 license](https://www.gnu.org/licenses/licenses.html#GPL), and uses the [Qt framework](https://www.qt.io/).
