@@ -16,6 +16,8 @@ This file is expected to hold observed allele information from the system under 
 
 .. note:: FITS assumes the columns to appear in the above order. 
 
+.. note:: The allele with the highest frequency at the first available time point will be defined as WT (w=1).
+
 .. csv-table:: Example data file
   :file: examples/data_file_to_show.txt
   :delim: tab
