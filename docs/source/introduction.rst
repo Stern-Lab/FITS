@@ -26,7 +26,15 @@ This file is expected to hold observed allele information from the system under 
 You can also download an :download:`example <examples/data_file_example.txt>`. 
 
 .. note:: For each generation, the sum of frequencies for the different alleles should be 1.
-  
+
+.. note:: 
+
+	FITS accepts allele frequencies at a given loci. Sequencing techniques tend to vary in their accuracy, so sometimes the provided allele frequencies may be inaccurate. If using inaccurate input, FITS inferences may be inaccurate as well. Specific examples include:
+
+	#. Inference of fitness of highly deleterious mutations where the accuracy threshold of sequencing is worse than the mutation rate.
+	#. Inference of mutation rate from neutral alleles when the number of generations X the mutation rate is lower than the accuracy threshold of the sequencing.    
+	#. Inference of mutation rate or fitness when very shallow sequencing is available (due to limited sampling or limited sequence coverage).
+
 .. _parameters_file:
   
 Parameters file

@@ -2,7 +2,7 @@ Compiling from source
 =====================
 
 The most recent version of FITS is available `here <https://github.com/SternLabTAU/FITS/releases/latest>`_.
-In order to compile, FITS requires the `Boost library 1.69 <https://www.boost.org/users/history/version_1_69_0.html>`_ and a C++11 supporting compiler. We used GCC7.3 on Linux (Centos), Clang provided with Xcode9 on MacOS (High Sierra) and MinGW provided with Qt 5.12 on Windows 10 & 7.
+In order to compile, FITS requires the `Boost library 1.69 <https://www.boost.org/users/history/version_1_69_0.html>`_ and a C++11 supporting compiler. We used gcc 8.2 on Linux (Centos), Clang provided with Xcode9 on MacOS (High Sierra) and MinGW provided with Qt 5.12 on Windows 10 & 7.
 
 .. note:: Before you start, make sure GCC is in the ``PATH``.
 
@@ -11,7 +11,7 @@ Compiling the command line interface
 
 #. Download and extract the `Boost library 1.69 <https://www.boost.org/users/history/version_1_69_0.html>`_ to a convenient location.
 
-#. Compile all \*.cpp files, referring the compiler to the Boost libraries, e.g.: ``g++ -std=c++11 -O3 -o fits1.1.16 -I/path/to/boost/ -L/path/to/boost/libs *.cpp`` 
+#. Compile all \*.cpp files, referring the compiler to the Boost libraries, e.g.: ``g++ -std=c++11 -O3 -o fits1.3 -I/path/to/boost/ -L/path/to/boost/libs *.cpp`` 
 
    (here we tell gcc to use c++11 standard, use optimization (-O3) and name the output file (-o) **fits1.1.16**).
 
