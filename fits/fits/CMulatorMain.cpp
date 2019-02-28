@@ -921,7 +921,7 @@ int InferABC( FactorToInfer factor,
      */
     
     catch (std::string str) {
-        std::cerr << std::endl << "Exception caught while attempting to report stats: " << str << std::endl;
+        std::cerr << std::endl << "Exception caught while running inference: " << str << std::endl;
         return 1;
     }
     

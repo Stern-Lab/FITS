@@ -271,6 +271,10 @@ unsigned long ZParams::GetUnsignedLong(const std::string paramName)
     
     retreived_str = GetString(paramName);
     
+    if ( !is_only_digits(retreived_str) ) {
+        std::string tmp_str = "Parameter value for " + paramName + " is not an integer.";
+        throw tmp_str;
+    }
     /*
     try {
         retreived_str = GetString(paramName);
@@ -521,12 +525,17 @@ std::size_t ZParams::GetSize_t(const std::string paramName)
     
     retreived_str = GetString(paramName);
     
+    if ( !is_only_digits(retreived_str) ) {
+        std::string tmp_str = "Parameter value for " + paramName + " is not an integer.";
+        throw tmp_str;
+    }
+    
     std::size_t tmp_value = 0;
     try {
         tmp_value = boost::lexical_cast<std::size_t>(retreived_str);
     }
     catch (...) {
-        std::string tmp_str = "Error: parameter " + paramName + " is not size_t (" + retreived_str + ")";
+        std::string tmp_str = "Error: parameter " + paramName + " is not size_t integer (" + retreived_str + ")";
         throw tmp_str;
     }
     

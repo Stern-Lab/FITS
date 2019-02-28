@@ -22,7 +22,7 @@
 
 ActualDataPositionData::ActualDataPositionData() :
 _actual_data(),
-_position(-1),
+_position(0),
 _wt_index(-1),
 _num_alleles(-1),
 _actual_generations(0),
@@ -44,7 +44,7 @@ _init_frequencies(other._init_frequencies)
 void ActualDataPositionData::Clear()
 {
     _actual_data.clear();
-    _position = -1;
+    _position = 0;
     _wt_index = -1;
     _num_alleles = -1;
     _actual_generations.clear();

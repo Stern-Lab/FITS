@@ -468,12 +468,16 @@ bool CMulator::InitSampleSize( ZParams zparams )
 
 bool CMulator::InitRepeats( ZParams zparams )
 {
+    _repeats = zparams.GetSize_t( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
+    
+    /*
     try {
-        _repeats = zparams.GetInt(fits_constants::PARAM_SIM_REPEATS);
+         _repeats = zparams.GetInt(fits_constants::PARAM_SIM_REPEATS);
     }
     catch(...) {
-        _repeats = fits_constants::PARAM_SIM_REPEATS_DEFAULT;
+        _repeats = ;
     }
+    */
     
     if ( _repeats <= 0 ) {
         std::string tmp_str = "Error: Number of repoeats must be positive (" + std::to_string(_sample_size) + ")";

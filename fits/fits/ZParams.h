@@ -27,6 +27,7 @@
 #include <vector>
 #include <map>
 #include <regex>
+#include <algorithm>
 #include <boost/lexical_cast.hpp>
 
 /*
@@ -96,6 +97,11 @@ private:
     std::map<std::string, std::string> _param_map;
     bool _is_initialized;
     bool _read_only; // won't accept updates
+    
+    bool is_only_digits( const std::string &str )
+    {
+        return std::all_of(str.begin(), str.end(), ::isdigit);
+    }
     
     void WarnIfDecimal( std::string param_name, std::string param_val ) ;
     void WarnIfInteger( std::string param_name, std::string param_val ) ;

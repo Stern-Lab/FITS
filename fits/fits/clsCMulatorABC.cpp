@@ -43,13 +43,39 @@ _verbose_output(false)
     
     
     // _repeats = _zparams.GetInt( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
-    _repeats = _zparams.GetSize_t( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
+    // _repeats = _zparams.GetSize_t( fits_constants::PARAM_SIM_REPEATS, fits_constants::PARAM_SIM_REPEATS_DEFAULT );
+    try {
+       _repeats = _zparams.GetSize_t( fits_constants::PARAM_SIM_REPEATS );
+    }
+    catch (...) {
+        std::string tmp_str = "Invalid or missing number of prior samples.";
+        throw tmp_str;
+    }
+    /*
+    
     if ( _repeats <= 0 ) {
         std::string tmp_str = "Error: Number of repoeats must be positive.";
         throw tmp_str;
     }
+    */
     
     _num_alleles = _zparams.GetUnsignedInt( fits_constants::PARAM_NUM_ALLELES, -1 );
+    
+    try {
+        auto tmp_acceptance_rate = _zparams.GetFloat( fits_constants::PARAM_ACCEPTANCE_RATE );
+        
+        if ( tmp_acceptance_rate <= 0.0 ||  tmp_acceptance_rate >= 1 ) {
+            std::string tmp_str = "Invalid value tfor acceptance rate (" +
+            std::to_string(tmp_acceptance_rate) + "). Acceptance rate must be between 0 and 1.";
+            throw tmp_str;
+        }
+    }
+    catch (...) {
+        std::string tmp_str = "Invalid or missing acceptance rate parameter.";
+        throw tmp_str;
+    }
+    
+    
     
     _sims_to_keep = _zparams.GetFloat( fits_constants::PARAM_ACCEPTANCE_RATE,
                                       fits_constants::ACCEPTANCE_RATE_DEFAULT ) * _repeats;
@@ -106,7 +132,7 @@ _verbose_output(false)
             
             if ( prior_distribution_vec.empty() ) {
                 
-                std::cout << "Sampling from prior... " << std::flush;
+                std::cout << "Sampling from prior (" + std::to_string(_repeats) +  "... " << std::flush;
                 
                 PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
                 _global_prior = sampler.SamplePrior(_repeats);

@@ -41,12 +41,19 @@ std::string ActualDataFile::GetAsRawText()
             tmp_str += std::to_string(current_allele) + "\t";
             tmp_str += std::to_string(current_frequency) + "\t";
             
+            // used to be special casse for single position,
+            // users said it's confusing
+            /*
             if ( current_position < 0 ) {
                 tmp_str += "N/A";
             }
+            
             else {
                 tmp_str += std::to_string(current_position);
-            }
+            } */
+            
+            tmp_str += std::to_string(current_position);
+            
             tmp_str += "\n";
         }
     }
