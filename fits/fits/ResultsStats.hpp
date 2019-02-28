@@ -101,9 +101,7 @@ class ResultsStats {
     PriorDistributionType _prior_type;
     std::vector<SimulationResult> _result_vector;
     
-    std::string _param_filename;
-    std::string _data_filename;
-    std::string _prior_filename;
+    
     
 public:
     ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB_VECTOR &prior_distrib, const std::vector<SimulationResult>& result_vector );
@@ -267,6 +265,9 @@ public:
     
     FLOAT_TYPE LevenesTest2( std::vector<FLOAT_TYPE> group1, std::vector<FLOAT_TYPE> group2 );
     
+    std::string _param_filename;
+    std::string _data_filename;
+    std::string _prior_filename;
     
     
 private: // here for init-order - require the public vars to be initialize

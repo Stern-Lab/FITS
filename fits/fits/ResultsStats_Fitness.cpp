@@ -458,7 +458,10 @@ std::string ResultsStats::GetSummaryFitness( bool table_only )
         auto prior_str = _zparams.GetString( fits_constants::PARAM_FITNESS_PRIOR_DISTRIB,
                                           fits_constants::PARAM_PRIOR_DISTRIB_FITNESS_DEFAULT );
         
-        ss << "Prior used: " << prior_str << std::endl;
+        if ( _prior_filename.empty() ) {
+            ss << "Prior used: " << prior_str << std::endl;
+        }
+        
         
         if ( !bad_alleles_vec.empty() ) {
             ss << "** WARNING: inference may be unreliable (Nu<1) for alleles (*): ";

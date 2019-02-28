@@ -238,12 +238,13 @@ int InferABC( FactorToInfer factor,
     
     
     // did the user define a custom prior?
+    std::string prior_filename = "";
     PriorFile prior_file;
     if ( my_zparams.IsParameterFound( fits_constants::PARAM_PRIOR_FILENAME ) ) {
         try {
             
             std::cout << " prior file param found" << std::endl;
-            auto prior_filename = my_zparams.GetString( fits_constants::PARAM_PRIOR_FILENAME );
+            prior_filename = my_zparams.GetString( fits_constants::PARAM_PRIOR_FILENAME );
             
             std::cout << "Loading custom prior from: " << prior_filename << "... ";
             
@@ -677,6 +678,10 @@ int InferABC( FactorToInfer factor,
         std::cout << " prior size: " << used_prior_distrib.size() << " accepted results: " << accepted_results_vector.size() << std::endl;
         
         ResultsStats result_stats( my_zparams, prior_type, used_prior_distrib, accepted_results_vector );
+        
+        result_stats._prior_filename = prior_filename;
+        result_stats._data_filename = actual_data_filename;
+        result_stats._param_filename = param_filename;
         
         result_stats.SetPriorType(prior_type);
         

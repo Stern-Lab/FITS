@@ -239,6 +239,13 @@ std::string ResultsStats::GetSummaryHeader()
     //ss << std::put_time(&current_time_final, "%F (year-month-day) %T (hours:minutes:seconds)") << std::endl;
     ss << std::put_time(&current_time_final, "%Y-%m-%d (year-month-day) %H:%M:%S (hours:minutes:seconds)") << std::endl;
     
+    ss << "Parameters file: " << _param_filename << std::endl;
+    ss << "Data file: " << _data_filename << std::endl;
+    
+    if ( !_prior_filename.empty() ) {
+        ss << "Prior file: " << _prior_filename << std::endl;
+    }
+    
     ss << "Simulation results used for calculations: " << _num_results << std::endl;
     
     ss << "Alleles: " << _num_alleles << std::endl;
