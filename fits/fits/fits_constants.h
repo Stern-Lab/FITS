@@ -1,6 +1,6 @@
 /*
     FITS - Flexible Inference from Time-Series data
-    (c) 2016-2018 by Tal Zinger
+    (c) 2016-2019 by Tal Zinger
     tal.zinger@outlook.com
 
     This program is free software: you can redistribute it and/or modify
@@ -43,7 +43,7 @@ enum FactorToInfer {
 namespace fits_constants {
     
     /* GENERAL */
-    const std::string current_version_str = "1.3";
+    const std::string current_version_str = "1.3.1";
     const FLOAT_TYPE LEVENES_SIGNIFICANCE = 0.05f;
     const std::string FILE_FIELD_DELIMITER = "\t";
     

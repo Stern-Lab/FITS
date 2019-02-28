@@ -1,6 +1,6 @@
 /*
     FITS - Flexible Inference from Time-Series data
-    (c) 2016-2018 by Tal Zinger
+    (c) 2016-2019 by Tal Zinger
     tal.zinger@outlook.com
 
     This program is free software: you can redistribute it and/or modify
@@ -53,7 +53,10 @@ _zparams(zparams),
 levenes_pval(_num_alleles, -1.0f),
 _prior_type(prior_type),
 _prior_distrib(prior_distrib),
-_result_vector(result_vector)
+_result_vector(result_vector),
+_param_filename(""),
+_data_filename(""),
+_prior_filename("")
 {
     _distance_metric = _zparams.GetString( fits_constants::PARAM_DISTANCE, fits_constants::PARAM_DISTANCE_L1 );
 }
@@ -233,7 +236,8 @@ std::string ResultsStats::GetSummaryHeader()
     auto current_time_raw = std::chrono::system_clock::now();
     auto current_time = std::chrono::system_clock::to_time_t(current_time_raw);
     auto current_time_final = *std::localtime(&current_time);
-    ss << std::put_time(&current_time_final, "%F (year-month-day) %T (hours:minutes:seconds)") << std::endl;
+    //ss << std::put_time(&current_time_final, "%F (year-month-day) %T (hours:minutes:seconds)") << std::endl;
+    ss << std::put_time(&current_time_final, "%Y-%m-%d (year-month-day) %H:%M:%S (hours:minutes:seconds)") << std::endl;
     
     ss << "Simulation results used for calculations: " << _num_results << std::endl;
     

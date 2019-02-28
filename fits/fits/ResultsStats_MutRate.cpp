@@ -1,6 +1,6 @@
 /*
  FITS - Flexible Inference from Time-Series data
- (c) 2016-2018 by Tal Zinger
+ (c) 2016-2019 by Tal Zinger
  tal.zinger@outlook.com
  
  This program is free software: you can redistribute it and/or modify
@@ -228,7 +228,7 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
                     ss << fits_constants::FILE_FIELD_DELIMITER;
                 }
                 
-                if ( row < _num_alleles-1 ) {
+                if ( row < _num_alleles-1 || col < _num_alleles-1 ) {
                     ss << std::endl;
                 }
             }
@@ -239,6 +239,7 @@ std::string ResultsStats::GetSummaryMutRate( bool table_only )
     
     
     ss << "Mutation Rate Report" << std::endl;
+    ss << "===============" << std::endl;
     ss << GetSummaryHeader();
     
     

@@ -1,6 +1,6 @@
 /*
     FITS - Flexible Inference from Time-Series data
-    (c) 2016-2018 by Tal Zinger
+    (c) 2016-2019 by Tal Zinger
     tal.zinger@outlook.com
 
     This program is free software: you can redistribute it and/or modify
@@ -89,6 +89,8 @@ class ResultsStats {
 
     std::size_t _running_time_sec;
     
+    
+    
     std::string _distance_metric;
     
     std::string GetSummaryHeader();
@@ -98,6 +100,10 @@ class ResultsStats {
     PRIOR_DISTRIB_VECTOR _prior_distrib;
     PriorDistributionType _prior_type;
     std::vector<SimulationResult> _result_vector;
+    
+    std::string _param_filename;
+    std::string _data_filename;
+    std::string _prior_filename;
     
 public:
     ResultsStats( ZParams zparams, PriorDistributionType prior_type, const PRIOR_DISTRIB_VECTOR &prior_distrib, const std::vector<SimulationResult>& result_vector );

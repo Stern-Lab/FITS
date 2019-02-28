@@ -1,6 +1,6 @@
 /*
     FITS - Flexible Inference from Time-Series data
-    (c) 2016-2018 by Tal Zinger
+    (c) 2016-2019 by Tal Zinger
     tal.zinger@outlook.com
 
     This program is free software: you can redistribute it and/or modify
@@ -69,7 +69,7 @@ struct ActualDataEntry {
     const bool SameRef( const ActualDataEntry& other ) { return ref==other.ref; }
     const bool SameReadCount( const ActualDataEntry &other ) { return read_count==other.read_count; }
     
-    // expected usage - for sorting in ascending generations, sor comparison with simulated data
+    // expected usage - for sorting in ascending generations, or comparison with simulated data
     bool operator<( const ActualDataEntry& other ) const;
     
     ActualDataEntry& operator=(ActualDataEntry other);

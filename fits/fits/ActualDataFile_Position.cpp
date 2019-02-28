@@ -1,6 +1,6 @@
 /*
  FITS - Flexible Inference from Time-Series data
- (c) 2016-2018 by Tal Zinger
+ (c) 2016-2019 by Tal Zinger
  tal.zinger@outlook.com
  
  This program is free software: you can redistribute it and/or modify
@@ -95,15 +95,41 @@ int ActualDataPositionData::GetNumberOfAlleles()
         return _num_alleles;
     }
     
-    auto first_gen = _actual_data[0].gen;
-    int i=0;
+    // here we check how many alleles we have at each generation
+    // we run this once for each position, so we don't care it's
+    // relatvely intensive
     
-    while ( _actual_data[i].gen == first_gen ) {
-        ++i;
+    auto tmp_gen_vec = GetActualGenerations();
+    
+    int alleles_in_generation = -1;
+    
+    for ( auto current_gen : tmp_gen_vec ) {
+        
+        int alleles_encountered=0;
+        
+        for ( auto current_entry : _actual_data ) {
+            if ( current_entry.gen == current_gen ) {
+                ++alleles_encountered;
+            }
+        }
+        
+        
+        if ( alleles_in_generation < 0 ) {
+            alleles_in_generation = alleles_encountered;
+        }
+        else {
+            if ( alleles_encountered != alleles_in_generation ) {
+                std::string tmp_str = "Expected " + std::to_string(alleles_in_generation) +
+                " alleles in generation " + std::to_string(current_gen) + " but encountered " + std::to_string(alleles_encountered);
+                
+                throw tmp_str;
+            }
+        }
     }
     
+    
     //std::cout << "GetNumberOfAlleles: " << i << std::endl;
-    _num_alleles = i;
+    _num_alleles = alleles_in_generation;
     
     return _num_alleles;
 }

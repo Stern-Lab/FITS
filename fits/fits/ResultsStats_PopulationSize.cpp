@@ -1,6 +1,6 @@
 /*
  FITS - Flexible Inference from Time-Series data
- (c) 2016-2018 by Tal Zinger
+ (c) 2016-2019 by Tal Zinger
  tal.zinger@outlook.com
  
  This program is free software: you can redistribute it and/or modify

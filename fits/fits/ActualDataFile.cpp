@@ -1,6 +1,6 @@
 /*
  FITS - Flexible Inference from Time-Series data
- (c) 2016-2018 by Tal Zinger
+ (c) 2016-2019 by Tal Zinger
  tal.zinger@outlook.com
  
  This program is free software: you can redistribute it and/or modify
@@ -235,24 +235,32 @@ void ActualDataFile::LoadActualData( std::string filename )
     
     std::sort( all_data_entries_vec.begin(), all_data_entries_vec.end() );
     
-    
-    int current_position = -1;
+    int num_positions_detected = 0;
+    int current_position = all_data_entries_vec[0].pos;
     ActualDataPositionData tmp_position_data;
     for ( auto current_entry : all_data_entries_vec ) {
         
-        // new position
-        if ( current_entry.pos != current_position && current_position > 0 ) {
+        // position is initialized to the first available position
+        // if the current entry has position that differs from the currently stored
+        // we have encountered a new position,
+        //if ( (current_entry.pos != current_position) && (current_position > 0) ) {
+        if ( current_entry.pos != current_position ) {
+            
+            // count the current position
+            ++num_positions_detected;
+            
+            // it's not the first positon we've encountered - it's multiposition
+            if ( num_positions_detected > 1 ) {
+                _multi_positions = true;
+            }
             
             // I like to make sure it's all sorted
             std::sort( tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end() );
-            
+            tmp_position_data._num_alleles = tmp_position_data.GetNumberOfAlleles();
             _position_data.push_back( tmp_position_data );
             
             // after copying into the position vector, clear the tmp object
             tmp_position_data.Clear();
-            
-            // if we identified additional position, we have multi-position data
-            _multi_positions = true;
         }
         
         // store data in current position (may be the only one)
@@ -267,6 +275,7 @@ void ActualDataFile::LoadActualData( std::string filename )
     
     // add the final (or only) position
     std::sort( tmp_position_data._actual_data.begin(), tmp_position_data._actual_data.end() );
+    tmp_position_data._num_alleles = tmp_position_data.GetNumberOfAlleles();
     _position_data.push_back( tmp_position_data );
     
     // finished going through file - have we read any data?
@@ -315,12 +324,40 @@ void ActualDataFile::ValidateDataFile()
             FLOAT_TYPE current_freq_sum = 0;
             FLOAT_TYPE current_freq_sum_wt = 0;
             
+            
+            std::vector<bool> observed_alleles_vec;
+            
+            try {
+                observed_alleles_vec.resize( current_position._num_alleles, false );
+            }
+            catch (...) {
+                std::string tmp_str = "Cannot initiaslize vector with " +
+                std::to_string(current_position._num_alleles) + "  alleles";
+                throw tmp_str;
+            }
+            
+            
             for ( auto current_entry : current_position._actual_data ) {
                 
                 if ( current_entry.gen == current_generation ) {
                     
+                    if ( current_entry.allele < 0 || current_entry.allele >= observed_alleles_vec.size() ) {
+                        std::string tmp_str = "Invalid allele number (" + std::to_string(current_entry.allele) +
+                        ") in data file in position " + std::to_string(current_position._position) +
+                        ", generation " + std::to_string(current_entry.gen) +
+                        ". Allele numbers are expected to be consecutive, and zero-based." +
+                        " In this case, alleles are expected to be with numbers 0-" +
+                        std::to_string( observed_alleles_vec.size()-1 ) + ".";
+                        
+                        throw tmp_str;
+                    }
+                    
+                    // std::cout << " generation " << current_generation << " allele " << current_entry.allele << " observed" << std::endl;
+                    observed_alleles_vec[ current_entry.allele ] = true;
+                    
+                    
                     if ( current_entry.freq < 0 ) {
-                        std::string tmp_str = "negative frequency value (" + std::to_string(current_entry.freq)
+                        std::string tmp_str = "Negative frequency value (" + std::to_string(current_entry.freq)
                         + ") in generation " + std::to_string(current_generation)
                         + " at position " + std::to_string(current_position._position);
                         
@@ -333,7 +370,25 @@ void ActualDataFile::ValidateDataFile()
                     
                     current_freq_sum_wt += current_entry.freq;
                 }
+            } // finished scanning a generation
+            
+            
+            // check if we have missing alleles in this generation. If so, write which in the exception thrown
+            bool is_missing_allele = false;
+            std::string allele_err_str = "Missing allele(s) in position " + std::to_string(current_position._position) +
+            ", generation " + std::to_string(current_generation) + ": ";
+            for ( auto current_allele_idx=0; current_allele_idx<observed_alleles_vec.size(); ++current_allele_idx ) {
+                
+                if ( observed_alleles_vec[current_allele_idx] == false ) {
+                    allele_err_str = allele_err_str + std::to_string(current_allele_idx) + " ";
+                    is_missing_allele = true;
+                }
             }
+            
+            if ( is_missing_allele ) {
+                throw allele_err_str;
+            }
+            
             
             // this captures both >1 and <1
             if ( std::fabs(1.0 - current_freq_sum_wt) > fits_constants::EPSILON_FLOAT_TOLERANCE ) {
