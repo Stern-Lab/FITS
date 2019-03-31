@@ -11,9 +11,9 @@ Compiling the command line interface
 
 #. Download and extract the `Boost library 1.69 <https://www.boost.org/users/history/version_1_69_0.html>`_ to a convenient location.
 
-#. Compile all \*.cpp files, referring the compiler to the Boost libraries, e.g.: ``g++ -std=c++11 -O3 -o fits1.3 -I/path/to/boost/ -L/path/to/boost/libs *.cpp`` 
+#. Compile all \*.cpp files, referring the compiler to the Boost libraries, e.g.: ``g++ -std=c++11 -O3 -o fits1.3.2 -I/path/to/boost/ -L/path/to/boost/libs *.cpp`` 
 
-   (here we tell gcc to use c++11 standard, use optimization (-O3) and name the output file (-o) **fits1.1.16**).
+   (here we tell gcc to use c++11 standard, use optimization (-O3) and name the output file (-o) **fits1.3.2**).
 
 #. Run FITS with no command line arguments to get the help text
 
