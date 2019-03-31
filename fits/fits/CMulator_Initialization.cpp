@@ -457,7 +457,7 @@ bool CMulator::InitSampleSize( ZParams zparams )
         return false;
     }
     
-    if ( _sample_size < 0 ) {
+    if ( _sample_size <= 0 ) {
         std::string tmp_str = "Error: sample size must be positive (" + std::to_string(_sample_size) + ")";
         throw tmp_str;
     }
@@ -480,7 +480,7 @@ bool CMulator::InitRepeats( ZParams zparams )
     */
     
     if ( _repeats <= 0 ) {
-        std::string tmp_str = "Error: Number of repoeats must be positive (" + std::to_string(_sample_size) + ")";
+        std::string tmp_str = "Error: Number of repoeats must be positive (" + std::to_string(_repeats) + ")";
         throw tmp_str;
     }
     

@@ -150,7 +150,12 @@ std::string CMulator::GetAllOutputAsTextForR( bool header ) const
                 ss << myAllele << fits_constants::FILE_FIELD_DELIMITER;
                 
                 // fixed provides "rounding" with the specified precision
-                ss << std::fixed << std::setprecision(10) << _all_simulated_data( myGeneration, myAllele ) << std::endl;
+                if (_use_observed_data) {
+                    ss << std::fixed << std::setprecision(10) << _observed_simulated_data( myGeneration, myAllele ) << std::endl;
+                }
+                else {
+                    ss << std::fixed << std::setprecision(10) << _all_simulated_data( myGeneration, myAllele ) << std::endl;
+                }
             }
         }
     }

@@ -82,9 +82,11 @@ _verbose_output(false)
     
     _rejection_threshold = _zparams.GetFloat( fits_constants::PARAM_REJECTION_THRESHOLD,
                                              -1.0f );
-    if ( _sims_to_keep == 0.0f ) {
-        _sims_to_keep = _zparams.GetFloat( fits_constants::PARAM_ACCEPTANCE_LIMIT,
-                                          fits_constants::ACCEPTANCE_LIMIT_DEFAULT ) * _repeats;
+    
+    
+    if ( _sims_to_keep < 1 ) {
+        std::string tmp_str = "Number of prior samples and acceptance rate result in less than 1 result to keep.";
+        throw tmp_str;
     }
     
     
@@ -132,7 +134,7 @@ _verbose_output(false)
             
             if ( prior_distribution_vec.empty() ) {
                 
-                std::cout << "Sampling from prior (" + std::to_string(_repeats) +  "... " << std::flush;
+                std::cout << "Sampling from prior (" + std::to_string(_repeats) +  ")... " << std::flush;
                 
                 PriorSampler<FLOAT_TYPE> sampler(min_fitness_vec, max_fitness_vec, _prior_type);
                 _global_prior = sampler.SamplePrior(_repeats);
