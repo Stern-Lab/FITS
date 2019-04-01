@@ -234,7 +234,7 @@ int CMulator::EvolveToGeneration( int target_generation )
             //    std::cout << "Observation - Freqs2Binomial2Freqs; population size = " << _sample_size << std::endl;
             //}
             
-            auto vec_observed = Freqs2Binomial2Freqs( vec_after_deterministic, _sample_size );
+            auto vec_observed = Freqs2Binomial2Freqs( vec_after_stochastic, _sample_size );
             
             for (auto allele_i = 0; allele_i<_num_alleles; ++allele_i) {
                 _observed_simulated_data( _current_generation, allele_i ) = vec_observed[allele_i];
@@ -256,7 +256,7 @@ int CMulator::EvolveToGeneration( int target_generation )
             //    std::cout << "Bottleneck step - Freqs2Binomial2Freqs; population size = " << _bottleneck_size << std::endl;
             //}
             
-            vec_after_stochastic = Freqs2Binomial2Freqs(vec_after_deterministic, _bottleneck_size);
+            vec_after_stochastic = Freqs2Binomial2Freqs( vec_after_stochastic, _bottleneck_size );
             
         } // bottleneck
         
