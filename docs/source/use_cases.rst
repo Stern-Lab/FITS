@@ -122,6 +122,7 @@ Review Select Parameters
 ^^^^^^^^^^^^^^^^^^^^^^^^
 | We believe these parameters need further clarification
 | ``bottleneck_size`` - This is the number of virus particles (founding population) expected to be seeded as the passage starts, and then let replicate.
+
 | ``sample_size`` - This is the number of genomes actually observed during sequencing. FITS treats these genomes as separate from the ones being transferred to the next passage. This means that alleles observed by sequencing may not be transferred for the next passage and vice versa.
 
 .. figure:: screens/bottleneck_sample.png
