@@ -130,7 +130,7 @@ Considering Sample Effect
     :alt: Bottleneck vs. sample size
     :figclass: align-center
 
-| Recapitulating the above example, we generated trajectories with ``N 1000000``, ``sample_size 200`` and fitness value of w=0 (data available here, parameters here),1 (data available here, parameters here),1.5 (data available here, parameters here) for the mutant allele. For w=0,1 the trajectories looked the same, with mutant frequency remaining 0. For w=1.5 the mutant allele was observed at a single copy number for one generation:
+| Recapitulating the above example, we generated trajectories with ``N 1000000``, ``sample_size 200`` and fitness value of w=0 (data available :download:`here <examples/sample_effect/sim_data_w0.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w0.txt>`),1 (data available :download:`here <examples/sample_effect/sim_data_w1.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w1.txt>`),1.5 (data available :download:`here <examples/sample_effect/sim_data_w1.5.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w1.5.txt>`) for the mutant allele. For w=0,1 the trajectories looked the same, with mutant frequency remaining 0. For w=1.5 the mutant allele was observed at a single copy number for one generation:
 
 .. figure:: screens/simulated_sampled_trajectories.png
     :scale: 70%
@@ -138,7 +138,9 @@ Considering Sample Effect
     :alt: Bottleneck vs. sample size
     :figclass: align-center
 
-| Assuming no sampling (parameters file available here), only an extremely deleterious allele would show such trajectories. FITS, as expected infers the fitness of the allele to be w=0 for all three cases (w=0,1,1.5).
-| In contrast, applying sampling to the simulation process (parameters file available here) give more informative results. For w=0,1 which look essentially the same, FITS infers w=0.7, and for w=1.5 it infers w=1.03. All latter results show wide range of probable values in the posterior distribution (0.0-1.4 and 0.0-1.6 respectively).
+| Assuming no sampling (parameters file available :download:`here <examples/sample_effect/params_infer_fitness_wo_sample.txt>`), only an extremely deleterious allele would show such trajectories. FITS, as expected infers the fitness of the allele to be w=0 for all three cases (w=0,1,1.5).
+
+| In contrast, applying sampling to the simulation process (parameters file available :download:`here <examples/sample_effect/params_infer_fitness_w_sample.txt>`) give more informative results. For w=0,1 which look essentially the same, FITS infers w=0.7, and for w=1.5 it infers w=1.03. All latter results show wide range of probable values in the posterior distribution (0.0-1.4 and 0.0-1.6 respectively).
+
 | We believe the sample-size parameter could be helpful both for improving accuracy of inference as well as for exploratory purposes.
 
