@@ -122,13 +122,13 @@ Considering Sample Effect
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 | When performing serial passaging experiments, many times only a fraction of the progeny population is seeded. In order to account for bottleneck in the population (essentially an additional layer of drift), FITS uses the ``bottleneck_size`` parameter to account for sampling a given number of genomes from the general population. As this process is usually repetitive, FITS employs the ``bottleneck_interval`` parameter in order to continuously apply the bottleneck. For example, setting ``bottleneck_size K`` and ``bottleneck_interval T``, would cause a bottelneck size of T to be applied every T generations (see figure below).
 
-| Sequencing mights give a biased view on the population. For example, for a population of 10\ :sup:`6`\ only 200 genomes might be actually sequenced. FITS can account for this sample effect using the ``sample_size`` parameter. If this parameter is used, the frequency data given as output (single trajectory) or used for comparison against the experimental data (durig inference) comes from re-sampling the population (see figure below).
-
 .. figure:: screens/bottleneck_sample.png
     :scale: 50%
     :align: center
     :alt: Bottleneck vs. sample size
     :figclass: align-center
+
+| Sequencing mights give a biased view on the population. For example, for a population of 10\ :sup:`6`\ only 200 genomes might be actually sequenced. FITS can account for this sample effect using the ``sample_size`` parameter. If this parameter is used, the frequency data given as output (single trajectory) or used for comparison against the experimental data (durig inference) comes from re-sampling the population (see figure above).
 
 | Recapitulating the above example, we generated trajectories with ``N 1000000``, ``sample_size 200`` and mutant allele with fitness value of:
 + w=0 (data :download:`here <examples/sample_effect/sim_data_w0.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w0.txt>`)
