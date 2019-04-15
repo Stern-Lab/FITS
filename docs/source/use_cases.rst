@@ -118,15 +118,27 @@ Trajectory simulations
 	
     Simulation results are available in the **Output** area. 
 
-Review Select Parameters
-^^^^^^^^^^^^^^^^^^^^^^^^
-| We believe these parameters need further clarification
-| ``bottleneck_size`` - This is the number of genomes expected to be transferred to the next generation.
+Considering Sample Effect
+^^^^^^^^^^^^^^^^^^^^^^^^^
+| When performing serial passaging experiments, many times only a fraction of the progeny population is seeded. In order to account for bottleneck in the population (essentially an additional layer of drift), FITS uses the ``bottleneck_size`` parameter to account for sampling a given number of genomes from the general population. As this process is usually repetitive, FITS employs the ``bottleneck_interval`` parameter in order to continuously apply the bottleneck. For example, setting ``bottleneck_size K`` and ``bottleneck_interval T``, would cause a bottelneck size of T to be applied every T generations (see figure below).
 
-| ``sample_size`` - This is the number of genomes actually observed during sequencing. FITS treats these genomes as separate from the ones being transferred. This means that alleles observed by sequencing may not be transferred for the next passage and vice versa.
+| Sequencing mights give a biased view on the population. For example, for a population of 10\ :sup:`6`\ only 200 genomes might be actually sequenced. FITS can account for this sample effect using the ``sample_size`` parameter. If this parameter is used, the frequency data given as output (single trajectory) or used for comparison against the experimental data (durig inference) comes from re-sampling the population (see figure below).
 
 .. figure:: screens/bottleneck_sample.png
     :scale: 70%
     :align: center
     :alt: Bottleneck vs. sample size
     :figclass: align-center
+
+| Recapitulating the above example, we generated trajectories with ``N 1000000``, ``sample_size 200`` and fitness value of w=0 (data available here, parameters here),1 (data available here, parameters here),1.5 (data available here, parameters here) for the mutant allele. For w=0,1 the trajectories looked the same, with mutant frequency remaining 0. For w=1.5 the mutant allele was observed at a single copy number for one generation:
+
+.. figure:: screens/simulated_sampled_trajectories.png
+    :scale: 70%
+    :align: center
+    :alt: Bottleneck vs. sample size
+    :figclass: align-center
+
+| Assuming no sampling (parameters file available here), only an extremely deleterious allele would show such trajectories. FITS, as expected infers the fitness of the allele to be w=0 for all three cases (w=0,1,1.5).
+| In contrast, applying sampling to the simulation process (parameters file available here) give more informative results. For w=0,1 which look essentially the same, FITS infers w=0.7, and for w=1.5 it infers w=1.03. All latter results show wide range of probable values in the posterior distribution (0.0-1.4 and 0.0-1.6 respectively).
+| We believe the sample-size parameter could be helpful both for improving accuracy of inference as well as for exploratory purposes.
+
