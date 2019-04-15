@@ -1,0 +1,18 @@
+Fitness Report
+===============
+FITS v1.3.3
+2019-04-15 (year-month-day) 10:27:46 (hours:minutes:seconds)
+Parameters file: params_infer_fitness_wo_sample.txt
+Data file: sim_data_w0.txt
+Simulation results used for calculations: 1000
+Alleles: 2
+Total running time 00:00:06 (hh:mm:ss)
+---------------------
+Population size (N) is 1000000
+Used individual mutation rates.
+Distance metric: L1
+Prior used: smoothed_composite
+--------------------
+allele    median    MAD       min       max       DEL(%)    NEU(%)    ADV(%)    category  pval      
+0         1.000     0.000     1.000     1.000     0.0       100.0     0.0       WT        N/A       
+1         0.000     0.000     0.000     0.265     100.0     0.0       0.0       DEL       2.77e-278

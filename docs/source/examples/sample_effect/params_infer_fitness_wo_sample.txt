@@ -1,0 +1,22 @@
+# Infer fitness from a given data set
+# updated 2019-03-31
+
+verbose 1
+
+N 1000000
+
+
+
+fitness_prior smoothed_composite
+
+mutation_rate0_1 0.00001
+mutation_rate1_0 0.00001
+
+min_fitness_allele0 0.0
+max_fitness_allele0 2.0
+
+min_fitness_allele1 0.0
+max_fitness_allele1 2.0
+
+num_samples_from_prior 100000
+acceptance_rate 0.01

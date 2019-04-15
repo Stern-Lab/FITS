@@ -1,0 +1,19 @@
+# Simulate trajectory with sample size
+# updated 2019-04-05
+
+N 1000000
+num_alleles 2
+num_generations 15
+
+sample_size 200
+
+# mutation rates
+mutation_rate0_1 0.00001
+mutation_rate1_0 0.00001
+
+init_freq_allele0 1.0
+init_freq_allele1 0.0
+
+fitness_allele0 1.0
+fitness_allele1 1.5
+
