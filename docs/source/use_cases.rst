@@ -130,7 +130,12 @@ Considering Sample Effect
     :alt: Bottleneck vs. sample size
     :figclass: align-center
 
-| Recapitulating the above example, we generated trajectories with ``N 1000000``, ``sample_size 200`` and fitness value of w=0 (data available :download:`here <examples/sample_effect/sim_data_w0.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w0.txt>`),1 (data available :download:`here <examples/sample_effect/sim_data_w1.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w1.txt>`),1.5 (data available :download:`here <examples/sample_effect/sim_data_w1.5.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w1.5.txt>`) for the mutant allele. For w=0,1 the trajectories looked the same, with mutant frequency remaining 0. For w=1.5 the mutant allele was observed at a single copy number for one generation:
+| Recapitulating the above example, we generated trajectories with ``N 1000000``, ``sample_size 200`` and mutant allele with fitness value of:
++ w=0 (data available :download:`here <examples/sample_effect/sim_data_w0.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w0.txt>`)
++ 1 (data available :download:`here <examples/sample_effect/sim_data_w1.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w1.txt>`)
++ 1.5 (data available :download:`here <examples/sample_effect/sim_data_w1.5.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w1.5.txt>`) 
+
+For w=0,1 the trajectories looked the same, with mutant frequency remaining 0. For w=1.5 the mutant allele was observed at a single copy number for one generation:
 
 .. figure:: screens/simulated_sampled_trajectories.png
     :scale: 70%
