@@ -120,7 +120,7 @@ Trajectory simulations
 
 Considering Sample Effect
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-| When performing serial passaging experiments, many times only a fraction of the progeny population is seeded. In order to account for bottleneck in the population (essentially an additional layer of drift), FITS uses the ``bottleneck_size`` parameter to account for sampling a given number of genomes from the general population. As this process is usually repetitive, FITS employs the ``bottleneck_interval`` parameter in order to continuously apply the bottleneck. For example, setting ``bottleneck_size K`` and ``bottleneck_interval T``, would cause a bottelneck size of T to be applied every T generations (see figure below).
+| Population bottlenecks are common during any evolutionary scenario, whether *in vivo* or *in vitro* in experimental populations. In particular during serial passaging, only a fraction of the progeny will be carried on to the next passage. An additional layer of sampling also exists: the number of genomes that are sampled to be sequenced may often be much smaller than the population size itself. FITS can account for both of these types of sampling effects by using the following three parameters: ``bottleneck_size``, ``bottleneck_interval`` and ``sample_size`` , as illustrated below: 
 
 .. figure:: screens/bottleneck_sample.png
     :scale: 60%
