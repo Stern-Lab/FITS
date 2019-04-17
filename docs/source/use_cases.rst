@@ -127,25 +127,3 @@ Considering Sample Effect
     :align: center
     :alt: Bottleneck vs. sample size
     :figclass: align-center
-
-| Sequencing mights give a biased view on the population. For example, for a population of 10\ :sup:`6`\ only 200 genomes might be actually sequenced. FITS can account for this sample effect using the ``sample_size`` parameter. If this parameter is used, the frequency data given as output (single trajectory) or used for comparison against the experimental data (durig inference) comes from re-sampling the population (see figure above).
-
-| Recapitulating the above example, we generated trajectories with ``N 1000000``, ``sample_size 200`` and mutant allele with fitness value of:
-+ w=0 (data :download:`here <examples/sample_effect/sim_data_w0.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w0.txt>`)
-+ w=1 (data :download:`here <examples/sample_effect/sim_data_w1.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w1.txt>`)
-+ w=1.5 (data :download:`here <examples/sample_effect/sim_data_w1.5.txt>`, parameters :download:`here <examples/sample_effect/params_simulate_w1.5.txt>`) 
-
-For w=0,1 the trajectories looked the same, with mutant frequency remaining 0. For w=1.5 the mutant allele was observed at a single copy number for one generation:
-
-.. figure:: screens/simulated_sampled_trajectories.png
-    :scale: 70%
-    :align: center
-    :alt: Bottleneck vs. sample size
-    :figclass: align-center
-
-| Assuming no sampling (parameters file available :download:`here <examples/sample_effect/params_infer_fitness_wo_sample.txt>`), only an extremely deleterious allele would show such trajectories. FITS, as expected infers the fitness of the allele to be w=0 for all three cases (w=0,1,1.5).
-
-| In contrast, applying sampling to the simulation process (parameters file available :download:`here <examples/sample_effect/params_infer_fitness_w_sample.txt>`) give more informative results. For w=0,1 which look essentially the same, FITS infers w=0.7, and for w=1.5 it infers w=1.03. All latter results show wide range of probable values in the posterior distribution (0.0-1.4 and 0.0-1.6 respectively).
-
-| We believe the sample-size parameter could be helpful both for improving accuracy of inference as well as for exploratory purposes.
-
