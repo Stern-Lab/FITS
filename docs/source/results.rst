@@ -23,8 +23,7 @@ min                      The minimum value in the posterior distribution.
 max                      the maximum value in the posterior distribution.
 --------------------- --------------------------------
 pval                  The result of a Levene's test, comparing between the prior and posterior distributions. 
-                      Significant result (<0.05) (the posterior is different than the prior) means the inference process has been informative. 
-                       Non-significant result means the inferred value has been given by chance, and is thus meaningless.
+                      **Significant** result (the posterior is different from the prior), means the inference process has been **informative**.
 ===================== ================================ 
 
 .. note :: If the p-value for Levene's test is not significant (>=0.05) or Nµ is small (<1), FITS will mark the relevant line in the results with an asterisk (*). This result is considered **unreliable**.
