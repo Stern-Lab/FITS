@@ -25,7 +25,7 @@ max                      the maximum value in the posterior distribution.
 pval                  |  The result of a Levene's test, 
                       |  comparing between the prior and posterior distributions. 
                       |  Successful inference process should yield a posterior distribution 
-                      |  that is different from the prior. 
+                      |  that is significantly different from the prior. 
 ===================== ================================ 
 
 .. note :: If the p-value for Levene's test is not significant (>=0.05) or Nµ is small (<1), FITS will mark the relevant line in the results with an asterisk (*). This result is considered **unreliable**.
