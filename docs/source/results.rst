@@ -22,8 +22,8 @@ min                      The minimum value in the posterior distribution.
 --------------------- --------------------------------
 max                      the maximum value in the posterior distribution.
 --------------------- --------------------------------
-pval                  The result of a Levene's test, comparing between the prior and posterior distributions. \
-                      **Significant** result (the posterior is different from the prior), \
+pval                  The result of a Levene's test, comparing between the prior and posterior distributions.\
+                      **Significant** result (the posterior is different from the prior),\
                       means the inference process has been **informative**.
 ===================== ================================ 
 
