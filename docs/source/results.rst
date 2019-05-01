@@ -25,6 +25,8 @@ max                      the maximum value in the posterior distribution.
 pval                  The result of a statistical test about the informativeness of the posterior distribution, with a null hypothesis that the posterior distribution is as informative as the prior distribution. 
 ===================== ================================ 
 
+.. note :: If the p-value for Levene's test is not significant (>=0.05) or M\mu is small (<1), FITS will mark the relevant line in the results with an asterisk (*). This result is considered unreliable.
+
 
 Fitness inference results
 ^^^^^^^^^^^^^^^^^^^^^^^^^
