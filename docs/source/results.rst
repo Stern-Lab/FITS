@@ -14,7 +14,7 @@ The results below are outputted for all inferences.
 ===================== ================================ 
 Result header         Description
 ===================== ================================
-median                  The median value of the posterior distribution. This is practically the inferred population genetics parameter.
+median                |  The median value of the posterior distribution. 
 --------------------- --------------------------------
 MAD                      Median Absolute Deviation index (`MAD <https://en.wikipedia.org/wiki/Median_absolute_deviation>`_) of the posterior distribution. 
 --------------------- --------------------------------
@@ -22,8 +22,10 @@ min                      The minimum value in the posterior distribution.
 --------------------- --------------------------------
 max                      the maximum value in the posterior distribution.
 --------------------- --------------------------------
-pval                  |  The result of a Levene's test, comparing between the prior and posterior distributions. 
-                      |  Successful inference process should yield a posterior distribution that is different from the prior. 
+pval                  |  The result of a Levene's test, 
+                      |  comparing between the prior and posterior distributions. 
+                      |  Successful inference process should yield a posterior distribution 
+                      |  that is different from the prior. 
 ===================== ================================ 
 
 .. note :: If the p-value for Levene's test is not significant (>=0.05) or Nµ is small (<1), FITS will mark the relevant line in the results with an asterisk (*). This result is considered **unreliable**.
