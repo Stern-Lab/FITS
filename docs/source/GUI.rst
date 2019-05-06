@@ -1,6 +1,8 @@
 Using the graphical interface
 =============================
 
+.. note:: On Windows, please extract all files from the downloaded archive, and only then run the (extracted) executable. Running the program directly from the compressed archive will not work. 
+
 After opening FITS, the following screen will be visible:
 
 .. figure:: screens/empty_main_screen.png
