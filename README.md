@@ -1,3 +1,5 @@
+[![Version](https://img.shields.io/badge/current%20version-1.3.3-informational.svg)](https://github.com/SternLabTAU/FITS/releases/tag/v1.3.3)
+
 # Download FITS
 https://github.com/SternLabTAU/FITS/releases
 
