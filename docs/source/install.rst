@@ -1,3 +1,19 @@
+Downloading and installing FITS
+===============================
+FITS is ready to run out of the box (i.e. provided as pre-compiled binaries) for Windows, macOS and Linux. All versions are available at https://github.com/SternLabTAU/FITS/releases.
+
+The command line version (**CLI**) is identified by file names beginning with **fits**X.X.X, and the graphical version (**GUI**) is identified by file names beginning with **fits_gui**X.X.X (X.X.X being the version of FITS).
+
+Download the appropriate archive (e.g. fits_gui1.3.3_MacOS.tar.gz for the GUI version compiled under MacOS), and extract all files from the archive to a folder of your choice.
+
+**Windows**: Right-click on the downloaded archive, and choose "Extract all". Choose a target folder, and press the "extract" button, then "finish". For the **CLI** - open a command prompt window and cd to the created folder, then run fits. For the **GUI** - simply run fits_gui.exe. Depending on your security settings, Windows may warn you that fits_gui.exe can't be run because it is from an unidentified developer. Choose to run it anyway. FITS should now be fully operable.
+
+**Mac**: Double-click on the downloaded archive within Finder. Archive Utility should create a folder with a name matching the archive (e.g. fits_gui1.3.3_MacOS for fits_gui1.3.3_MacOS.tar.gz). For the **CLI** - open a Terminal window and cd to the created folder, then run fits. For the **GUI** - run fits_gui.app. Depending on your security settings, macOS may warn you that "fits_gui.app can't be opened because it is from an unidentified developer". To override this warning, go to System Preferences \ Security & Privacy \ General and press the "Open Anyway" button, the "Open". FITS should now be fully operable.
+
+**Linux**: For the **CLI** - Extract the downloaded archive, and run ./fits. Because FITS for Linux open a command prompt window and cd to the created folder, then run fits. If you get a error saying "GLIBCXX was not found", you will need to compile it from source on your system (see below). We are working on this isssue.
+
+
+
 Compiling from source
 =====================
 
