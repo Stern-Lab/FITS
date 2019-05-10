@@ -10,7 +10,7 @@ Download the appropriate archive (e.g. fits_gui1.3.3_MacOS.tar.gz for the GUI ve
 
 **Mac**: Double-click on the downloaded archive within Finder. Archive Utility should create a folder with a name matching the archive (e.g. fits_gui1.3.3_MacOS for fits_gui1.3.3_MacOS.tar.gz). For the **CLI** - open a Terminal window and cd to the created folder, then run fits. For the **GUI** - run fits_gui.app. Depending on your security settings, macOS may warn you that "fits_gui.app can't be opened because it is from an unidentified developer". To override this warning, go to System Preferences \ Security & Privacy \ General and press the "Open Anyway" button, the "Open". FITS should now be fully operable.
 
-**Linux**: For the **CLI** - Extract the downloaded archive, and run ./fits. Because FITS for Linux open a command prompt window and cd to the created folder, then run fits. If you get a error saying "GLIBCXX was not found", you will need to compile it from source on your system (see below). We are working on this isssue.
+**Linux**: For the **CLI** - Extract the downloaded archive, and run ./fits. Because FITS for Linux open a command prompt window and cd to the created folder, then run fits. If you get a error saying "GLIBCXX was not found", you will need to compile it from source on your system (see below).
 
 
 
