@@ -3,9 +3,8 @@
 # Download FITS
 https://github.com/SternLabTAU/FITS/releases
 
-# Paper describing FITS (pre-print)
-Zinger T., Pennings P.S., Stern A., Inferring Population Genetics Parameters of Evolving Viruses Using Time-series Data
-https://www.biorxiv.org/content/early/2018/10/07/437483
+# Paper describing FITS
+Tal Zinger, Maoz Gelbart, Danielle Miller, Pleuni S Pennings, Adi Stern, Inferring population genetics parameters of evolving viruses using time-series data, Virus Evolution, Volume 5, Issue 1, January 2019, vez011, https://doi.org/10.1093/ve/vez011
 
 # Full documentation of FITS
 http://fits.rtfd.io
