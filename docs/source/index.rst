@@ -1,9 +1,11 @@
 Welcome to FITS
 ===============
 
-Inference of population-genetics parameters from time-series data.   
+FITS (Flexible Inference from Time-Series data) is described in a paper published in Virus Evolution:
+Tal Zinger, Maoz Gelbart, Danielle Miller, Pleuni S Pennings, Adi Stern, *Inferring population genetics parameters of evolving viruses using time-series data*, _Virus Evolution_, Volume 5, Issue 1, January 2019, vez011, https://doi.org/10.1093/ve/vez011
 
-FITS (Flexible Inference from Time-Series data) comes in two distributions:
+
+FITS  comes in two distributions:
 
 * **Graphical user interface (GUI)** distribution for Windows and MacOS
 * **Command line interface (CLI)** distribution for Linux, Windows and MacOS 
