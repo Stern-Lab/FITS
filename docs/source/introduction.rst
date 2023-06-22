@@ -12,16 +12,12 @@ This file is expected to hold observed allele information from the system under 
 #. ``gen`` for the generation of the observation
 #. ``allele`` for the observed state 
 #. ``freq`` for the measured frequency for that state
-#. ``position`` for the position number for which the frequency data is given (optional)
+
 
 .. note:: FITS assumes the columns to appear in the above order. 
 
 .. note:: The allele with the highest frequency at the first available time point will be defined as WT (w=1).
 
-.. csv-table:: Example data file
-  :file: examples/data_file_to_show.txt
-  :delim: tab
-  :header-rows: 1
 
 You can also download an :download:`example <examples/data_file_example.txt>`. 
 
